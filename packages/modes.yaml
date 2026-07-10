@@ -1,0 +1,130 @@
+input_boolean:
+  mode_nounou:
+    name: Mode Nounou (passage chat)
+    icon: mdi:cat
+  chambre_manual_off:
+    name: Chambre - extinction manuelle active
+    icon: mdi:lightbulb-off-outline
+  bureau_manual_off:
+    name: Bureau - extinction manuelle active
+    icon: mdi:lightbulb-off-outline
+  robot_lance_par_absence:
+    name: Robot - lancé par auto-absence
+    icon: mdi:robot-vacuum
+automation:
+- id: nounou_reset_matin
+  alias: Mode Nounou - reset matin (7h)
+  description: Coupe automatiquement mode_nounou tous les matins a 7h pour ne pas garder l'override volets-soir indefiniment.
+  trigger:
+  - platform: time
+    at: 07:00:00
+  condition:
+  - condition: state
+    entity_id: input_boolean.mode_nounou
+    state: 'on'
+  action:
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.mode_nounou
+  mode: single
+- id: chambre_manual_off_track
+  alias: Chambre - track extinction manuelle
+  trigger:
+  - platform: state
+    entity_id:
+    - light.lit
+    - light.hue_go_1_2
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.aqara_presence_multisensor_fp300_occupation_2
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.chambre_manual_off
+    state: 'off'
+  action:
+  - action: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.chambre_manual_off
+  mode: single
+- id: chambre_manual_off_reset
+  alias: Chambre - reset extinction manuelle au depart
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.aqara_presence_multisensor_fp300_occupation_2
+    to: 'off'
+    for:
+      minutes: 15
+    id: absence_longue
+  - platform: time
+    at: 08:00:00
+    id: matin
+  action:
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.chambre_manual_off
+  mode: single
+  condition:
+  - condition: or
+    conditions:
+    - condition: trigger
+      id: matin
+    - condition: and
+      conditions:
+      - condition: trigger
+        id: absence_longue
+      - condition: time
+        after: 07:00:00
+        before: '22:00:00'
+  description: 'Reset manual_off : (FP300 off > 15 min entre 7h-22h) OU (à 7h le matin). Ne reset JAMAIS la nuit pour éviter que le FP300 perdant la trace en immobilité fasse rallumer.'
+- id: bureau_manual_off_track
+  alias: Bureau - track extinction manuelle
+  trigger:
+  - platform: state
+    entity_id:
+    - light.wled
+    - light.atelier
+    - light.elements_30f0
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.aqara_presence_multisensor_fp300_occupation_3
+    state: 'on'
+  - condition: state
+    entity_id: input_boolean.bureau_manual_off
+    state: 'off'
+  action:
+  - action: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.bureau_manual_off
+  mode: single
+- id: bureau_manual_off_reset
+  alias: Bureau - reset extinction manuelle au depart
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.aqara_presence_multisensor_fp300_occupation_3
+    to: 'off'
+    for:
+      minutes: 15
+    id: absence_longue
+  - platform: time
+    at: 07:00:00
+    id: matin
+  action:
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.bureau_manual_off
+  mode: single
+  condition:
+  - condition: or
+    conditions:
+    - condition: trigger
+      id: matin
+    - condition: and
+      conditions:
+      - condition: trigger
+        id: absence_longue
+      - condition: time
+        after: 07:00:00
+        before: '22:00:00'
+  description: 'Reset manual_off : (FP300 off > 15 min entre 7h-22h) OU (à 7h le matin). Ne reset JAMAIS la nuit pour éviter que le FP300 perdant la trace en immobilité fasse rallumer.'

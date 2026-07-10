@@ -1,0 +1,240 @@
+input_datetime:
+  task_clean_humidifier:
+    name: Dernière validation - nettoyage humidificateur
+    has_date: true
+    has_time: false
+  task_robot_mop_filter:
+    name: Dernière validation - serpillère & filtre robot
+    has_date: true
+    has_time: false
+  task_clean_pet_fountain:
+    name: Dernière validation - fontaine animaux
+    has_date: true
+    has_time: false
+  task_clean_dishwasher:
+    name: Dernière validation - nettoyage lave-vaisselle
+    has_date: true
+    has_time: false
+  task_clean_washer:
+    name: Dernière validation - nettoyage machine à laver
+    has_date: true
+    has_time: false
+  task_litiere:
+    name: Dernière validation - litière chats
+    has_date: true
+    has_time: false
+  task_shiva_ears:
+    name: Dernière validation - oreilles Shiva
+    has_date: true
+    has_time: false
+script:
+  validate_task_clean_humidifier:
+    alias: Valider - nettoyage humidificateur
+    sequence:
+    - action: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.task_clean_humidifier
+      data:
+        date: '{{ now().strftime(''%Y-%m-%d'') }}'
+  validate_task_robot_mop_filter:
+    alias: Valider - serpillère & filtre robot
+    sequence:
+    - action: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.task_robot_mop_filter
+      data:
+        date: '{{ now().strftime(''%Y-%m-%d'') }}'
+  validate_task_clean_pet_fountain:
+    alias: Valider - fontaine animaux
+    sequence:
+    - action: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.task_clean_pet_fountain
+      data:
+        date: '{{ now().strftime(''%Y-%m-%d'') }}'
+  validate_task_clean_dishwasher:
+    alias: Valider - nettoyage lave-vaisselle
+    sequence:
+    - action: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.task_clean_dishwasher
+      data:
+        date: '{{ now().strftime(''%Y-%m-%d'') }}'
+  validate_task_clean_washer:
+    alias: Valider - nettoyage machine à laver
+    sequence:
+    - action: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.task_clean_washer
+      data:
+        date: '{{ now().strftime(''%Y-%m-%d'') }}'
+  validate_task_litiere:
+    alias: Valider - litière chats
+    sequence:
+    - action: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.task_litiere
+      data:
+        date: '{{ now().strftime(''%Y-%m-%d'') }}'
+  validate_task_shiva_ears:
+    alias: Valider - oreilles Shiva
+    sequence:
+    - action: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.task_shiva_ears
+      data:
+        date: '{{ now().strftime(''%Y-%m-%d'') }}'
+template:
+- binary_sensor:
+  - name: Task clean humidifier due
+    unique_id: task_clean_humidifier_due
+    state: '{% set last = states(''input_datetime.task_clean_humidifier'') %} {{ (as_timestamp(now()) - as_timestamp(last + '' 00:00:00'')) / 86400 > 7 }}'
+  - name: Task robot mop filter due
+    unique_id: task_robot_mop_filter_due
+    state: '{% set last = states(''input_datetime.task_robot_mop_filter'') %} {{ (as_timestamp(now()) - as_timestamp(last + '' 00:00:00'')) / 86400 > 7 }}'
+  - name: Task clean pet fountain due
+    unique_id: task_clean_pet_fountain_due
+    state: '{% set last = states(''input_datetime.task_clean_pet_fountain'') %} {{ (as_timestamp(now()) - as_timestamp(last + '' 00:00:00'')) / 86400 > 7 }}'
+  - name: Task clean dishwasher due
+    unique_id: task_clean_dishwasher_due
+    state: '{% set last = states(''input_datetime.task_clean_dishwasher'') %} {{ (as_timestamp(now()) - as_timestamp(last + '' 00:00:00'')) / 86400 > 30 }}'
+  - name: Task clean washer due
+    unique_id: task_clean_washer_due
+    state: '{% set last = states(''input_datetime.task_clean_washer'') %} {{ (as_timestamp(now()) - as_timestamp(last + '' 00:00:00'')) / 86400 > 30 }}'
+  - name: Task litiere due
+    unique_id: task_litiere_due
+    state: '{% set last = states(''input_datetime.task_litiere'') %} {% set today_str = now().strftime(''%Y-%m-%d'') %} {{ now().weekday() in [2, 5] and last != today_str }}'
+  - name: Task shiva ears due
+    unique_id: task_shiva_ears_due
+    state: '{% set last = states(''input_datetime.task_shiva_ears'') %} {% set today_str = now().strftime(''%Y-%m-%d'') %} {{ now().weekday() == 5 and last != today_str }}'
+automation:
+- id: notif_task_clean_humidifier
+  alias: Notif - Nettoyer humidificateur (hebdo)
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.task_clean_humidifier_due
+    to: 'on'
+    for:
+      hours: 1
+  action:
+  - action: notify.iphones
+    data:
+      message: '💧 Tâche hebdo : nettoyer l''humidificateur.'
+  mode: single
+  condition:
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+- id: notif_task_robot_mop_filter
+  alias: Notif - Serpillère & filtre robot (hebdo)
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.task_robot_mop_filter_due
+    to: 'on'
+    for:
+      hours: 1
+  action:
+  - action: notify.iphones
+    data:
+      message: '🤖 Tâche hebdo : changer la serpillère du robot + dépoussiérer le filtre.'
+  mode: single
+  condition:
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+- id: notif_task_clean_pet_fountain
+  alias: Notif - Fontaine animaux (hebdo)
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.task_clean_pet_fountain_due
+    to: 'on'
+    for:
+      hours: 1
+  action:
+  - action: notify.iphones
+    data:
+      message: '🐾 Tâche hebdo : nettoyer la fontaine des animaux.'
+  mode: single
+  condition:
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+- id: notif_task_clean_dishwasher
+  alias: Notif - Nettoyage lave-vaisselle (mensuel)
+  trigger:
+  - platform: time
+    at: '10:00:00'
+  condition:
+  - condition: template
+    value_template: '{{ now().day == 1 }}'
+  - condition: state
+    entity_id: binary_sensor.task_clean_dishwasher_due
+    state: 'on'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  action:
+  - action: notify.iphones
+    data:
+      message: '🍽️ Tâche mensuelle : nettoyer le lave-vaisselle (cycle vide + nettoyant).'
+  mode: single
+- id: notif_task_clean_washer
+  alias: Notif - Nettoyage machine à laver (mensuel)
+  trigger:
+  - platform: time
+    at: '10:00:00'
+  condition:
+  - condition: template
+    value_template: '{{ now().day == 1 }}'
+  - condition: state
+    entity_id: binary_sensor.task_clean_washer_due
+    state: 'on'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  action:
+  - action: notify.iphones
+    data:
+      message: '🧺 Tâche mensuelle : nettoyer la machine à laver (cycle 90° vide + nettoyant).'
+  mode: single
+- id: notif_task_litiere
+  alias: Notif - Litière chat (mer + sam)
+  trigger:
+  - platform: time
+    at: '10:00:00'
+  condition:
+  - condition: time
+    weekday:
+    - wed
+    - sat
+  - condition: state
+    entity_id: binary_sensor.task_litiere_due
+    state: 'on'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  action:
+  - action: notify.iphones
+    data:
+      message: '🐈 Tâche : faire la litière des chats.'
+  mode: single
+- id: notif_task_shiva_ears
+  alias: Notif - Oreilles Shiva (samedi)
+  trigger:
+  - platform: time
+    at: '10:00:00'
+  condition:
+  - condition: time
+    weekday:
+    - sat
+  - condition: state
+    entity_id: binary_sensor.task_shiva_ears_due
+    state: 'on'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  action:
+  - action: notify.iphones
+    data:
+      message: '🐕 Tâche : nettoyer les oreilles de Shiva.'
+  mode: single

@@ -1,0 +1,116 @@
+# Mode Vacances — simulation de présence pour éviter les cambriolages.
+# Le toggle est exposé dans l'Aperçu (header Accueil).
+# Les automations utilisent toutes un offset aléatoire (max 60 min) pour
+# éviter des heures fixes prévisibles.
+
+input_boolean:
+  mode_vacances:
+    name: Mode Vacances
+    icon: mdi:beach
+
+automation:
+
+  # Matin — lever volets salon + cuisine
+  # Trigger sunrise +15min, puis delay 0-60min aléatoire.
+  - id: vacances_lever_volets_matin
+    alias: "Vacances - Lever volets matin"
+    description: >-
+      Simulation présence : lever progressif des volets salon+cuisine.
+      Plage aléatoire 15-75 min après sunrise pour ne pas être prévisible.
+    mode: single
+    triggers:
+      - trigger: sun
+        event: sunrise
+        offset: "+00:15:00"
+    conditions:
+      - condition: state
+        entity_id: input_boolean.mode_vacances
+        state: 'on'
+    actions:
+      - delay:
+          seconds: "{{ range(0, 3600) | random }}"
+      - action: cover.open_cover
+        target:
+          entity_id:
+            - cover.salon_baie_vitree_shutter
+            - cover.cuisine_volet_shutter
+
+  # Soir — allumage lumières (2 vagues, espacées aléatoirement)
+  - id: vacances_lumieres_soir
+    alias: "Vacances - Lumières soir"
+    description: >-
+      Vague 1 : allumage salon + entrée + cuisine (sunset −30min + 0-30min).
+      Vague 2 : allumage lampe d'ambiance (15-60min après vague 1).
+    mode: single
+    triggers:
+      - trigger: sun
+        event: sunset
+        offset: "-00:30:00"
+    conditions:
+      - condition: state
+        entity_id: input_boolean.mode_vacances
+        state: 'on'
+    actions:
+      - delay:
+          seconds: "{{ range(0, 1800) | random }}"
+      - action: light.turn_on
+        target:
+          entity_id:
+            - light.salon_plafonnier
+            - light.entree_plafonnier
+            - light.luminaire_cuisine_7
+      - delay:
+          seconds: "{{ range(900, 3600) | random }}"
+      - action: light.turn_on
+        target:
+          entity_id:
+            - light.lampe_dambiance
+
+  # Nuit — fermeture volets (22h + 0-60min aléatoire)
+  - id: vacances_fermeture_volets_nuit
+    alias: "Vacances - Fermeture volets nuit"
+    description: >-
+      Fermeture des volets de toutes les pièces visibles depuis la rue.
+      Déclenché à 22h pile chaque jour, puis delay 0-60min aléatoire.
+    mode: single
+    triggers:
+      - trigger: time
+        at: "22:00:00"
+    conditions:
+      - condition: state
+        entity_id: input_boolean.mode_vacances
+        state: 'on'
+    actions:
+      - delay:
+          seconds: "{{ range(0, 3600) | random }}"
+      - action: cover.close_cover
+        target:
+          entity_id:
+            - cover.salon_baie_vitree_shutter
+            - cover.salon_fenetre_volet_shutter
+            - cover.cuisine_volet_shutter
+            - cover.raphael_volet_shutter
+
+  # Nuit — extinction lumières (23h + 0-60min aléatoire)
+  - id: vacances_extinction_lumieres_nuit
+    alias: "Vacances - Extinction lumières nuit"
+    description: >-
+      Extinction de toutes les lumières allumées par les vagues du soir.
+    mode: single
+    triggers:
+      - trigger: time
+        at: "23:00:00"
+    conditions:
+      - condition: state
+        entity_id: input_boolean.mode_vacances
+        state: 'on'
+    actions:
+      - delay:
+          seconds: "{{ range(0, 3600) | random }}"
+      - action: light.turn_off
+        target:
+          entity_id:
+            - light.salon_plafonnier
+            - light.entree_plafonnier
+            - light.luminaire_cuisine_7
+            - light.lampe_dambiance

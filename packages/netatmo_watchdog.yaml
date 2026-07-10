@@ -1,0 +1,30 @@
+# Watchdog Netatmo : l'intégration cloud tombe périodiquement (~1x/mois).
+# Le token OAuth reste valide dans ces cas -> un simple reload_config_entry
+# la relance sans re-authentification manuelle.
+# Vérifie toutes les 15 min + au démarrage HA + si les capteurs passent
+# indisponibles > 10 min, et recharge la config entry Netatmo si elle est down.
+automation:
+  - id: netatmo_watchdog_reload
+    alias: "Watchdog - Netatmo reload si indisponible"
+    description: >-
+      Recharge automatiquement l'intégration Netatmo (entry 01JPHXYZKYV623QRRVF2GGG2CJ)
+      quand ses entités deviennent indisponibles, pour éviter le geste manuel mensuel.
+    mode: single
+    max_exceeded: silent
+    trigger:
+      - platform: time_pattern
+        minutes: "/15"
+      - platform: homeassistant
+        event: start
+      - platform: state
+        entity_id: sensor.netatmo_temperature
+        to: "unavailable"
+        for: "00:10:00"
+    condition:
+      - condition: template
+        value_template: >-
+          {{ states('sensor.netatmo_temperature') in ['unavailable', 'unknown', 'none'] }}
+    action:
+      - service: homeassistant.reload_config_entry
+        data:
+          entry_id: 01JPHXYZKYV623QRRVF2GGG2CJ

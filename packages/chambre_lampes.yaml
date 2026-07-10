@@ -1,0 +1,139 @@
+script:
+  chambre_lampes_apply:
+    alias: Chambre - appliquer lampes indirectes
+    variables:
+      present: '{{ is_state(''binary_sensor.aqara_presence_multisensor_fp300_occupation_2'',''on'') }}'
+      lux: '{{ states(''sensor.aqara_presence_multisensor_fp300_eclairement_2'')|float(999) }}'
+      h: '{{ now().hour }}'
+      bri: '{% set l = states(''sensor.aqara_presence_multisensor_fp300_eclairement_2'')|float(999) %} {% if l < 50 %}60{% elif l < 150 %}40{% else %}25{% endif %}'
+      kelvin: '{% set l = states(''sensor.aqara_presence_multisensor_fp300_eclairement_2'')|float(999) %} {% if l < 50 %}2700{% elif l < 150 %}3000{% else %}3500{% endif %}'
+    sequence:
+    - choose:
+      - conditions: '{{ not present }}'
+        sequence:
+        - service: light.turn_off
+          target:
+            entity_id:
+            - light.lit
+            - light.hue_go_1_2
+        - service: switch.turn_off
+          target:
+            entity_id: switch.lampe_sel
+      - conditions: '{{ h < 7 }}'
+        sequence:
+        - service: light.turn_on
+          target:
+            entity_id:
+            - light.lit
+            - light.hue_go_1_2
+          data:
+            color_temp_kelvin: 2200
+            brightness_pct: 10
+        - service: switch.turn_on
+          target:
+            entity_id: switch.lampe_sel
+      - conditions: '{{ h >= 21 }}'
+        sequence:
+        - service: light.turn_on
+          target:
+            entity_id: light.lit
+          data:
+            rgb_color:
+            - 255
+            - 155
+            - 53
+            brightness_pct: 20
+        - service: light.turn_on
+          target:
+            entity_id: light.hue_go_1_2
+          data:
+            rgb_color:
+            - 255
+            - 155
+            - 53
+            brightness_pct: 35
+        - service: switch.turn_on
+          target:
+            entity_id: switch.lampe_sel
+      - conditions: '{{ lux >= 30 }}'
+        sequence:
+        - service: light.turn_off
+          target:
+            entity_id:
+            - light.lit
+            - light.hue_go_1_2
+        - service: switch.turn_off
+          target:
+            entity_id: switch.lampe_sel
+      default:
+      - service: light.turn_on
+        target:
+          entity_id:
+          - light.lit
+          - light.hue_go_1_2
+        data:
+          color_temp_kelvin: '{{ kelvin | int }}'
+          brightness_pct: '{{ bri | int }}'
+      - service: switch.turn_off
+        target:
+          entity_id: switch.lampe_sel
+automation:
+- id: chambre_lampes_indirectes
+  alias: Chambre - lampes indirectes (présence + luminosité)
+  description: 'Style cuisine : on instantané sur arrive (sauf manual_off), off après 2 min sans présence, presets jour/soir/nuit via script. Plus de reeval /5min.'
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.aqara_presence_multisensor_fp300_occupation_2
+    from: 'off'
+    to: 'on'
+    id: arrive
+  - platform: state
+    entity_id: binary_sensor.aqara_presence_multisensor_fp300_occupation_2
+    from: 'on'
+    to: 'off'
+    for:
+      minutes: 1
+    id: leave
+  - platform: numeric_state
+    entity_id: sensor.aqara_presence_multisensor_fp300_eclairement_2
+    above: 150
+    for:
+      minutes: 1
+    id: jour_assez
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: arrive
+      - condition: state
+        entity_id: input_boolean.chambre_manual_off
+        state: 'off'
+      sequence:
+      - service: script.chambre_lampes_apply
+    - conditions:
+      - condition: trigger
+        id: leave
+      sequence:
+      - service: light.turn_off
+        target:
+          entity_id:
+          - light.lit
+          - light.hue_go_1_2
+      - service: switch.turn_off
+        target:
+          entity_id: switch.lampe_sel
+    - conditions:
+      - condition: trigger
+        id: jour_assez
+      - condition: template
+        value_template: '{{ is_state(''light.lit'',''on'') or is_state(''light.hue_go_1_2'',''on'') }}'
+      sequence:
+      - service: light.turn_off
+        target:
+          entity_id:
+          - light.lit
+          - light.hue_go_1_2
+      - service: switch.turn_off
+        target:
+          entity_id: switch.lampe_sel
+  mode: restart

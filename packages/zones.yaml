@@ -1,0 +1,28 @@
+# Zones personnalisées pour géolocalisation Kevin & Loutre.
+# Lat/lon géocodés via Nominatim OpenStreetMap.
+# Reload via service `zone.reload` (pas de restart core requis).
+
+zone:
+  - name: Cabinet
+    icon: mdi:briefcase
+    latitude: 48.8566  # REDACTED
+    longitude: 2.3522  # REDACTED
+    radius: 80
+
+  - name: Crèche
+    icon: mdi:baby-face-outline
+    latitude: 48.8566  # REDACTED
+    longitude: 2.3522  # REDACTED
+    radius: 80
+
+  - name: 👵 Sandra
+    icon: mdi:account-heart
+    latitude: 48.8566  # REDACTED
+    longitude: 2.3522  # REDACTED
+    radius: 100
+
+  - name: Kheops
+    icon: mdi:office-building
+    latitude: 48.8566  # REDACTED
+    longitude: 2.3522  # REDACTED
+    radius: 150

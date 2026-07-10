@@ -1,0 +1,284 @@
+# Nabaztag — Home Assistant package (installed by Claude, tailored to this HA)
+# ---------------------------------------------------------------------------
+# Live now: rest_commands + scripts (none of these fire on their own — call
+# them from a dashboard button, the Assist chat, or your own automations).
+# The example automations at the bottom are COMMENTED OUT — uncomment the ones
+# you want. To activate this file: Developer Tools → YAML → "Reload all YAML"
+# (or restart Home Assistant).
+#
+# api/mac are inlined for convenience (local file, not the public repo).
+# ---------------------------------------------------------------------------
+
+input_text:
+  nabaztag_last_rfid:
+    name: Nabaztag - dernier tag RFID
+    max: 64
+
+rest_command:
+  nabaztag_say:
+    url: "http://homeassistant.local:8099/api/say?mac=00xxxxxxxxxx&text={{ text | urlencode }}{% if speed is defined %}&speed={{ speed }}{% endif %}"
+    method: GET
+    timeout: 20
+  nabaztag_play:
+    url: "http://homeassistant.local:8099/api/play?mac=00xxxxxxxxxx&url={{ media | urlencode }}"
+    method: GET
+    timeout: 20
+  nabaztag_ears:
+    url: "http://homeassistant.local:8099/api/ears?mac=00xxxxxxxxxx&left={{ left }}&right={{ right }}"
+    method: GET
+    timeout: 10
+  nabaztag_led:
+    url: "http://homeassistant.local:8099/api/led?mac=00xxxxxxxxxx&led={{ led }}&r={{ r }}&g={{ g }}&b={{ b }}"
+    method: GET
+    timeout: 10
+  nabaztag_weather_icon:
+    url: "http://homeassistant.local:8099/api/weather?mac=00xxxxxxxxxx&v={{ v }}"
+    method: GET
+    timeout: 10
+  nabaztag_nose:
+    url: "http://homeassistant.local:8099/api/nose?mac=00xxxxxxxxxx&v={{ v }}"
+    method: GET
+    timeout: 10
+  nabaztag_sleep:
+    url: "http://homeassistant.local:8099/api/sleep?mac=00xxxxxxxxxx&on={{ on }}"
+    method: GET
+    timeout: 10
+
+  nabaztag_jingle:
+    url: "http://homeassistant.local:8099/api/jingle?name={{ name }}"
+    method: GET
+    timeout: 15
+script:
+  # Ask the Home Assistant Claude agent and speak the reply on the rabbit.
+  nabaztag_ask_claude:
+    alias: "Nabaztag - ask Claude, speak the reply"
+    fields:
+      prompt:
+        description: "What to ask/tell Claude"
+        example: "Une phrase courte et drôle pour bien démarrer la journée."
+    sequence:
+      - service: conversation.process
+        data:
+          agent_id: conversation.claude_conversation
+          text: "{{ prompt }}"
+        response_variable: claude
+      - service: rest_command.nabaztag_say
+        data:
+          text: "{{ claude.response.speech.plain.speech }}"
+
+  # Weather "à la Violet": belly icon + the terse "Aujourd'hui… ✕ !".
+  nabaztag_weather_announce:
+    alias: "Nabaztag - weather (Aujourd'hui… ✕ !)"
+    variables:
+      cond: "{{ states('weather.forecast_maison') }}"
+      m: >-
+        {{ {
+          'sunny':           ['sun','du soleil'],
+          'clear-night':     ['sun','une nuit claire'],
+          'partlycloudy':    ['cloudy','quelques nuages'],
+          'cloudy':          ['cloudy','des nuages'],
+          'fog':             ['smog','de la brume'],
+          'rainy':           ['rain','pluie'],
+          'pouring':         ['rain','pluie battante'],
+          'snowy':           ['snow','neige'],
+          'snowy-rainy':     ['snow','neige fondue'],
+          'lightning':       ['storm','de l_orage'],
+          'lightning-rainy': ['storm','de l_orage'],
+          'windy':           ['cloudy','du vent'],
+        }.get(cond, ['cloudy','des nuages']) }}
+    sequence:
+      - service: rest_command.nabaztag_weather_icon
+        data: { v: "{{ m[0] }}" }
+      - service: rest_command.nabaztag_say
+        data:
+          text: "Aujourd'hui... {{ m[1] | replace('_',\"'\") }} !"
+
+  # === Ambient maison (Claude) — pilotage via rest_command (API add-on) ===
+  nabaztag_belly_tempo:
+    alias: "Nabaztag - ventre = couleur Tempo du jour"
+    variables:
+      rgb: >-
+        {{ {'Bleu': [0, 90, 255], 'Blanc': [255, 255, 255], 'Rouge': [255, 0, 0]}.get(states('sensor.rte_tempo_couleur_actuelle'), [60, 60, 60]) }}
+    sequence:
+      - service: rest_command.nabaztag_led
+        data:
+          led: middle
+          r: "{{ rgb[0] }}"
+          g: "{{ rgb[1] }}"
+          b: "{{ rgb[2] }}"
+
+  nabaztag_ears_wiggle:
+    alias: "Nabaztag - fretillement des oreilles"
+    sequence:
+      - service: rest_command.nabaztag_ears
+        data: {left: 2, right: 13}
+      - delay: {milliseconds: 600}
+      - service: rest_command.nabaztag_ears
+        data: {left: 13, right: 2}
+      - delay: {milliseconds: 600}
+      - service: rest_command.nabaztag_ears
+        data: {left: 8, right: 8}
+
+  nabaztag_idle_anim:
+    alias: "Nabaztag - petite animation d'inactivite"
+    variables:
+      pick: "{{ range(0, 4) | random }}"
+    sequence:
+      - choose:
+          - conditions: "{{ pick == 0 }}"
+            sequence:
+              - service: rest_command.nabaztag_ears
+                data: {left: 4, right: 8}
+              - delay: {milliseconds: 500}
+              - service: rest_command.nabaztag_ears
+                data: {left: 8, right: 8}
+          - conditions: "{{ pick == 1 }}"
+            sequence:
+              - service: script.nabaztag_ears_wiggle
+          - conditions: "{{ pick == 2 }}"
+            sequence:
+              - service: rest_command.nabaztag_led
+                data:
+                  led: middle
+                  r: "{{ [255, 200, 0, 120] | random }}"
+                  g: "{{ [120, 0, 200, 255] | random }}"
+                  b: "{{ [0, 200, 200, 0] | random }}"
+              - delay: {seconds: 2}
+              - service: script.nabaztag_belly_tempo
+          - conditions: "{{ pick == 3 }}"
+            sequence:
+              - service: rest_command.nabaztag_nose
+                data: {v: 1}
+              - delay: {seconds: 2}
+              - service: rest_command.nabaztag_nose
+                data: {v: 0}
+
+automation:
+  - id: nabi_belly_tempo
+    alias: "Nabaztag - ventre suit le Tempo"
+    trigger:
+      - platform: state
+        entity_id: sensor.rte_tempo_couleur_actuelle
+      - platform: homeassistant
+        event: start
+    condition:
+      - condition: time
+        after: "07:00:00"
+        before: "23:00:00"
+    action:
+      - service: script.nabaztag_belly_tempo
+    mode: single
+
+  - id: nabi_sleep_night
+    alias: "Nabaztag - dodo la nuit (23h)"
+    trigger:
+      - platform: time
+        at: "23:00:00"
+    action:
+      - service: rest_command.nabaztag_sleep
+        data: {on: 1}
+      - service: rest_command.nabaztag_led
+        data: {led: middle, r: 0, g: 0, b: 0}
+    mode: single
+
+  - id: nabi_wake_morning
+    alias: "Nabaztag - reveil (7h)"
+    trigger:
+      - platform: time
+        at: "07:00:00"
+    action:
+      - service: rest_command.nabaztag_sleep
+        data: {on: 0}
+      - delay: {seconds: 2}
+      - service: script.nabaztag_belly_tempo
+      - service: script.nabaztag_ears_wiggle
+    mode: single
+
+  - id: nabi_arrivee
+    alias: "Nabaztag - oreilles a l'arrivee"
+    trigger:
+      - platform: state
+        entity_id: [person.kevin_allioli, person.loutre]
+        from: not_home
+        to: home
+    condition:
+      - condition: time
+        after: "07:00:00"
+        before: "23:00:00"
+    action:
+      - service: rest_command.nabaztag_jingle
+        data: {name: acquired}
+      - service: script.nabaztag_ears_wiggle
+    mode: single
+
+  - id: nabi_machine_finie
+    alias: "Nabaztag - oreilles quand une machine est finie"
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.lave_vaisselle_current_status
+          - sensor.lave_linge_hublot_current_status
+          - sensor.seche_linge_current_status
+        to: end
+    condition:
+      - condition: template
+        value_template: "{{ trigger.from_state.state not in ['unavailable', 'unknown', ''] }}"
+      - condition: time
+        after: "07:00:00"
+        before: "23:00:00"
+    action:
+      - service: rest_command.nabaztag_jingle
+        data: {name: ack}
+      - service: script.nabaztag_ears_wiggle
+    mode: single
+
+  - id: nabi_interphone
+    alias: "Nabaztag - nez clignote a l'interphone"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.vibration_interphone
+        to: "on"
+    action:
+      - service: rest_command.nabaztag_nose
+        data: {v: 2}
+      - service: rest_command.nabaztag_ears
+        data: {left: 2, right: 2}
+      - delay: {seconds: 5}
+      - service: rest_command.nabaztag_nose
+        data: {v: 0}
+      - service: rest_command.nabaztag_ears
+        data: {left: 8, right: 8}
+    mode: single
+
+  - id: nabi_idle
+    alias: "Nabaztag - bouge un peu dans la journee"
+    trigger:
+      - platform: time_pattern
+        minutes: "/15"
+    condition:
+      - condition: time
+        after: "07:30:00"
+        before: "22:45:00"
+      - condition: template
+        value_template: "{{ (range(0, 100) | random) < 55 }}"
+    action:
+      - service: script.nabaztag_idle_anim
+    mode: single
+
+  - id: nabi_rfid_capture
+    alias: "Nabaztag - capture tag RFID (decouverte des IDs)"
+    trigger:
+      - platform: event
+        event_type: nabaztag_event
+        event_data: {type: rfid}
+    action:
+      - service: input_text.set_value
+        target: {entity_id: input_text.nabaztag_last_rfid}
+        data: {value: "{{ trigger.event.data.tag }}"}
+      - service: rest_command.nabaztag_jingle
+        data: {name: rfid_ok}
+      - service: notify.iphones
+        data:
+          title: "🐰 Tag RFID Nabaztag"
+          message: "Tag scanné : {{ trigger.event.data.tag }}"
+    mode: single

@@ -1,0 +1,18 @@
+# Secrets — ne JAMAIS committer
+secrets.yaml
+.password
+*.key
+*.pem
+known_hosts
+
+# Runtime HA
+.storage/
+home-assistant.log*
+*.db
+*.db-*
+
+# Divers
+_staging/
+scan.py
+build.py
+.DS_Store

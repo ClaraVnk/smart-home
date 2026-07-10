@@ -1,0 +1,701 @@
+title: Josette
+views:
+- title: Josette
+  path: josette
+  icon: mdi:car-electric
+  theme: home_glass
+  background: "linear-gradient(180deg,\n  rgba(220, 38, 38, 0.45) 0%,\n  rgba(124, 58, 237, 0.35) 50%,\n  rgba(15, 23, 42, 0.65) 100%\n) fixed\n"
+  type: sections
+  max_columns: 3
+  sections:
+  - type: grid
+    column_span: 3
+    cards:
+    - type: custom:mushroom-template-card
+      entity: sensor.josette_niveau_de_batterie
+      primary: '{% set v = states(entity) %} {% if v in [''unknown'',''unavailable''] %}🌙 Endormie {% else %}🔋 {{ v }}%{% endif %}'
+      secondary: '{% set v = states(entity) %} {% if v in [''unknown'',''unavailable''] %}Touchez pour réveiller {% else %}{{ states(''sensor.josette_autonomie_de_batterie'') | int(0) }} km · {{ state_translated(''sensor.josette_charging'')
+        }}{% endif %}'
+      icon: mdi:car-electric
+      icon_color: '{% set s = states(entity) %} {% if s in [''unknown'',''unavailable''] %}grey {% else %}{% set v = s | int(0) %}{% if v < 20 %}red{% elif v < 40 %}orange{% else %}green{% endif %}{% endif
+        %}'
+      layout: horizontal
+      fill_container: true
+      tap_action:
+        action: perform-action
+        perform_action: button.press
+        data:
+          entity_id: button.josette_wake
+  - type: grid
+    column_span: 3
+    cards:
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: switch.josette_sentry_mode
+        state: 'on'
+      card:
+        type: custom:mushroom-chips-card
+        chips:
+        - type: template
+          entity: switch.josette_sentry_mode
+          icon: mdi:cctv
+          content: Mode Sentinelle actif 🛡️
+          icon_color: red
+          tap_action:
+            action: toggle
+        card_mod:
+          style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: lock.josette_lock
+        state: unlocked
+      card:
+        type: custom:mushroom-chips-card
+        chips:
+        - type: template
+          entity: lock.josette_lock
+          icon: mdi:lock-open-variant
+          content: Véhicule déverrouillé
+          icon_color: orange
+          tap_action:
+            action: more-info
+        card_mod:
+          style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: binary_sensor.josette_charge_cable
+        state: 'on'
+      card:
+        type: custom:mushroom-chips-card
+        chips:
+        - type: template
+          entity: binary_sensor.josette_charge_cable
+          icon: mdi:ev-plug-type2
+          content: Câble branché
+          icon_color: green
+          tap_action:
+            action: more-info
+        card_mod:
+          style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: cover.josette_windows
+        state: open
+      card:
+        type: custom:mushroom-chips-card
+        chips:
+        - type: template
+          entity: cover.josette_windows
+          icon: mdi:window-open
+          content: Une fenêtre ouverte
+          icon_color: orange
+          tap_action:
+            action: more-info
+        card_mod:
+          style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: binary_sensor.josette_user_present
+        state: 'on'
+      card:
+        type: custom:mushroom-chips-card
+        chips:
+        - type: template
+          entity: binary_sensor.josette_user_present
+          icon: mdi:account
+          content: Conducteur présent 👤
+          icon_color: blue
+          tap_action:
+            action: more-info
+        card_mod:
+          style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+  - type: grid
+    column_span: 3
+    cards:
+    - type: conditional
+      conditions:
+      - condition: numeric_state
+        entity: sensor.josette_distance_pour_arriver
+        above: 0
+      card:
+        type: vertical-stack
+        cards:
+        - type: heading
+          heading: 🛣️ En trajet
+          heading_style: title
+          icon: mdi:road-variant
+          card_mod:
+            style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; color:
+              white !important; } ha-card * { color: white !important; }'
+        - type: custom:mushroom-chips-card
+          chips:
+          - type: template
+            entity: sensor.josette_distance_pour_arriver
+            icon: mdi:road
+            content: '{{ states(entity) }} km restants'
+            icon_color: blue
+            tap_action:
+              action: more-info
+          - type: template
+            entity: sensor.josette_temps_pour_arriver
+            icon: mdi:clock-outline
+            content: '{{ states(entity) }}'
+            icon_color: amber
+            tap_action:
+              action: more-info
+          card_mod:
+            style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+        - type: entity
+          entity: device_tracker.josette_trajet
+          name: Destination
+  - type: grid
+    cards:
+    - type: heading
+      heading: Batterie & charge
+      heading_style: title
+      icon: mdi:battery-charging
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; color: white
+          !important; } ha-card * { color: white !important; }'
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: sensor.josette_niveau_de_batterie
+        state:
+        - unknown
+        - unavailable
+      card:
+        type: custom:mushroom-template-card
+        entity: sensor.josette_niveau_de_batterie
+        primary: 🌙 Tesla endormie
+        secondary: Touchez pour réveiller
+        icon: mdi:sleep
+        icon_color: grey
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          data:
+            entity_id: button.josette_wake
+        layout: horizontal
+        fill_container: false
+    - type: conditional
+      conditions:
+      - condition: numeric_state
+        entity: sensor.josette_niveau_de_batterie
+        above: -1
+      card:
+        type: vertical-stack
+        cards:
+        - type: grid
+          columns: 2
+          square: false
+          cards:
+          - type: custom:mushroom-template-card
+            entity: sensor.josette_niveau_de_batterie
+            primary: Batterie {{ states(entity) }}%
+            secondary: Autonomie {{ states('sensor.josette_autonomie_de_batterie') }} km
+            icon: '{% set b = states(entity) | int(0) %}
+
+              {% if b < 20 %}mdi:battery-alert{% elif b < 40 %}mdi:battery-30{% elif b < 60 %}mdi:battery-50{% elif b < 80 %}mdi:battery-70{% else %}mdi:battery{% endif %}
+
+              '
+            icon_color: '{% set b = states(entity) | int(0) %}
+
+              {% if b < 20 %}red{% elif b < 40 %}orange{% elif b < 60 %}amber{% else %}green{% endif %}
+
+              '
+            tap_action:
+              action: more-info
+            layout: horizontal
+            fill_container: false
+        - type: custom:mushroom-chips-card
+          alignment: justify
+          chips:
+          - type: template
+            entity: sensor.josette_autonomie_de_batterie
+            icon: mdi:road
+            content: '{{ states(entity) | int(0) }} km'
+            icon_color: blue
+            tap_action:
+              action: more-info
+          - type: template
+            entity: number.josette_charge_limit
+            icon: mdi:battery-arrow-up
+            content: Limite {{ states(entity) | int(0) }}%
+            icon_color: amber
+            tap_action:
+              action: more-info
+          card_mod:
+            style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+        - type: custom:mushroom-chips-card
+          alignment: justify
+          chips:
+          - type: template
+            entity: sensor.josette_charger_power
+            icon: mdi:flash
+            content: '{{ states(entity) }} kW'
+            icon_color: amber
+            tap_action:
+              action: more-info
+          - type: template
+            entity: sensor.josette_vitesse_de_charge
+            icon: mdi:speedometer
+            content: '{{ states(entity) }} km/h'
+            icon_color: blue
+            tap_action:
+              action: more-info
+          - type: template
+            entity: sensor.josette_charge_energy_added
+            icon: mdi:battery-plus-outline
+            content: '{{ states(entity) }} kWh'
+            icon_color: green
+            tap_action:
+              action: more-info
+          - type: template
+            entity: sensor.josette_time_to_full_charge
+            icon: mdi:timer-sand
+            content: '{% set v = states(entity) %} {% if v in [''unavailable'',''unknown''] %}—{% else %}{{ v }}h{% endif %}'
+            icon_color: grey
+            tap_action:
+              action: more-info
+          card_mod:
+            style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+        - type: heading
+          heading: Paramètres charge
+          heading_style: subtitle
+          icon: mdi:tune
+          card_mod:
+            style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; color:
+              white !important; } ha-card * { color: white !important; }'
+        - type: grid
+          columns: 2
+          square: false
+          cards:
+          - type: custom:mushroom-template-card
+            entity: number.josette_charge_limit
+            primary: Limite charge
+            secondary: '{{ states(entity) }} %'
+            icon: mdi:battery-charging-100
+            icon_color: green
+            tap_action:
+              action: more-info
+            layout: horizontal
+            fill_container: false
+          - type: custom:mushroom-template-card
+            entity: number.josette_charge_current
+            primary: Ampérage
+            secondary: '{{ states(entity) }} A'
+            icon: mdi:current-ac
+            icon_color: amber
+            tap_action:
+              action: more-info
+            layout: horizontal
+            fill_container: false
+          - type: custom:mushroom-template-card
+            entity: switch.josette_charge
+            primary: Charge
+            secondary: '{{ ''En cours ⚡'' if is_state(entity,''on'') else ''Arrêtée'' }}'
+            icon: mdi:ev-station
+            icon_color: '{{ ''green'' if is_state(entity,''on'') else ''grey'' }}'
+            tap_action:
+              action: toggle
+            layout: horizontal
+            fill_container: false
+          - type: custom:mushroom-lock-card
+            entity: lock.josette_charge_cable_lock
+            name: Verrou câble
+            layout: horizontal
+            fill_container: false
+          - type: custom:mushroom-cover-card
+            entity: cover.josette_trappe_de_charge
+            name: Trappe charge
+            show_buttons_control: true
+            layout: horizontal
+            fill_container: false
+          - type: custom:mushroom-template-card
+            entity: binary_sensor.josette_charge_cable
+            primary: Câble
+            secondary: '{{ ''Branché 🔌'' if is_state(entity,''on'') else ''Débranché'' }}'
+            icon: mdi:ev-plug-type2
+            icon_color: '{{ ''blue'' if is_state(entity,''on'') else ''grey'' }}'
+            tap_action:
+              action: more-info
+            layout: horizontal
+            fill_container: false
+    column_span: 3
+  - type: grid
+    cards:
+    - type: heading
+      heading: Climat
+      heading_style: title
+      icon: mdi:air-conditioner
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; color: white
+          !important; } ha-card * { color: white !important; }'
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: sensor.josette_niveau_de_batterie
+        state:
+        - unknown
+        - unavailable
+      card:
+        type: markdown
+        content: 🌙 *Tesla endormie — données climat non disponibles*
+    - type: conditional
+      conditions:
+      - condition: numeric_state
+        entity: sensor.josette_niveau_de_batterie
+        above: -1
+      card:
+        type: vertical-stack
+        cards:
+        - type: custom:mushroom-climate-card
+          entity: climate.josette_climate
+          name: Habitacle
+          layout: horizontal
+          fill_container: false
+        - type: custom:mushroom-chips-card
+          alignment: justify
+          chips:
+          - type: template
+            entity: sensor.josette_temperature_interieure
+            icon: mdi:thermometer
+            content: Intérieur {{ states(entity) }}°C
+            icon_color: '{% set v = states(entity) | float(20) %} {% if v < 15 %}blue{% elif v <= 22 %}green{% elif v <= 28 %}orange{% else %}red{% endif %}'
+            tap_action:
+              action: more-info
+          - type: template
+            entity: sensor.josette_temperature_exterieure
+            icon: mdi:weather-partly-cloudy
+            content: Extérieur {{ states(entity) }}°C
+            icon_color: blue
+            tap_action:
+              action: more-info
+          card_mod:
+            style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+        - type: grid
+          columns: 2
+          square: false
+          cards:
+          - type: custom:mushroom-template-card
+            entity: switch.josette_defrost
+            primary: Dégivrage maximum
+            secondary: '{{ ''ON ❄️'' if is_state(entity,''on'') else ''OFF'' }}'
+            icon: mdi:snowflake-melt
+            icon_color: '{{ ''red'' if is_state(entity,''on'') else ''grey'' }}'
+            tap_action:
+              action: toggle
+            layout: horizontal
+            fill_container: false
+          - type: custom:mushroom-template-card
+            entity: select.josette_seat_heater_front_left
+            primary: Siège conducteur
+            secondary: '{{ states(entity) | capitalize }}'
+            icon: mdi:car-seat-heater
+            icon_color: '{% set s = states(entity) %} {% if s == ''off'' %}grey {% elif s == ''low'' %}amber {% elif s == ''medium'' %}deep-orange {% elif s == ''high'' %}red {% else %}grey{% endif %}'
+            tap_action:
+              action: more-info
+            layout: horizontal
+            fill_container: false
+          - type: custom:mushroom-template-card
+            entity: select.josette_seat_heater_front_right
+            primary: Siège passager
+            secondary: '{{ states(entity) | capitalize }}'
+            icon: mdi:car-seat-heater
+            icon_color: '{% set s = states(entity) %} {% if s == ''off'' %}grey {% elif s == ''low'' %}amber {% elif s == ''medium'' %}deep-orange {% elif s == ''high'' %}red {% else %}grey{% endif %}'
+            tap_action:
+              action: more-info
+            layout: horizontal
+            fill_container: false
+          - type: custom:mushroom-template-card
+            entity: select.josette_steering_wheel_heater
+            primary: Volant chauffant
+            secondary: '{{ states(entity) | capitalize }}'
+            icon: mdi:steering
+            icon_color: '{% set s = states(entity) %} {% if s == ''off'' %}grey {% elif s == ''low'' %}amber {% elif s == ''medium'' %}deep-orange {% elif s == ''high'' %}red {% else %}grey{% endif %}'
+            tap_action:
+              action: more-info
+            layout: horizontal
+            fill_container: false
+        - type: custom:mushroom-chips-card
+          alignment: justify
+          chips:
+          - type: template
+            entity: switch.josette_auto_seat_climate_left
+            icon: mdi:thermometer-auto
+            content: Auto G {{ 'ON' if is_state(entity,'on') else 'OFF' }}
+            icon_color: '{{ ''blue'' if is_state(entity,''on'') else ''grey'' }}'
+            tap_action:
+              action: toggle
+          - type: template
+            entity: switch.josette_auto_seat_climate_right
+            icon: mdi:thermometer-auto
+            content: Auto D {{ 'ON' if is_state(entity,'on') else 'OFF' }}
+            icon_color: '{{ ''blue'' if is_state(entity,''on'') else ''grey'' }}'
+            tap_action:
+              action: toggle
+          - type: template
+            entity: switch.josette_auto_steering_wheel_heater
+            icon: mdi:thermometer-auto
+            content: Auto Volant {{ 'ON' if is_state(entity,'on') else 'OFF' }}
+            icon_color: '{{ ''blue'' if is_state(entity,''on'') else ''grey'' }}'
+            tap_action:
+              action: toggle
+          card_mod:
+            style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    column_span: 3
+  - type: grid
+    cards:
+    - type: heading
+      heading: Ouvertures & sécurité
+      heading_style: title
+      icon: mdi:car-door
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; color: white
+          !important; } ha-card * { color: white !important; }'
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: sensor.josette_niveau_de_batterie
+        state:
+        - unknown
+        - unavailable
+      card:
+        type: markdown
+        content: 🌙 *Tesla endormie — état ouvertures inconnu*
+    - type: conditional
+      conditions:
+      - condition: numeric_state
+        entity: sensor.josette_niveau_de_batterie
+        above: -1
+      card:
+        type: vertical-stack
+        cards:
+        - type: custom:auto-entities
+          show_empty: false
+          card:
+            type: custom:mushroom-chips-card
+            card_mod:
+              style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+          card_param: chips
+          filter:
+            include:
+            - entity_id: binary_sensor.josette_porte_*
+              state: 'on'
+              options:
+                type: entity
+                icon_color: orange
+                content_info: name
+            - entity_id: cover.josette_windows
+              state: open
+              options:
+                type: entity
+                icon: mdi:window-open
+                icon_color: orange
+                content_info: name
+            - entity_id: cover.josette_coffre
+              state: open
+              options:
+                type: entity
+                icon: mdi:car-back
+                icon_color: orange
+                content_info: name
+            - entity_id: cover.josette_coffre_avant
+              state: open
+              options:
+                type: entity
+                icon: mdi:car
+                icon_color: orange
+                content_info: name
+        - type: conditional
+          conditions:
+          - condition: state
+            entity: cover.josette_windows
+            state: closed
+          - condition: state
+            entity: cover.josette_coffre
+            state: closed
+          - condition: state
+            entity: cover.josette_coffre_avant
+            state: closed
+          - condition: state
+            entity: binary_sensor.josette_porte_avant_conducteur
+            state: 'off'
+          - condition: state
+            entity: binary_sensor.josette_porte_avant_passager
+            state: 'off'
+          - condition: state
+            entity: binary_sensor.josette_porte_arriere_conducteur
+            state: 'off'
+          - condition: state
+            entity: binary_sensor.josette_porte_arriere_passager
+            state: 'off'
+          card:
+            type: markdown
+            content: ✅ Tout est fermé
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: custom:mushroom-lock-card
+        entity: lock.josette_lock
+        name: Véhicule
+        layout: horizontal
+        fill_container: false
+      - type: custom:mushroom-template-card
+        entity: switch.josette_sentry_mode
+        primary: Mode Sentinelle
+        secondary: '{{ ''Actif 🛡️'' if is_state(entity,''on'') else ''Inactif'' }}'
+        icon: mdi:cctv
+        icon_color: '{{ ''red'' if is_state(entity,''on'') else ''grey'' }}'
+        tap_action:
+          action: toggle
+        layout: horizontal
+        fill_container: false
+      - type: custom:mushroom-template-card
+        entity: update.josette_mise_a_jour
+        primary: '{% if is_state(entity,''on'') %}{{ state_attr(entity,''latest_version'') }} dispo{% else %}À jour{% endif %}'
+        secondary: 'Version : {{ state_attr(entity,''installed_version'') }}'
+        icon: mdi:cloud-download
+        icon_color: '{{ ''amber'' if is_state(entity,''on'') else ''green'' }}'
+        tap_action:
+          action: more-info
+        layout: horizontal
+        fill_container: false
+    column_span: 3
+  - type: grid
+    cards:
+    - type: heading
+      heading: Commandes
+      heading_style: title
+      icon: mdi:remote
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; color: white
+          !important; } ha-card * { color: white !important; }'
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: custom:mushroom-template-card
+        entity: button.josette_wake
+        primary: Réveiller
+        icon: mdi:car-arrow-right
+        icon_color: blue
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.josette_wake
+        layout: horizontal
+        fill_container: false
+      - type: custom:mushroom-template-card
+        entity: button.josette_klaxonner
+        primary: Klaxonner
+        icon: mdi:bullhorn
+        icon_color: amber
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.josette_klaxonner
+          confirmation:
+            text: Klaxonner ?
+        layout: horizontal
+        fill_container: false
+      - type: custom:mushroom-template-card
+        entity: button.josette_appel_de_phares
+        primary: Appel de phares
+        icon: mdi:car-light-high
+        icon_color: amber
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.josette_appel_de_phares
+        layout: horizontal
+        fill_container: false
+      - type: custom:mushroom-template-card
+        entity: button.josette_homelink
+        primary: Homelink (garage)
+        icon: mdi:garage
+        icon_color: deep-orange
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.josette_homelink
+        layout: horizontal
+        fill_container: false
+      - type: custom:mushroom-template-card
+        entity: button.josette_keyless_driving
+        primary: Keyless driving
+        icon: mdi:key-wireless
+        icon_color: purple
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.josette_keyless_driving
+        layout: horizontal
+        fill_container: false
+      - type: custom:mushroom-template-card
+        entity: button.josette_faire_peter
+        primary: Faire péter 💨
+        icon: mdi:rocket-launch
+        icon_color: red
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.josette_faire_peter
+          confirmation:
+            text: Sérieusement ?
+        layout: horizontal
+        fill_container: false
+    - type: media-control
+      entity: media_player.josette_media_player
+    column_span: 3
+  - type: grid
+    column_span: 3
+    cards:
+    - type: heading
+      heading: Localisation
+      heading_style: title
+      icon: mdi:map
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; color: white
+          !important; } ha-card * { color: white !important; }'
+    - type: map
+      entities:
+      - device_tracker.josette_location
+      - person.kevin_allioli
+      - person.loutre
+      - zone.home
+      default_zoom: 13
+      hours_to_show: 48
+  - type: grid
+    column_span: 3
+    cards:
+    - type: heading
+      heading: Historique batterie 24h
+      heading_style: title
+      icon: mdi:chart-timeline-variant
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; color: white
+          !important; } ha-card * { color: white !important; }'
+    - type: custom:apexcharts-card
+      graph_span: 24h
+      header:
+        show: true
+        title: Batterie 24h (%)
+      series:
+      - entity: sensor.josette_niveau_de_batterie
+        name: Batterie
+        color: '#10b981'
+        stroke_width: 2

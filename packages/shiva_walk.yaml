@@ -1,0 +1,57 @@
+input_datetime:
+  last_shiva_walk:
+    name: Dernière sortie Shiva
+    icon: mdi:dog-side
+    has_date: true
+    has_time: true
+
+script:
+  shiva_walk_done:
+    alias: 🐕 Sortie Shiva validée
+    icon: mdi:dog-side
+    sequence:
+      - action: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.last_shiva_walk
+        data:
+          datetime: "{{ now() }}"
+
+template:
+  - binary_sensor:
+      - name: Shiva walk due
+        unique_id: shiva_walk_due
+        state: >-
+          {% set last = states('input_datetime.last_shiva_walk') %}
+          {% if last in ['unavailable','unknown','none',''] %}false
+          {% else %}{{ (as_timestamp(now()) - as_timestamp(last)) / 3600 > 8 }}
+          {% endif %}
+
+automation:
+  - id: notif_shiva_walk_due
+    alias: Notif - Sortir Shiva (>8h sans sortie)
+    description: Notification quand Shiva n'est pas sorti depuis plus de 8h
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.shiva_walk_due
+        to: "on"
+        for:
+          minutes: 5
+      - platform: time
+        at: "09:00:00"
+    condition:
+      - condition: state
+        entity_id: binary_sensor.shiva_walk_due
+        state: "on"
+      - condition: template
+        value_template: >-
+          {% set lt = state_attr('automation.notif_sortir_shiva_8h_sans_sortie','last_triggered') %}
+          {{ lt is none or (as_timestamp(now()) - as_timestamp(lt)) > 7200 }}
+      - condition: time
+        after: "09:00:00"
+        before: "22:00:00"
+    action:
+      - action: notify.iphones
+        data:
+          message: >-
+            🐕 Shiva n'est pas sorti depuis {{ ((as_timestamp(now()) - as_timestamp(states('input_datetime.last_shiva_walk'))) / 3600) | round(1) }}h
+    mode: single

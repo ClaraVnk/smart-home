@@ -1,0 +1,135 @@
+script:
+  bureau_lampes_apply:
+    alias: Bureau - appliquer lampes indirectes
+    variables:
+      present: '{{ is_state(''binary_sensor.aqara_presence_multisensor_fp300_occupation_3'',''on'') }}'
+      lux: '{{ states(''sensor.aqara_presence_multisensor_fp300_eclairement_3'')|float(999) }}'
+      h: '{{ now().hour }}'
+      bri: '{% set l = states(''sensor.aqara_presence_multisensor_fp300_eclairement_3'')|float(999) %} {% if l < 50 %}60{% elif l < 150 %}40{% else %}25{% endif %}'
+      kelvin: '{% set l = states(''sensor.aqara_presence_multisensor_fp300_eclairement_3'')|float(999) %} {% if l < 50 %}2700{% elif l < 150 %}3000{% else %}3500{% endif %}'
+      # Mapping effet Nanoleaf par plage horaire — pour ajuster, modifier la string ci-dessous
+      nanoleaf_effect: '{% set h = now().hour %}{% if h < 7 %}Fireflies{% elif h < 17 %}Sunbeam{% elif h < 21 %}Warm Waves{% else %}Ember{% endif %}'
+    sequence:
+    - choose:
+      - conditions: '{{ not present }}'
+        sequence:
+        - service: light.turn_off
+          target:
+            entity_id:
+            - light.wled
+            - light.atelier
+            - light.elements_30f0
+      - conditions: '{{ h < 7 }}'
+        sequence:
+        - service: light.turn_on
+          target:
+            entity_id: light.wled
+        - service: light.turn_on
+          target:
+            entity_id: light.atelier
+          data:
+            color_temp_kelvin: 2200
+            brightness_pct: 10
+        - service: light.turn_on
+          target:
+            entity_id: light.elements_30f0
+          data:
+            effect: '{{ nanoleaf_effect }}'
+            brightness_pct: 15
+      - conditions: '{{ h >= 21 }}'
+        sequence:
+        - service: light.turn_on
+          target:
+            entity_id: light.wled
+        - service: light.turn_on
+          target:
+            entity_id: light.atelier
+          data:
+            color_temp_kelvin: 2300
+            brightness_pct: 30
+        - service: light.turn_on
+          target:
+            entity_id: light.elements_30f0
+          data:
+            effect: '{{ nanoleaf_effect }}'
+            brightness_pct: 40
+      - conditions: '{{ lux >= 30 }}'
+        sequence:
+        - service: light.turn_off
+          target:
+            entity_id:
+            - light.wled
+            - light.atelier
+            - light.elements_30f0
+      default:
+      - service: light.turn_on
+        target:
+          entity_id: light.wled
+      - service: light.turn_on
+        target:
+          entity_id: light.atelier
+        data:
+          color_temp_kelvin: '{{ kelvin | int }}'
+          brightness_pct: '{{ bri | int }}'
+      - service: light.turn_on
+        target:
+          entity_id: light.elements_30f0
+        data:
+          effect: '{{ nanoleaf_effect }}'
+          brightness_pct: '{{ bri | int }}'
+automation:
+- id: bureau_lampes_indirectes
+  alias: Bureau - lampes indirectes (présence + luminosité)
+  description: 'Style cuisine : on instantané sur arrive (sauf manual_off), off après 2 min sans présence, presets jour/soir/nuit via script. Plus de reeval /5min.'
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.aqara_presence_multisensor_fp300_occupation_3
+    from: 'off'
+    to: 'on'
+    id: arrive
+  - platform: state
+    entity_id: binary_sensor.aqara_presence_multisensor_fp300_occupation_3
+    from: 'on'
+    to: 'off'
+    for:
+      minutes: 1
+    id: leave
+  - platform: numeric_state
+    entity_id: sensor.aqara_presence_multisensor_fp300_eclairement_3
+    above: 150
+    for:
+      minutes: 1
+    id: jour_assez
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: arrive
+      - condition: state
+        entity_id: input_boolean.bureau_manual_off
+        state: 'off'
+      sequence:
+      - service: script.bureau_lampes_apply
+    - conditions:
+      - condition: trigger
+        id: leave
+      sequence:
+      - service: light.turn_off
+        target:
+          entity_id:
+          - light.wled
+          - light.atelier
+          - light.elements_30f0
+    - conditions:
+      - condition: trigger
+        id: jour_assez
+      - condition: template
+        value_template: '{{ is_state(''light.wled'',''on'') or is_state(''light.atelier'',''on'') or is_state(''light.elements_30f0'',''on'') }}'
+      sequence:
+      - service: light.turn_off
+        target:
+          entity_id:
+          - light.wled
+          - light.atelier
+          - light.elements_30f0
+  mode: restart

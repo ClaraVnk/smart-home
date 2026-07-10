@@ -1,0 +1,8 @@
+# Centralized notification target for the household iPhones.
+# Adding/removing a phone is one line here, no automation churn.
+notify:
+  - platform: group
+    name: iphones
+    services:
+      - service: mobile_app_iphone
+      - service: mobile_app_iphone_17_pro

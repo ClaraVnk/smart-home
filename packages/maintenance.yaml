@@ -1,0 +1,38 @@
+# Maintenance — source de vérité unique pour les "actions à faire".
+# Logique centralisée dans /config/custom_templates/maintenance.jinja
+# (macros mutent un namespace passé par l'appelant).
+
+template:
+  - sensor:
+      - name: "Maintenance actions"
+        unique_id: maintenance_actions
+        state: >-
+          {%- from 'maintenance.jinja' import build_items -%}
+          {%- set ns = namespace(items=[]) -%}
+          {{- build_items(ns) -}}
+          {{ ns.items | count }}
+        icon: >-
+          {%- from 'maintenance.jinja' import mark_urgent -%}
+          {%- set ns = namespace(urgent=false) -%}
+          {{- mark_urgent(ns) -}}
+          {{ 'mdi:alert' if ns.urgent else 'mdi:check-circle-outline' }}
+        attributes:
+          items: >-
+            {%- from 'maintenance.jinja' import build_items -%}
+            {%- set ns = namespace(items=[]) -%}
+            {{- build_items(ns) -}}
+            {{ ns.items }}
+          urgent: >-
+            {%- from 'maintenance.jinja' import mark_urgent -%}
+            {%- set ns = namespace(urgent=false) -%}
+            {{- mark_urgent(ns) -}}
+            {{ ns.urgent }}
+
+
+input_boolean:
+  lave_vaisselle_sel:
+    name: Sel lave-vaisselle a remplir
+    icon: mdi:shaker-outline
+  cafe_marc_signale:
+    name: Marc cafe signale (anti-repetition)
+    icon: mdi:coffee-maker

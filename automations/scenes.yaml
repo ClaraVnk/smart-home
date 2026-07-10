@@ -1,0 +1,73 @@
+- id: '1779706000000'
+  name: 🐈 Spéciale Nounou
+  icon: mdi:cat
+  entities:
+    input_boolean.mode_nounou:
+      state: "on"
+    cover.salon_baie_vitree_shutter:
+      state: open
+      current_position: 30
+    cover.cuisine_volet_shutter:
+      state: open
+      current_position: 30
+- id: '1779706100000'
+  name: 🌙 Veilleuse Raphaël
+  icon: mdi:weather-night
+  entities:
+    light.guirlande:
+      state: 'on'
+      brightness: 51
+    light.hue_go_1:
+      state: 'on'
+      brightness: 51
+      color_temp_kelvin: 2200
+    light.hue_ambiance_candle_1:
+      state: 'on'
+      brightness: 51
+      color_temp_kelvin: 2200
+- id: '1779706200000'
+  name: 😴 À la sieste
+  icon: mdi:sleep
+  entities:
+    cover.raphael_volet_shutter:
+      state: closed
+      current_position: 0
+    light.luminaire_chambre_bebe:
+      state: 'off'
+    light.guirlande:
+      state: 'off'
+    light.hue_go_1:
+      state: 'off'
+    light.hue_ambiance_candle_1:
+      state: 'on'
+      brightness: 38
+      color_temp_kelvin: 2200
+    media_player.chambre:
+      state: paused
+- id: '1779706300000'
+  name: 😴 Au dodo
+  icon: mdi:bed
+  entities:
+    light.chambre:
+      state: 'off'
+    light.hue_go_1_2:
+      state: 'on'
+      brightness: 89
+    light.lit:
+      state: 'on'
+      brightness: 51
+    media_player.chambre:
+      state: paused
+- id: '1779706400000'
+  name: 🪟 Ouvre tous les volets
+  icon: mdi:window-shutter-open
+  entities:
+    cover.salon_baie_vitree_shutter:
+      state: open
+      current_position: 100
+    cover.salon_fenetre_volet_shutter:
+      state: open
+      current_position: 100
+    cover.cuisine_volet_shutter:
+      state: open
+      current_position: 100

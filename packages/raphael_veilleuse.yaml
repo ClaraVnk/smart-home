@@ -1,0 +1,46 @@
+automation:
+- id: raphael_veilleuse_nuage_on
+  alias: Raphaël - veilleuse nuage sur mouvement (nuit)
+  description: Si Raphaël dort (toutes lampes off + volet fermé) et qu'un mouvement est détecté dans sa chambre, allume la lampe nuage à 5% pour éviter de se fracasser sur un jouet en cas de réveil bébé en pleurs.
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.mouvement_chambre_raphael_occupation
+    from: 'off'
+    to: 'on'
+  condition:
+  - condition: template
+    value_template: '{{ not is_state(''light.lampe_nuage'',''on'') and not is_state(''light.luminaire_chambre_bebe'',''on'') and not is_state(''light.chambre_enfant'',''on'') }}'
+  - condition: state
+    entity_id: cover.raphael_volet_shutter
+    state: closed
+  action:
+  - action: light.turn_on
+    target:
+      entity_id: light.hue_ambiance_candle_1
+    data:
+      brightness_pct: 5
+      color_temp_kelvin: 2200
+  mode: single
+- id: raphael_veilleuse_nuage_off
+  alias: Raphaël - extinction veilleuse nuage
+  description: 'Éteint la veilleuse nuage : (a) 15 min sans mouvement OU (b) à 7h le matin (failsafe). Skip si une vraie lampe chambre Raphaël s''est allumée entre-temps (= on s''en occupe vraiment).'
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.mouvement_chambre_raphael_occupation
+    from: 'on'
+    to: 'off'
+    for:
+      minutes: 15
+    id: absence_15min
+  - platform: time
+    at: 07:00:00
+    id: matin
+  condition:
+  - condition: state
+    entity_id: light.hue_ambiance_candle_1
+    state: 'on'
+  action:
+  - action: light.turn_off
+    target:
+      entity_id: light.hue_ambiance_candle_1
+  mode: single

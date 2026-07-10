@@ -1,0 +1,34 @@
+automation:
+- id: sdb_lampes_presence
+  alias: SDB - lampes sur présence (style cuisine, sans lux)
+  description: On instantané sur arrive, off après 1 min sans présence.
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.aqara_presence_multisensor_fp300_occupation_4
+    from: 'off'
+    to: 'on'
+    id: arrive
+  - platform: state
+    entity_id: binary_sensor.aqara_presence_multisensor_fp300_occupation_4
+    from: 'on'
+    to: 'off'
+    for:
+      minutes: 1
+    id: leave
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: arrive
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.luminaire_sdb_3
+    - conditions:
+      - condition: trigger
+        id: leave
+      sequence:
+      - action: light.turn_off
+        target:
+          entity_id: light.luminaire_sdb_3
+  mode: restart

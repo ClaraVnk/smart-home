@@ -1,0 +1,138 @@
+# Energy — template sensors réutilisables pour dashboards/automations.
+# Source live :
+#   sensor.lixee_papp        (puissance apparente VA, conso réseau temps réel)
+#   sensor.beembox_18562_puissance (production solaire W)
+#   sensor.lixee_active_register_tier_delivered (tier en cours: HCJB/HPJB/HCJW/HPJW/HCJR/HPJR)
+#
+# Prix configurés dans Settings → Énergie (.storage/energy):
+#   HCJB 0.1288 | HCJW 0.1447 | HCJR 0.1518
+#   HPJB 0.1552 | HPJW 0.1792 | HPJR 0.6586
+
+template:
+  - sensor:
+      # Flux net réseau (import si >0, export si <0)
+      - name: "Power net"
+        unique_id: power_net
+        unit_of_measurement: W
+        device_class: power
+        state_class: measurement
+        state: >-
+          {{ (states('sensor.lixee_papp') | float(0))
+             - (states('sensor.beembox_18562_puissance') | float(0)) }}
+
+      - name: "Grid import"
+        unique_id: power_grid_import
+        unit_of_measurement: W
+        device_class: power
+        state_class: measurement
+        icon: mdi:home-import-outline
+        state: >-
+          {{ [ (states('sensor.lixee_papp') | float(0))
+               - (states('sensor.beembox_18562_puissance') | float(0)), 0 ] | max }}
+
+      - name: "Grid export"
+        unique_id: power_grid_export
+        unit_of_measurement: W
+        device_class: power
+        state_class: measurement
+        icon: mdi:home-export-outline
+        state: >-
+          {{ [ (states('sensor.beembox_18562_puissance') | float(0))
+               - (states('sensor.lixee_papp') | float(0)), 0 ] | max }}
+
+      # Taux d'autoconsommation instantané (prod consommée / prod totale, en %)
+      - name: "Solar self-consumption rate"
+        unique_id: solar_self_consumption_rate
+        unit_of_measurement: "%"
+        state_class: measurement
+        icon: mdi:solar-power-variant
+        availability: >-
+          {{ (states('sensor.beembox_18562_puissance') | float(0)) > 0 }}
+        state: >-
+          {%- set prod = states('sensor.beembox_18562_puissance') | float(0) -%}
+          {%- set conso = states('sensor.lixee_papp') | float(0) -%}
+          {%- set export = [prod - conso, 0] | max -%}
+          {%- if prod > 0 -%}
+            {{ ((prod - export) / prod * 100) | round(0) }}
+          {%- else -%}
+            0
+          {%- endif -%}
+
+      # Prix kWh actuel selon tier Tempo en cours
+      - name: "Current tariff price"
+        unique_id: current_tariff_price
+        unit_of_measurement: "EUR/kWh"
+        icon: mdi:cash
+        state: >-
+          {%- set tier = states('sensor.lixee_active_register_tier_delivered') -%}
+          {%- set prices = {
+              'HCJB': 0.1288, 'HPJB': 0.1552,
+              'HCJW': 0.1447, 'HPJW': 0.1792,
+              'HCJR': 0.1518, 'HPJR': 0.6586
+            } -%}
+          {{ prices.get(tier, 0) }}
+        attributes:
+          tier: "{{ states('sensor.lixee_active_register_tier_delivered') }}"
+          color: >-
+            {%- set tier = states('sensor.lixee_active_register_tier_delivered') -%}
+            {%- if 'B' in tier -%}Bleu
+            {%- elif 'W' in tier -%}Blanc
+            {%- elif 'R' in tier -%}Rouge
+            {%- else -%}—{%- endif -%}
+          period: >-
+            {%- set tier = states('sensor.lixee_active_register_tier_delivered') -%}
+            {%- if tier.startswith('HC') -%}HC{%- else -%}HP{%- endif -%}
+
+      # Coût horaire estimé (€/h) au tarif courant
+      - name: "Current hourly cost"
+        unique_id: current_hourly_cost
+        unit_of_measurement: "EUR/h"
+        icon: mdi:cash-clock
+        state_class: measurement
+        state: >-
+          {{ ((states('sensor.lixee_papp') | float(0)) / 1000
+              * (states('sensor.current_tariff_price') | float(0))) | round(4) }}
+
+      # Économie solaire horaire (€/h) : production × prix tarif courant.
+      # Chaque W produit est un W qu'on n'a pas payé au tarif Tempo en vigueur.
+      - name: "Solar hourly savings"
+        unique_id: solar_hourly_savings
+        unit_of_measurement: "EUR/h"
+        icon: mdi:piggy-bank
+        state_class: measurement
+        state: >-
+          {{ ((states('sensor.beembox_18562_puissance') | float(0)) / 1000
+              * (states('sensor.current_tariff_price') | float(0))) | round(4) }}
+
+# Intégration Riemann du coût horaire + économie solaire → cumuls EUR.
+# Puis utility_meter daily/monthly pour reset.
+sensor:
+  - platform: integration
+    source: sensor.current_hourly_cost
+    name: Cost running total
+    unique_id: cost_running_total
+    unit_time: h
+    method: left
+    round: 4
+  - platform: integration
+    source: sensor.solar_hourly_savings
+    name: Solar savings running total
+    unique_id: solar_savings_running_total
+    unit_time: h
+    method: left
+    round: 4
+
+utility_meter:
+  energy_daily_cost:
+    name: Energy daily cost
+    source: sensor.cost_running_total
+    cycle: daily
+  solar_daily_savings:
+    name: Solar daily savings
+    source: sensor.solar_savings_running_total
+    cycle: daily
+  solar_monthly_savings:
+    name: Solar monthly savings
+    source: sensor.solar_savings_running_total
+    cycle: monthly
+

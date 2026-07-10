@@ -1,0 +1,3571 @@
+- id: '1742242018292'
+  alias: Chambre - dressing porte → lumière
+  use_blueprint:
+    path: local/door_follows_target.yaml
+    input:
+      door_sensor: binary_sensor.dressing_ouverture
+      target:
+        entity_id: light.light_dressing
+- id: '1742242675758'
+  alias: Entrée - verrouillage porte soir
+  description: Auto-lock chaque soir si la porte n'est pas déjà fermée.
+  triggers:
+  - trigger: time
+    at: '22:30:00'
+  conditions:
+  - condition: state
+    entity_id: lock.smart_lock_pro
+    state: unlocked
+  actions:
+  - action: lock.lock
+    target:
+      entity_id: lock.smart_lock_pro
+  mode: single
+- id: '1742415393455'
+  alias: Bureau - imprimante 3D porte → switch
+  use_blueprint:
+    path: local/door_follows_target.yaml
+    input:
+      door_sensor: binary_sensor.imprimante3d_porte_ouverture
+      target:
+        device_id: 39da411a175f9707bad0fe68c004d920
+- id: '1742415635394'
+  alias: Chambre - éteindre lumières nuit
+  description: Auto-off chaque nuit à 00:30 (lit, plafonnier, lampe sel).
+  triggers:
+  - trigger: time
+    at: 00:30:00
+  conditions: []
+  actions:
+  - action: light.turn_off
+    target:
+      entity_id:
+      - light.lit
+      - light.chambre_a_coucher
+  - action: switch.turn_off
+    target:
+      entity_id: switch.lampe_sel
+  mode: single
+- id: '1742417053721'
+  alias: 'Toilettes - porte ouverte '
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.toilettes_ouverture
+    from: 'off'
+    to: 'on'
+  conditions: []
+  actions:
+  - type: toggle
+    device_id: ba64421460f061cc03b09e3d5291a045
+    entity_id: bc38ea4a8f60d79c9f0843da845953d7
+    domain: light
+  mode: single
+- id: '1742417802438'
+  alias: Entrée - luminaire
+  use_blueprint:
+    path: local/button_toggle_target.yaml
+    input:
+      button_event: event.interrupteur_double_entree_bouton_2
+      press_type: multi_press_1
+      target:
+        entity_id: light.entree_plafonnier
+- id: '1742417903753'
+  alias: Entrée - luminaire salon
+  use_blueprint:
+    path: local/button_toggle_target.yaml
+    input:
+      button_event: event.interrupteur_double_entree_bouton
+      press_type: multi_press_1
+      target:
+        entity_id: light.salon_plafonnier
+- id: '1742553073433'
+  alias: Couloir - placard porte → lumière
+  use_blueprint:
+    path: local/door_follows_target.yaml
+    input:
+      door_sensor: binary_sensor.couloir_ouverture
+      target:
+        entity_id: light.luminaire_couloir_4
+- id: '1742557009422'
+  alias: Notif - batterie serrure
+  use_blueprint:
+    path: local/notif_low_threshold.yaml
+    input:
+      threshold_sensor: sensor.smart_lock_pro_batterie
+      threshold_value: 10
+      message: La batterie de la serrure est presque vide 🪫
+- id: '1742560048274'
+  alias: Notif - liquide de rinçage lave vaisselle
+  use_blueprint:
+    path: local/notif_binary_alert.yaml
+    input:
+      binary_sensor: binary_sensor.lave_vaisselle_rinse_refill_needed
+      message: ⚠️ Remettre du liquide de rinçage dans le lave-vaisselle
+- id: '1742560217910'
+  alias: Notif - filtre frigo
+  description: ''
+  triggers:
+  - type: value
+    device_id: 613fad58e950a7fa45460d26fed8cf6f
+    entity_id: 259962bd6aeee19fda03b46bba4ae23a
+    domain: sensor
+    trigger: device
+    above: 0
+  conditions: []
+  actions:
+  - action: notify.iphones
+    metadata: {}
+    data:
+      message: ⚠️ Changer le filtre du frigo
+  mode: single
+- id: '1742644923019'
+  alias: Notif - filtre purificateur
+  description: ''
+  triggers:
+  - type: value
+    device_id: ad4f242cfea213ddbb07ab0b28b1fc16
+    entity_id: 5e9f2fa90301b9fb634dc3db3a2cda76
+    domain: sensor
+    trigger: device
+    below: 15
+  conditions: []
+  actions:
+  - action: notify.iphones
+    metadata: {}
+    data:
+      message: ⚠️ Changer le filtre du purificateur d'air
+  mode: single
+- id: '1742721566216'
+  alias: Bureau - atelier 1 clic
+  use_blueprint:
+    path: local/button_toggle_target.yaml
+    input:
+      button_event: event.interrupteur_atelier_bouton_3
+      press_type: multi_press_1
+      target:
+        entity_id: light.atelier
+- id: '1743083619200'
+  alias: Notif - Ficus arrosage
+  use_blueprint:
+    path: local/notif_low_threshold.yaml
+    input:
+      threshold_sensor: sensor.ficus_soil_moisture
+      threshold_value: 40
+      message: 🚿 Il faut arroser le ficus 🌱
+- id: '1743104654373'
+  alias: Notif - plante kiki
+  use_blueprint:
+    path: local/notif_low_threshold.yaml
+    input:
+      threshold_sensor: sensor.dragonnier_de_madagascar_soil_moisture
+      threshold_value: 40
+      message: 🚿 Il faut arroser la plante de Kiki 🌱
+- id: '1755496809771'
+  alias: Chambre enfant - bouton guirlande
+  description: ''
+  triggers:
+  - domain: mqtt
+    device_id: 9f6bc1641989fc3c7aeaa6c8e66614d4
+    type: action
+    subtype: 'on'
+    trigger: device
+  conditions: []
+  actions:
+  - type: turn_on
+    device_id: 8f919a41fda3b97b0e124e12af971e76
+    entity_id: 2ee504544f43f8735daa822d30d9563e
+    domain: switch
+  mode: single
+- id: '1756196560401'
+  alias: Chambre bébé - bouton luminaire
+  description: ''
+  triggers:
+  - domain: mqtt
+    device_id: 9f6bc1641989fc3c7aeaa6c8e66614d4
+    type: action
+    subtype: 'off'
+    trigger: device
+  conditions: []
+  actions:
+  - type: turn_off
+    device_id: 8f919a41fda3b97b0e124e12af971e76
+    entity_id: 2ee504544f43f8735daa822d30d9563e
+    domain: switch
+  - action: light.turn_off
+    metadata: {}
+    target:
+      entity_id: light.hue_ambiance_candle_1
+    data: {}
+  - action: light.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.hue_go_1
+  mode: single
+- id: '1766260863689'
+  alias: Chambre enfant - bouton hue
+  description: ''
+  triggers:
+  - device_id: aa6a9acc55307c17c7eb67f7380a8efb
+    domain: hue
+    type: initial_press
+    subtype: 1
+    unique_id: e5e3965f-0691-490d-b5e7-145416cfd794
+    trigger: device
+  conditions: []
+  actions:
+  - type: toggle
+    device_id: 8f919a41fda3b97b0e124e12af971e76
+    entity_id: 2ee504544f43f8735daa822d30d9563e
+    domain: switch
+  mode: single
+- id: tv_frame_wake_on_presence
+  alias: TV Frame - Réveil sur présence (Hue entrée / FP300 cuisine / G4 person AI)
+  description: Mouvement Hue entrée, présence FP300 cuisine, ou personne détectée AI G4 salon. Au moins 1 personne home + Frame off. turn_on simple (PAS de play_media art pour éviter bug Tizen)
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.detecteur_entree_mouvement
+    - binary_sensor.aqara_presence_multisensor_fp300_occupation
+    - binary_sensor.g4_instant_person_detected
+    to: 'on'
+  condition:
+  - condition: time
+    after: 06:30:00
+    before: '23:00:00'
+  - condition: state
+    entity_id: media_player.55_the_frame
+    state: 'off'
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: person.kevin_allioli
+      state: home
+    - condition: state
+      entity_id: person.loutre
+      state: home
+  action:
+  - action: media_player.turn_on
+    target:
+      entity_id: media_player.55_the_frame
+  mode: single
+- id: tv_frame_arrivee_mode_art
+  alias: TV Frame - Mode Art à l'arrivée (1er du foyer)
+  description: Quand Kevin ou Loutre arrive (géoloc not_home → home) ET qu'aucun autre n'était déjà home → allume la TV + mode Art. Skip si quelqu'un est déjà à la maison.
+  trigger:
+  - platform: state
+    entity_id:
+    - person.kevin_allioli
+    - person.loutre
+    from: not_home
+    to: home
+  condition:
+  - condition: template
+    value_template: '{{ ([states(''person.kevin_allioli''), states(''person.loutre'')] | select(''eq'',''home'') | list | count) == 1 }}
+
+      '
+  - condition: state
+    entity_id: media_player.55_the_frame
+    state: 'off'
+  action:
+  - action: media_player.turn_on
+    target:
+      entity_id: media_player.55_the_frame
+  - delay: 00:00:05
+  - action: media_player.play_media
+    target:
+      entity_id: media_player.55_the_frame
+    data:
+      media_content_id: art
+      media_content_type: channel
+  mode: single
+- id: tv_frame_off_absence_3min
+  alias: TV Frame - Coupure complète absence > 3 min
+  description: Les 2 personnes not_home depuis 3 min → media_player.turn_off
+  trigger:
+  - platform: state
+    entity_id:
+    - person.kevin_allioli
+    - person.loutre
+    to: not_home
+    for:
+      minutes: 3
+  condition:
+  - condition: state
+    entity_id: person.kevin_allioli
+    state: not_home
+  - condition: state
+    entity_id: person.loutre
+    state: not_home
+  action:
+  - action: media_player.turn_off
+    target:
+      entity_id: media_player.55_the_frame
+  mode: single
+- id: notif_tesla_low_battery
+  alias: Notif - Tesla batterie faible
+  description: 'Tesla < 25% et câble non branché : notif (à tout moment) Fenêtre 7h-23h ; rattrapage à 7h si état toujours actif.'
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.josette_niveau_de_batterie
+    below: 25
+    for:
+      minutes: 5
+  - platform: time
+    at: 07:00:00
+    id: matin
+  condition:
+  - condition: state
+    state: 'off'
+    entity_id: binary_sensor.josette_charge_cable
+  - condition: template
+    value_template: '{{ trigger.platform == ''time'' or trigger.from_state.state not in [''unavailable'', ''unknown'', ''none''] }}'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  - condition: numeric_state
+    entity_id: sensor.josette_niveau_de_batterie
+    below: 25
+  action:
+  - action: notify.iphones
+    data:
+      message: 🔋 Tesla à {{ states('sensor.josette_niveau_de_batterie') }}% — pensez à brancher ce soir.
+  mode: single
+- id: notif_fenetre_ouverte_chauffage
+  alias: Notif - Fenêtre ouverte + clim/chauffage
+  description: Notifie quand une fenêtre/baie est ouverte plus de 5 min pendant que le chauffage tourne
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.salon_fenetre_ouverture
+    - binary_sensor.salon_baie_vitree_ouverture
+    - binary_sensor.cuisine_fenetre_ouverture
+    - binary_sensor.bureau_fenetre_ouverture
+    - binary_sensor.raphael_fenetre_ouverture
+    to: 'on'
+    for:
+      minutes: 3
+  condition:
+  - condition: template
+    value_template: "{{ expand('climate.daikinap50458_room_temperature','climate.salon_2','climate.entree','climate.chambre','climate.bureau','climate.chambre_damis','climate.cuisine')\n   | rejectattr('state','in', ['off','unavailable','unknown'])\n   | selectattr('attributes.hvac_action','in', ['heating','cooling','drying'])\n   | list | count > 0 }}"
+  action:
+  - action: notify.iphones
+    data:
+      message: "{% set actives = expand('climate.daikinap50458_room_temperature','climate.salon_2','climate.entree','climate.chambre','climate.bureau','climate.chambre_damis','climate.cuisine')\n   | rejectattr('state','in', ['off','unavailable','unknown'])\n   | selectattr('attributes.hvac_action','in', ['heating','cooling','drying'])\n   | map(attribute='name') | list %}{% set what = (states.climate | rejectattr('state','in',['off','unavailable','unknown'])\n   | selectattr('attributes.hvac_action','eq','cooling')\n   | list | count > 0) %}{{ '❄️' if what else '\U0001F525' }} {{ trigger.to_state.attributes.friendly_name }} ouverte depuis 3 min — {{ 'la clim refroidit' if what else 'le chauffage tourne' }} ({{ actives | join(', ') }})."
+  mode: single
+- id: notif_volets_ouverts_nuit
+  alias: Notif - Volets ouverts après 23h
+  description: Rappelle de fermer les volets si encore ouverts à 23h
+  trigger:
+  - platform: time
+    at: '23:00:00'
+  condition:
+  - condition: template
+    value_template: "{{ expand('cover.salon_fenetre_volet_shutter','cover.cuisine_volet_shutter','cover.salon_baie_vitree_shutter','cover.raphael_volet_shutter')\n   | selectattr('state','eq','open') | list | count > 0 }}"
+  action:
+  - action: notify.iphones
+    data:
+      message: "\U0001F319 Volets toujours ouverts : {{ expand('cover.salon_fenetre_volet_shutter','cover.cuisine_volet_shutter','cover.salon_baie_vitree_shutter','cover.raphael_volet_shutter')\n   | selectattr('state','eq','open') | map(attribute='name') | join(', ') }}"
+  mode: single
+- id: notif_cafe_grains
+  alias: Notif - Café plus assez de grains
+  description: Niveau de grains bas. Fenêtre 7h-23h ; détection nocturne reportée au matin via un re-trigger à 7h00 (notifie si toujours bas).
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.machine_a_cafe_niveau_de_grains
+    below: 20
+    for:
+      minutes: 1
+    id: live
+  - platform: time
+    at: 07:00:00
+    id: matin
+  condition:
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  - condition: template
+    value_template: "{{ states('sensor.machine_a_cafe_niveau_de_grains') not in ['unavailable','unknown','none']\n   and states('sensor.machine_a_cafe_niveau_de_grains') | float(100) < 20 }}"
+  action:
+  - action: notify.iphones
+    data:
+      title: ☕ Machine à café
+      message: 🫘 Plus assez de grains — remplis le réservoir.
+      data:
+        push:
+          sound: default
+          interruption-level: time-sensitive
+  mode: single
+- id: notif_cafe_marc_plein
+  alias: Notif - Café bac à marc plein
+  description: Bac à marc plein. Anti-répétition via input_boolean.cafe_marc_signale. Fenêtre 7h-23h ; détection nocturne reportée à 7h (le tracking vide reste actif 24/7).
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.machine_a_cafe_bac_a_marc
+    above: 11
+    for:
+      minutes: 2
+    id: plein
+  - platform: numeric_state
+    entity_id: sensor.machine_a_cafe_bac_a_marc
+    below: 12
+    id: vide
+  - platform: time
+    at: 07:00:00
+    id: matin
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: vide
+      sequence:
+      - action: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.cafe_marc_signale
+    - conditions:
+      - condition: template
+        value_template: '{{ trigger.id in [''plein'',''matin''] }}'
+      - condition: state
+        entity_id: input_boolean.cafe_marc_signale
+        state: 'off'
+      - condition: time
+        after: 07:00:00
+        before: '23:00:00'
+      - condition: numeric_state
+        entity_id: sensor.machine_a_cafe_bac_a_marc
+        above: 11
+      sequence:
+      - action: notify.iphones
+        data:
+          title: ☕ Machine à café
+          message: 🗑️ Bac à marc plein — à vider.
+          data:
+            push:
+              sound: default
+              interruption-level: time-sensitive
+      - action: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.cafe_marc_signale
+  mode: single
+  condition:
+  - condition: template
+    value_template: '{{ trigger.platform == ''time'' or trigger.from_state.state not in [''unavailable'', ''unknown'', ''none''] }}'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  - condition: numeric_state
+    entity_id: sensor.machine_a_cafe_bac_a_marc
+    above: 11
+- id: notif_cafe_filtre
+  alias: Notif - Café filtre AquaClean à changer
+  description: etat_filtre = % de vie restante du filtre AquaClean. Notif UNIQUEMENT au passage sous 10% (1 fois), pas à chaque dérive/réveil du capteur. from_state numérique pour ignorer les rebonds unavailable→valeur. Fenêtre 7h-23h.
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.machine_a_cafe_etat_filtre
+    below: 10
+    for:
+      minutes: 5
+  condition:
+  - condition: template
+    value_template: '{{ trigger.from_state.state not in [''unavailable'', ''unknown'', ''none'', ''''] and trigger.from_state.state | int(-1) >= 10 }}'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  action:
+  - action: notify.iphones
+    data:
+      title: ☕ Machine à café
+      message: 💧 Filtre AquaClean à changer.
+      data:
+        push:
+          sound: default
+          interruption-level: time-sensitive
+  mode: single
+- id: notif_cafe_detartrage
+  alias: Notif - Café détartrage à faire
+  description: Détartrage requis quand etat_detartrage < 5% (= capacité restante avant blocage). 1 notif par cycle (edge trigger sur crossing 5%). Re-notif après détartrage si capacité re-descend.
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.machine_a_cafe_etat_detartrage
+    below: 5
+    for:
+      minutes: 5
+  condition:
+  - condition: template
+    value_template: '{{ trigger.from_state.state not in [''unavailable'', ''unknown'', ''none''] }}'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  - condition: numeric_state
+    entity_id: sensor.machine_a_cafe_etat_detartrage
+    below: 5
+  action:
+  - action: notify.iphones
+    data:
+      title: ☕ Machine à café
+      message: 🧂 Détartrage à faire.
+      data:
+        push:
+          sound: default
+          interruption-level: time-sensitive
+  mode: single
+- id: notif_cafe_eau
+  alias: Notif - Café réservoir d'eau bas
+  description: waterlevel < 15%. Fenêtre 7h-23h ; détection nocturne reportée à 7h.
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.machine_a_cafe_niveau_d_eau
+    below: 15
+    for:
+      minutes: 1
+  - platform: time
+    at: 07:00:00
+    id: matin
+  condition:
+  - condition: template
+    value_template: '{{ trigger.platform == ''time'' or trigger.from_state.state not in [''unavailable'', ''unknown'', ''none''] }}'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  - condition: numeric_state
+    entity_id: sensor.machine_a_cafe_niveau_d_eau
+    below: 15
+  action:
+  - action: notify.iphones
+    data:
+      title: ☕ Machine à café
+      message: 🚰 Réservoir d'eau à remplir.
+      data:
+        push:
+          sound: default
+          interruption-level: time-sensitive
+  mode: single
+- id: notif_lv_fini
+  alias: Notif - Lave-vaisselle terminé
+  description: Cycle LV fini. Fenêtre 7h-23h ; détection nocturne reportée à 7h si toujours end.
+  trigger:
+  - platform: state
+    entity_id: sensor.lave_vaisselle_current_status
+    to: end
+  - platform: time
+    at: 07:00:00
+    id: matin
+  condition:
+  - condition: template
+    value_template: '{{ trigger.platform == ''time'' or trigger.from_state.state not in [''unavailable'', ''unknown'', ''none''] }}'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  - condition: state
+    entity_id: sensor.lave_vaisselle_current_status
+    state: end
+  action:
+  - action: notify.iphones
+    data:
+      title: 🍽️ Lave-vaisselle
+      message: ✨ Cycle terminé — vaisselle propre.
+      data:
+        push:
+          sound: default
+          interruption-level: time-sensitive
+  mode: single
+- id: notif_ll_fini
+  alias: Notif - Lave-linge terminé
+  description: Cycle LL fini. Fenêtre 7h-23h ; détection nocturne reportée à 7h si toujours end.
+  trigger:
+  - platform: state
+    entity_id: sensor.lave_linge_hublot_current_status
+    to: end
+  - platform: time
+    at: 07:00:00
+    id: matin
+  condition:
+  - condition: template
+    value_template: '{{ trigger.platform == ''time'' or trigger.from_state.state not in [''unavailable'', ''unknown'', ''none''] }}'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  - condition: state
+    entity_id: sensor.lave_linge_hublot_current_status
+    state: end
+  action:
+  - action: notify.iphones
+    data:
+      title: 👕 Lave-linge
+      message: 🧺 Linge propre — à étendre.
+      data:
+        push:
+          sound: default
+          interruption-level: time-sensitive
+  mode: single
+- id: notif_sl_fini
+  alias: Notif - Sèche-linge terminé
+  description: Cycle SL fini. Fenêtre 7h-23h ; détection nocturne reportée à 7h si toujours end.
+  trigger:
+  - platform: state
+    entity_id: sensor.seche_linge_current_status
+    to: end
+  - platform: time
+    at: 07:00:00
+    id: matin
+  condition:
+  - condition: template
+    value_template: '{{ trigger.platform == ''time'' or trigger.from_state.state not in [''unavailable'', ''unknown'', ''none''] }}'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  - condition: state
+    entity_id: sensor.seche_linge_current_status
+    state: end
+  action:
+  - action: notify.iphones
+    data:
+      title: 🌡️ Sèche-linge
+      message: 🧺 Linge sec — à plier.
+      data:
+        push:
+          sound: default
+          interruption-level: time-sensitive
+  mode: single
+- id: notif_robot_nettoyage_termine
+  alias: Notif - Robot nettoyage terminé
+  description: Notif quand le timestamp fin_du_dernier_nettoyage change (= cycle complet terminé). Plus fiable que docked (qui se produit aussi sur retour recharge mi-cycle). Fenêtre 7h-23h ; rattrapage à 7h si état toujours actif.
+  trigger:
+  - platform: state
+    entity_id: sensor.s8_pro_ultra_fin_du_dernier_nettoyage
+  - platform: time
+    at: 07:00:00
+    id: matin
+  condition:
+  - condition: template
+    value_template: '{{ trigger.from_state.state not in [''unknown'',''unavailable'',] and trigger.to_state.state not in [''unknown'',''unavailable'',] and states(''sensor.s8_pro_ultra_surface_de_nettoyage'')|float(0) > 1 }}'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  action:
+  - action: notify.iphones
+    data:
+      title: 🤖 Roborock
+      message: '✅ Ménage terminé : {{ states(''sensor.s8_pro_ultra_surface_de_nettoyage'') }} m² aspirés en {{ (states(''sensor.s8_pro_ultra_duree_de_nettoyage'') | int(0) / 60) | round }} min.'
+      data:
+        push:
+          sound: default
+          interruption-level: time-sensitive
+  mode: single
+- id: notif_robot_dock_eau_propre
+  alias: Notif - Robot eau propre à remplir
+  description: Eau propre vide dans la station. 1 notif par cycle (edge trigger). Re-notif au prochain passage off→on.
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.s8_pro_ultra_dock_clean_water_box
+    to: 'on'
+  condition:
+  - condition: template
+    value_template: '{{ trigger.from_state.state not in [''unavailable'', ''unknown''] }}'
+  - condition: state
+    entity_id: binary_sensor.s8_pro_ultra_dock_clean_water_box
+    state: 'on'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  action:
+  - action: notify.iphones
+    data:
+      title: 🤖 Roborock
+      message: 💧 Eau propre à remplir dans la station.
+      data:
+        push:
+          sound: default
+          interruption-level: time-sensitive
+  mode: single
+- id: notif_robot_dock_eau_sale
+  alias: Notif - Robot eau sale à vider
+  description: Eau sale pleine dans la station. 1 notif par cycle (edge trigger). Re-notif au prochain passage off→on.
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.s8_pro_ultra_dock_dirty_water_box
+    to: 'on'
+  condition:
+  - condition: template
+    value_template: '{{ trigger.from_state.state not in [''unavailable'', ''unknown''] }}'
+  - condition: state
+    entity_id: binary_sensor.s8_pro_ultra_dock_dirty_water_box
+    state: 'on'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  action:
+  - action: notify.iphones
+    data:
+      title: 🤖 Roborock
+      message: 🚮 Eau sale à vider dans la station.
+      data:
+        push:
+          sound: default
+          interruption-level: time-sensitive
+  mode: single
+- id: notif_pluie_baie_ouverte
+  alias: Notif + Action - Pluie & baie vitrée ouverte
+  description: Si pluie détectée, ferme UNIQUEMENT les volets baie vitrée salon et cuisine (ouvertures exposées). Petite fenêtre salon non incluse.
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.weather_station_pluviometre_precipitation
+    above: 0.1
+  condition:
+  - condition: or
+    conditions:
+    - condition: state
+      state: 'on'
+      entity_id: binary_sensor.salon_baie_vitree_ouverture
+    - condition: state
+      state: 'on'
+      entity_id: binary_sensor.salon_fenetre_ouverture
+    - condition: state
+      state: 'on'
+      entity_id: binary_sensor.cuisine_fenetre_ouverture
+  action:
+  - variables:
+      mapping: '{{ {''binary_sensor.salon_baie_vitree_ouverture'':''cover.salon_baie_vitree_shutter'',''binary_sensor.cuisine_fenetre_ouverture'':''cover.cuisine_volet_shutter''} }}'
+      a_fermer: '{% set out = namespace(l=[]) %}{% for sensor, cover in mapping.items() %}{% if is_state(sensor,''on'') %}{% set out.l = out.l + [cover] %}{% endif %}{% endfor %}{{ out.l }}'
+  - condition: template
+    value_template: '{{ a_fermer | length > 0 }}'
+  - action: cover.close_cover
+    target:
+      entity_id: '{{ a_fermer }}'
+  - action: notify.iphones
+    data:
+      message: '🌧️ Pluie détectée — fermeture de {{ a_fermer | length }} volet(s) : {% for c in a_fermer %}{{ state_attr(c,''friendly_name'') or c }}{{ '', '' if not loop.last }}{% endfor %}.'
+  mode: single
+- id: notif_robot_filtre
+  alias: Notif - Robot filtre à remplacer
+  use_blueprint:
+    path: local/notif_low_threshold.yaml
+    input:
+      threshold_sensor: sensor.s8_pro_ultra_temps_restant_filtre
+      threshold_value: 1
+      message: '🤖🔧 Robot : filtre à remplacer.'
+- id: notif_robot_brosse_principale
+  alias: Notif - Robot brosse principale à remplacer
+  use_blueprint:
+    path: local/notif_low_threshold.yaml
+    input:
+      threshold_sensor: sensor.s8_pro_ultra_temps_restant_brosse_principale
+      threshold_value: 1
+      message: '🤖🧹 Robot : brosse principale à remplacer.'
+- id: notif_robot_brosse_laterale
+  alias: Notif - Robot brosse latérale à remplacer
+  use_blueprint:
+    path: local/notif_low_threshold.yaml
+    input:
+      threshold_sensor: sensor.s8_pro_ultra_temps_restant_brosse_laterale
+      threshold_value: 1
+      message: '🤖🪥 Robot : brosse latérale à remplacer.'
+- id: notif_robot_capteurs
+  alias: Notif - Robot capteurs à nettoyer
+  use_blueprint:
+    path: local/notif_low_threshold.yaml
+    input:
+      threshold_sensor: sensor.s8_pro_ultra_temps_restant_capteurs
+      threshold_value: 1
+      message: '🤖👁️ Robot : capteurs à nettoyer.'
+- id: notif_robot_dock_filtre
+  alias: Notif - Robot filtre dock à remplacer
+  use_blueprint:
+    path: local/notif_low_threshold.yaml
+    input:
+      threshold_sensor: sensor.s8_pro_ultra_dock_strainer_time_left
+      threshold_value: 1
+      message: '🤖🪣 Robot dock : filtre à remplacer.'
+- id: notif_robot_dock_brosse
+  alias: Notif - Robot brosse dock à nettoyer
+  use_blueprint:
+    path: local/notif_low_threshold.yaml
+    input:
+      threshold_sensor: sensor.s8_pro_ultra_dock_maintenance_brush_time_left
+      threshold_value: 1
+      message: '🤖🧴 Robot dock : brosse à nettoyer.'
+- id: notif_robot_detergent
+  alias: Notif - Robot détergent à remplir
+  use_blueprint:
+    path: local/notif_binary_alert.yaml
+    input:
+      binary_sensor: binary_sensor.s8_pro_ultra_dock_cleaning_fluid
+      message: '🤖🧴 Robot : détergent à remplir.'
+- id: notif_robot_penurie_eau
+  alias: Notif - Robot pénurie d'eau
+  use_blueprint:
+    path: local/notif_binary_alert.yaml
+    input:
+      binary_sensor: binary_sensor.s8_pro_ultra_penurie_d_eau
+      message: '🤖💧 Robot : pénurie d''eau.'
+- id: notif_batterie_faible_globale
+  alias: Notif - Batterie faible (tout capteur < 15%)
+  description: Surveille tous les capteurs batterie maison + plantes + robot + Tesla et notifie sous 15% Fenêtre 7h-23h ; rattrapage à 7h si état toujours actif.
+  trigger:
+  - platform: numeric_state
+    entity_id: &id001
+    - sensor.bouton_kevin_batterie
+    - sensor.bouton_clara_batterie
+    - sensor.fuite_evier_batterie
+    - sensor.fuite_baignoire_batterie
+    - sensor.fuite_machine_a_laver_batterie
+    - sensor.porte_dressing_batterie
+    - sensor.interrupteur_double_entree_batterie
+    - sensor.detecteur_de_fumee_batterie
+    - sensor.detecteur_de_mouvement_sdb_batterie
+    - sensor.detecteur_entree_batterie
+    - sensor.smart_lock_pro_batterie
+    - sensor.hue_smart_button_1_batterie
+    - sensor.hue_dimmer_switch_1_batterie
+    - sensor.thermostat_batterie
+    - sensor.radiateur_salon_batterie
+    - sensor.radiateur_entree_batterie
+    - sensor.radiateur_chambre_batterie
+    - sensor.radiateur_bureau_batterie
+    - sensor.radiateur_chambre_d_amis_batterie
+    - sensor.radiateur_cuisine_batterie
+    - sensor.weather_station_outdoor_module_batterie
+    - sensor.weather_station_pluviometre_batterie
+    - sensor.weather_station_chambre_de_raphael_batterie
+    - sensor.weather_station_chambre_batterie
+    - sensor.weather_station_bureau_batterie
+    - sensor.luminosite_salon_battery
+    - sensor.3d_print_temp_battery
+    - sensor.toilettes_battery
+    - sensor.dragonnier_de_madagascar_battery
+    - sensor.ficus_battery
+    - sensor.s8_pro_ultra_batterie
+    below: 15
+    for:
+      hours: 1
+  - platform: time
+    at: 07:00:00
+    id: matin
+  action:
+  - action: notify.iphones
+    data:
+      message: '🔋 Batterie faible : {% set noms = {''sensor.bouton_kevin_batterie'': ''Bouton Kevin'', ''sensor.bouton_clara_batterie'': ''Bouton Loutre'', ''sensor.fuite_evier_batterie'': ''Détecteur fuite évier'', ''sensor.fuite_baignoire_batterie'': ''Détecteur fuite baignoire'', ''sensor.fuite_machine_a_laver_batterie'': ''Détecteur fuite machine à laver'', ''sensor.porte_dressing_batterie'': ''Capteur porte dressing'', ''sensor.interrupteur_double_entree_batterie'': ''Interrupteur entrée'', ''sensor.detecteur_de_fumee_batterie'': ''Détecteur de fumée'', ''sensor.detecteur_de_mouvement_sdb_batterie'': ''Détecteur mouvement SDB'', ''sensor.detecteur_entree_batterie'': ''Détecteur entrée'', ''sensor.smart_lock_pro_batterie'': ''Serrure Nuki'', ''sensor.hue_smart_button_1_batterie'': ''Bouton Hue Raphaël'', ''sensor.hue_dimmer_switch_1_batterie'': ''Dimmer Hue chambre'', ''sensor.thermostat_batterie'': ''Thermostat'', ''sensor.radiateur_salon_batterie'': ''Radiateur Salon'', ''sensor.radiateur_entree_batterie'': ''Radiateur Entrée'', ''sensor.radiateur_chambre_batterie'': ''Radiateur Chambre parentale'', ''sensor.radiateur_bureau_batterie'': ''Radiateur Bureau'', ''sensor.radiateur_chambre_d_amis_batterie'': ''Radiateur Chambre Raphaël'', ''sensor.radiateur_cuisine_batterie'': ''Radiateur Cuisine'', ''sensor.weather_station_outdoor_module_batterie'': ''Netatmo extérieur'', ''sensor.weather_station_pluviometre_batterie'': ''Pluviomètre terrasse'', ''sensor.weather_station_chambre_de_raphael_batterie'': ''Netatmo Chambre Raphaël'', ''sensor.weather_station_chambre_batterie'': ''Netatmo Chambre parentale'', ''sensor.weather_station_bureau_batterie'': ''Netatmo Bureau'', ''sensor.luminosite_salon_battery'': ''Capteur luminosité Salon'', ''sensor.3d_print_temp_battery'': ''Sonde caisson imprimante 3D'', ''sensor.toilettes_battery'': ''Capteur T° Toilettes'', ''sensor.dragonnier_de_madagascar_battery'': ''Plante Dragonnier'', ''sensor.ficus_battery'': ''Plante Ficus'', ''sensor.s8_pro_ultra_batterie'': ''Robot aspirateur''} %}{{ noms.get(trigger.entity_id, trigger.to_state.attributes.friendly_name) }} ({{ trigger.to_state.state }}%)'
+  mode: parallel
+  max: 10
+  condition:
+  - condition: template
+    value_template: '{{ trigger.platform == ''time'' or trigger.from_state.state not in [''unavailable'', ''unknown'', ''none''] }}'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  - condition: numeric_state
+    entity_id: *id001
+    below: 15
+- id: debug_purificateur_preset_change
+  alias: '[DEBUG] Purificateur preset change'
+  description: Trace tout changement du preset_mode du Core 300S pour identifier l'auteur
+  trigger:
+  - platform: state
+    entity_id: fan.core_300s
+    attribute: preset_mode
+  action:
+  - service: logbook.log
+    data:
+      name: Core 300S preset
+      message: "{{ trigger.from_state.attributes.preset_mode }} → {{ trigger.to_state.attributes.preset_mode }} (user_id={{ trigger.context.user_id or 'none' }},\n parent_id={{ trigger.context.parent_id or 'none' }})"
+      entity_id: fan.core_300s
+  mode: parallel
+  max: 10
+- id: goodbye_eteindre_lumieres
+  alias: Goodbye - éteindre toutes les lumières
+  description: 'Tout le monde not_home : éteindre lumières et verrouiller porte si besoin'
+  trigger:
+  - platform: state
+    entity_id:
+    - person.kevin_allioli
+    - person.loutre
+    to: not_home
+    for:
+      minutes: 5
+  condition:
+  - condition: state
+    entity_id: person.kevin_allioli
+    state: not_home
+  - condition: state
+    entity_id: person.loutre
+    state: not_home
+  action:
+  - action: light.turn_off
+    target:
+      entity_id: all
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: lock.smart_lock_pro
+        state: unlocked
+      sequence:
+      - action: lock.lock
+        target:
+          entity_id: lock.smart_lock_pro
+      - action: notify.iphones
+        data:
+          message: 🔒 Porte verrouillée automatiquement (départ détecté).
+  mode: single
+- id: notif_humidificateur_sans_eau
+  alias: Notif - Humidificateur réservoir vide
+  description: Notif si le Levoit Dual 200S n'a plus d'eau (low_water). Trigger quand le réservoir se vide en journée OU juste après le démarrage 22h. Pas de notif nocturne (23h-7h).
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.dual_200s_low_water
+    to: 'on'
+    for:
+      minutes: 2
+    id: vide_en_cours
+  - platform: time
+    at: '22:00:30'
+    id: au_demarrage
+  condition:
+  - condition: state
+    entity_id: binary_sensor.dual_200s_low_water
+    state: 'on'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  action:
+  - action: notify.iphones
+    data:
+      message: '💧 Humidificateur chambre : réservoir vide, à remplir.'
+      data:
+        push:
+          sound: default
+          interruption-level: time-sensitive
+  mode: single
+- id: humidificateur_soir
+  alias: Humidificateur - démarrer le soir à 22h (60%)
+  description: Allume le Levoit Dual 200S tous les soirs à 22h avec target 60%
+  trigger:
+  - platform: time
+    at: '22:00:00'
+  action:
+  - action: humidifier.turn_on
+    target:
+      entity_id: humidifier.dual_200s
+    continue_on_error: true
+  - delay:
+      seconds: 3
+  - action: humidifier.set_humidity
+    target:
+      entity_id: humidifier.dual_200s
+    data:
+      humidity: 60
+    continue_on_error: true
+  mode: single
+- id: humidificateur_matin
+  alias: Humidificateur - arrêter à 6h
+  description: Éteint le Levoit Dual 200S tous les matins à 6h
+  trigger:
+  - platform: time
+    at: 06:00:00
+  action:
+  - action: humidifier.turn_off
+    target:
+      entity_id: humidifier.dual_200s
+  mode: single
+- id: volets_ouverture_matin_absence
+  alias: Volets - ouverture matin si personne home (aube +30min)
+  description: 30 min après l'aube, si personne home, ouvrir les volets
+  trigger:
+  - platform: sun
+    event: sunrise
+    offset: +00:30:00
+  condition:
+  - condition: state
+    entity_id: person.kevin_allioli
+    state: not_home
+  - condition: state
+    entity_id: person.loutre
+    state: not_home
+  action:
+  - action: cover.open_cover
+    target:
+      entity_id:
+      - cover.salon_baie_vitree_shutter
+      - cover.salon_fenetre_volet_shutter
+      - cover.cuisine_volet_shutter
+      - cover.raphael_volet_shutter
+  mode: single
+- id: volets_fermeture_soir_absence
+  alias: Volets - fermeture nuit si personne home (élévation soleil < -8°)
+  description: Ferme les volets quand le soleil est à -8° (= fin du crépuscule nautique = vraiment la nuit). Fin mai ~22:10, hiver ~17:30. Plus prédictible que lux, pas affecté par les montagnes qui font tomber le lux trop tôt.
+  trigger:
+  - platform: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    below: -8
+    id: sun_dark
+  condition:
+  - condition: state
+    entity_id: input_boolean.mode_nounou
+    state: 'off'
+  - condition: time
+    after: '16:00:00'
+    before: '23:30:00'
+  - condition: state
+    entity_id: person.kevin_allioli
+    state: not_home
+  - condition: state
+    entity_id: person.loutre
+    state: not_home
+  action:
+  - action: cover.close_cover
+    target:
+      entity_id:
+      - cover.salon_baie_vitree_shutter
+      - cover.salon_fenetre_volet_shutter
+      - cover.cuisine_volet_shutter
+      - cover.raphael_volet_shutter
+  mode: single
+- id: welcome_home_lumiere_entree
+  alias: Welcome home - allumer entrée si luminosité salon basse
+  description: Quand 1er du foyer rentre (seule personne home), allumer le luminaire entrée si la luminosité du salon < 30 lx
+  trigger:
+  - platform: state
+    entity_id:
+    - person.kevin_allioli
+    - person.loutre
+    to: home
+  condition:
+  - condition: numeric_state
+    entity_id: sensor.luminosite_salon_illuminance
+    below: 30
+  - condition: state
+    entity_id: light.entree_plafonnier
+    state: 'off'
+  - condition: template
+    value_template: '{{ ([states(''person.kevin_allioli''), states(''person.loutre'')] | select(''eq'',''home'') | list | count) == 1 }}
+
+      '
+  action:
+  - action: light.turn_on
+    target:
+      entity_id: light.entree_plafonnier
+    data:
+      brightness_pct: 70
+  mode: single
+- id: alert_pre_jour_rouge_tempo
+  alias: Notif - Pré-alerte jour Tempo Rouge demain
+  description: À 11h chaque jour, si la prochaine couleur tempo est Rouge, notifier
+  trigger:
+  - platform: time
+    at: '11:00:00'
+  condition:
+  - condition: state
+    entity_id: sensor.rte_tempo_prochaine_couleur
+    state: Rouge
+  action:
+  - action: notify.iphones
+    data:
+      message: 🔴 Demain = jour Tempo Rouge. Lancer machines / sèche-linge / four ce soir.
+  mode: single
+- id: alert_intrusion_porte_entree
+  alias: Notif - Intrusion porte entrée pendant absence
+  description: Porte d'entrée ouverte alors que personne n'est home
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.entree_porte_ouverture
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: person.kevin_allioli
+    state: not_home
+  - condition: state
+    entity_id: person.loutre
+    state: not_home
+  action:
+  - action: notify.iphones
+    data:
+      message: 🚨 ALERTE — Porte d'entrée ouverte alors que personne n'est à la maison.
+      data:
+        push:
+          sound: default
+          interruption-level: critical
+  mode: single
+- id: alert_co2_aerer
+  alias: Notif - Aération CO2 par pièce
+  description: Si CO2 > 1500 ppm dans une pièce en journée, notifier d'aérer Fenêtre 7h-23h ; rattrapage à 7h si état toujours actif.
+  trigger:
+  - platform: numeric_state
+    entity_id: &id002
+    - sensor.weather_station_dioxyde_de_carbone
+    - sensor.weather_station_chambre_de_raphael_dioxyde_de_carbone
+    - sensor.weather_station_chambre_dioxyde_de_carbone
+    - sensor.weather_station_bureau_dioxyde_de_carbone
+    above: 1500
+    for:
+      minutes: 10
+  - platform: time
+    at: 07:00:00
+    id: matin
+  condition:
+  - condition: sun
+    after: sunrise
+    before: sunset
+  - condition: template
+    value_template: '{{ trigger.platform == ''time'' or trigger.from_state.state not in [''unavailable'', ''unknown'', ''none''] }}'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  - condition: numeric_state
+    entity_id: *id002
+    above: 1500
+  action:
+  - action: notify.iphones
+    data:
+      message: '💨 CO2 élevé : {% set rooms = {''sensor.weather_station_dioxyde_de_carbone'': ''Salon'', ''sensor.weather_station_chambre_de_raphael_dioxyde_de_carbone'': ''Chambre Raphaël'', ''sensor.weather_station_chambre_dioxyde_de_carbone'': ''Chambre parentale'', ''sensor.weather_station_bureau_dioxyde_de_carbone'': ''Bureau''} %}{{ rooms.get(trigger.entity_id, trigger.to_state.attributes.friendly_name) }} à {{ trigger.to_state.state }} ppm — pensez à aérer.'
+  mode: parallel
+  max: 5
+- id: vacuum_lundi_jeudi
+  alias: Robot - Lundi & Jeudi 9h (lavage intense + max)
+  description: Lave en intense et aspire en max, parcours standard
+  trigger:
+  - platform: time
+    at: 09:00:00
+  condition:
+  - condition: time
+    weekday:
+    - mon
+    - thu
+  action:
+  - action: select.select_option
+    target:
+      entity_id: select.s8_pro_ultra_intensite_de_frottement
+    data:
+      option: intense
+  - action: select.select_option
+    target:
+      entity_id: select.s8_pro_ultra_parcours_de_lavage_de_sol
+    data:
+      option: standard
+  - action: vacuum.set_fan_speed
+    target:
+      entity_id: vacuum.s8_pro_ultra
+    data:
+      fan_speed: max
+  - action: vacuum.start
+    target:
+      entity_id: vacuum.s8_pro_ultra
+  mode: single
+- id: vacuum_mardi
+  alias: Robot - Mardi 9h (lavage standard + aspiration max)
+  description: Aspire max + lave standard, parcours standard
+  trigger:
+  - platform: time
+    at: 09:00:00
+  condition:
+  - condition: time
+    weekday:
+    - tue
+  action:
+  - action: select.select_option
+    target:
+      entity_id: select.s8_pro_ultra_intensite_de_frottement
+    data:
+      option: standard
+  - action: select.select_option
+    target:
+      entity_id: select.s8_pro_ultra_parcours_de_lavage_de_sol
+    data:
+      option: standard
+  - action: vacuum.set_fan_speed
+    target:
+      entity_id: vacuum.s8_pro_ultra
+    data:
+      fan_speed: max
+  - action: vacuum.start
+    target:
+      entity_id: vacuum.s8_pro_ultra
+  mode: single
+- id: vacuum_vendredi
+  alias: Robot - Vendredi 9h (lavage + aspiration max)
+  description: Lave intense + aspire max, parcours standard
+  trigger:
+  - platform: time
+    at: 09:00:00
+  condition:
+  - condition: time
+    weekday:
+    - fri
+  action:
+  - action: select.select_option
+    target:
+      entity_id: select.s8_pro_ultra_intensite_de_frottement
+    data:
+      option: intense
+  - action: select.select_option
+    target:
+      entity_id: select.s8_pro_ultra_parcours_de_lavage_de_sol
+    data:
+      option: standard
+  - action: vacuum.set_fan_speed
+    target:
+      entity_id: vacuum.s8_pro_ultra
+    data:
+      fan_speed: max
+  - action: vacuum.start
+    target:
+      entity_id: vacuum.s8_pro_ultra
+  mode: single
+- id: vacuum_absence_aspiration
+  alias: Robot - Aspiration sur absence (mer/sam/dim)
+  description: Mercredi et weekend, démarre l'aspiration (sans lavage) si tous absents > 5min
+  trigger:
+  - platform: state
+    entity_id:
+    - person.kevin_allioli
+    - person.loutre
+    to: not_home
+    for:
+      minutes: 5
+  condition:
+  - condition: time
+    weekday:
+    - wed
+    - sat
+    - sun
+    after: 08:00:00
+    before: '20:00:00'
+  - condition: state
+    entity_id: person.kevin_allioli
+    state: not_home
+  - condition: state
+    entity_id: person.loutre
+    state: not_home
+  - condition: state
+    entity_id: vacuum.s8_pro_ultra
+    state: docked
+  action:
+  - action: select.select_option
+    target:
+      entity_id: select.s8_pro_ultra_intensite_de_frottement
+    data:
+      option: 'off'
+  - action: vacuum.set_fan_speed
+    target:
+      entity_id: vacuum.s8_pro_ultra
+    data:
+      fan_speed: max
+  - action: vacuum.start
+    target:
+      entity_id: vacuum.s8_pro_ultra
+  - action: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.robot_lance_par_absence
+  mode: single
+- id: vacuum_retour_dock_si_presence
+  alias: Robot - Retour dock si présence pendant nettoyage (mer/sam/dim)
+  description: Mer/weekend, si quelqu'un rentre alors que le robot nettoie ET que le robot a été lancé par l'auto-absence (flag robot_lance_par_absence=on), retour au dock. Si le robot a été lancé manuellement, ne pas interférer.
+  trigger:
+  - platform: state
+    entity_id:
+    - person.kevin_allioli
+    - person.loutre
+    to: home
+  condition:
+  - condition: state
+    entity_id: input_boolean.robot_lance_par_absence
+    state: 'on'
+  - condition: time
+    weekday:
+    - wed
+    - sat
+    - sun
+  - condition: state
+    entity_id: vacuum.s8_pro_ultra
+    state: cleaning
+  action:
+  - action: vacuum.return_to_base
+    target:
+      entity_id: vacuum.s8_pro_ultra
+  - action: notify.iphones
+    data:
+      message: 🤖 Quelqu'un rentre — le robot retourne au dock.
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.robot_lance_par_absence
+  mode: single
+- id: clim_off_fenetre_salon
+  alias: Clim auto-off - Salon fenêtre ouverte (radiateur + Daikin)
+  description: Coupe les climates actives de Salon quand fenêtre ouverte > 5 min. Daikin → turn_off natif. Atlantic Netatmo → preset frost_guard (7°C, évite l'erreur 403 Netatmo causée par climate.turn_off sur les radiateurs Cozytouch).
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.salon_fenetre_ouverture
+    - binary_sensor.salon_baie_vitree_ouverture
+    to: 'on'
+    for:
+      minutes: 5
+  action:
+  - variables:
+      actifs: '{% set out = namespace(l=[]) %}{% for e in [''climate.salon_2'', ''climate.daikinap50458_room_temperature''] %}  {% set s = states[e] %}  {% if s and s.state not in [''off'',''unavailable'',''unknown''] %}    {% set ha = s.attributes.hvac_action %}    {% if ha is none or ha in [''heating'',''cooling'',''drying''] %}      {% set out.l = out.l + [e] %}    {% endif %}  {% endif %}{% endfor %}{{ out.l }}'
+      actifs_daikin: '{{ actifs | select(''eq'',''climate.daikinap50458_room_temperature'') | list }}'
+      actifs_atlantic: '{{ actifs | reject(''eq'',''climate.daikinap50458_room_temperature'') | list }}'
+  - condition: template
+    value_template: '{{ actifs | length > 0 }}'
+  - if:
+    - condition: template
+      value_template: '{{ actifs_daikin | length > 0 }}'
+    then:
+    - action: climate.turn_off
+      target:
+        entity_id: '{{ actifs_daikin }}'
+  - if:
+    - condition: template
+      value_template: '{{ actifs_atlantic | length > 0 }}'
+    then:
+    - action: climate.set_preset_mode
+      target:
+        entity_id: '{{ actifs_atlantic }}'
+      data:
+        preset_mode: frost_guard
+  - action: notify.iphones
+    data:
+      message: '❄️ Salon — fenêtre ouverte > 5 min, {{ actifs | length }} clim/radiateur(s) coupé(s) : {% for e in actifs %}{{ state_attr(e, ''friendly_name'') or e }}{{ '', '' if not loop.last }}{% endfor %}.'
+  mode: single
+- id: clim_off_fenetre_cuisine
+  alias: Clim auto-off - Cuisine fenêtre ouverte (radiateur + Daikin)
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.cuisine_fenetre_ouverture
+    to: 'on'
+    for:
+      minutes: 5
+  action:
+  - variables:
+      actifs: '{% set out = namespace(l=[]) %}{% for e in [''climate.cuisine'', ''climate.daikinap50458_room_temperature''] %}  {% set s = states[e] %}  {% if s and s.state not in [''off'',''unavailable'',''unknown''] %}    {% set ha = s.attributes.hvac_action %}    {% if ha is none or ha in [''heating'',''cooling'',''drying''] %}      {% set out.l = out.l + [e] %}    {% endif %}  {% endif %}{% endfor %}{{ out.l }}'
+      actifs_daikin: '{{ actifs | select(''eq'',''climate.daikinap50458_room_temperature'') | list }}'
+      actifs_atlantic: '{{ actifs | reject(''eq'',''climate.daikinap50458_room_temperature'') | list }}'
+  - condition: template
+    value_template: '{{ actifs | length > 0 }}'
+  - if:
+    - condition: template
+      value_template: '{{ actifs_daikin | length > 0 }}'
+    then:
+    - action: climate.turn_off
+      target:
+        entity_id: '{{ actifs_daikin }}'
+  - if:
+    - condition: template
+      value_template: '{{ actifs_atlantic | length > 0 }}'
+    then:
+    - action: climate.set_preset_mode
+      target:
+        entity_id: '{{ actifs_atlantic }}'
+      data:
+        preset_mode: frost_guard
+  - action: notify.iphones
+    data:
+      message: '❄️ Cuisine — fenêtre ouverte > 5 min, {{ actifs | length }} clim/radiateur(s) coupé(s) : {% for e in actifs %}{{ state_attr(e, ''friendly_name'') or e }}{{ '', '' if not loop.last }}{% endfor %}.'
+  mode: single
+  description: Coupe les climates actives de Cuisine quand fenêtre ouverte > 5 min. Daikin → turn_off natif. Atlantic Netatmo → preset frost_guard (7°C, évite l'erreur 403 Netatmo causée par climate.turn_off sur les radiateurs Cozytouch).
+- id: clim_off_fenetre_bureau
+  alias: Clim auto-off - Bureau fenêtre ouverte
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.bureau_fenetre_ouverture
+    to: 'on'
+    for:
+      minutes: 5
+  condition:
+  - condition: state
+    entity_id: climate.bureau
+    state:
+    - heat
+    - cool
+    - heat_cool
+    - dry
+  action:
+  - variables:
+      actifs: '{% set out = namespace(l=[]) %}{% for e in [''climate.bureau''] %}  {% set s = states[e] %}  {% if s and s.state not in [''off'',''unavailable'',''unknown''] %}    {% set ha = s.attributes.hvac_action %}    {% if ha is none or ha in [''heating'',''cooling'',''drying''] %}      {% set out.l = out.l + [e] %}    {% endif %}  {% endif %}{% endfor %}{{ out.l }}'
+      actifs_daikin: '{{ actifs | select(''eq'',''climate.daikinap50458_room_temperature'') | list }}'
+      actifs_atlantic: '{{ actifs | reject(''eq'',''climate.daikinap50458_room_temperature'') | list }}'
+  - condition: template
+    value_template: '{{ actifs | length > 0 }}'
+  - if:
+    - condition: template
+      value_template: '{{ actifs_daikin | length > 0 }}'
+    then:
+    - action: climate.turn_off
+      target:
+        entity_id: '{{ actifs_daikin }}'
+  - if:
+    - condition: template
+      value_template: '{{ actifs_atlantic | length > 0 }}'
+    then:
+    - action: climate.set_preset_mode
+      target:
+        entity_id: '{{ actifs_atlantic }}'
+      data:
+        preset_mode: frost_guard
+  - action: notify.iphones
+    data:
+      message: '❄️ Bureau — fenêtre ouverte > 5 min, {{ actifs | length }} clim/radiateur(s) coupé(s) : {% for e in actifs %}{{ state_attr(e, ''friendly_name'') or e }}{{ '', '' if not loop.last }}{% endfor %}.'
+  mode: single
+  description: Coupe les climates actives de Bureau quand fenêtre ouverte > 5 min. Daikin → turn_off natif. Atlantic Netatmo → preset frost_guard (7°C, évite l'erreur 403 Netatmo causée par climate.turn_off sur les radiateurs Cozytouch).
+- id: clim_off_fenetre_raphael
+  alias: Clim auto-off - Chambre Raphaël fenêtre ouverte
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.raphael_fenetre_ouverture
+    to: 'on'
+    for:
+      minutes: 5
+  condition:
+  - condition: state
+    entity_id: climate.chambre_damis
+    state:
+    - heat
+    - cool
+    - heat_cool
+    - dry
+  action:
+  - variables:
+      actifs: '{% set out = namespace(l=[]) %}{% for e in [''climate.chambre_damis''] %}  {% set s = states[e] %}  {% if s and s.state not in [''off'',''unavailable'',''unknown''] %}    {% set ha = s.attributes.hvac_action %}    {% if ha is none or ha in [''heating'',''cooling'',''drying''] %}      {% set out.l = out.l + [e] %}    {% endif %}  {% endif %}{% endfor %}{{ out.l }}'
+      actifs_daikin: '{{ actifs | select(''eq'',''climate.daikinap50458_room_temperature'') | list }}'
+      actifs_atlantic: '{{ actifs | reject(''eq'',''climate.daikinap50458_room_temperature'') | list }}'
+  - condition: template
+    value_template: '{{ actifs | length > 0 }}'
+  - if:
+    - condition: template
+      value_template: '{{ actifs_daikin | length > 0 }}'
+    then:
+    - action: climate.turn_off
+      target:
+        entity_id: '{{ actifs_daikin }}'
+  - if:
+    - condition: template
+      value_template: '{{ actifs_atlantic | length > 0 }}'
+    then:
+    - action: climate.set_preset_mode
+      target:
+        entity_id: '{{ actifs_atlantic }}'
+      data:
+        preset_mode: frost_guard
+  - action: notify.iphones
+    data:
+      message: '❄️ Chambre Raphaël — fenêtre ouverte > 5 min, {{ actifs | length }} clim/radiateur(s) coupé(s) : {% for e in actifs %}{{ state_attr(e, ''friendly_name'') or e }}{{ '', '' if not loop.last }}{% endfor %}.'
+  mode: single
+  description: Coupe les climates actives de Chambre Raphaël quand fenêtre ouverte > 5 min. Daikin → turn_off natif. Atlantic Netatmo → preset frost_guard (7°C, évite l'erreur 403 Netatmo causée par climate.turn_off sur les radiateurs Cozytouch).
+- id: lit_dim_nuit
+  alias: Lit - dimmer auto 5% la nuit (00h-07h)
+  description: Quand la lampe lit s'allume entre minuit et 7h, force 5% de luminosité
+  trigger:
+  - platform: state
+    entity_id: light.lit
+    from: 'off'
+    to: 'on'
+  condition:
+  - condition: time
+    after: 00:00:00
+    before: 07:00:00
+  action:
+  - delay:
+      seconds: 1
+  - action: light.turn_on
+    target:
+      entity_id: light.lit
+    data:
+      brightness_pct: 5
+  mode: single
+- id: notif_fumee_critical
+  alias: Notif - Fumée (critique + répétition 2 min)
+  description: Alerte critique répétée tant que fumée détectée
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.detecteur_de_fumee_fumee
+    to: 'on'
+  action:
+  - repeat:
+      while:
+      - condition: state
+        entity_id: binary_sensor.detecteur_de_fumee_fumee
+        state: 'on'
+      sequence:
+      - action: notify.iphones
+        data:
+          message: 🚨 FUMÉE DÉTECTÉE — alerte au feu !
+          data:
+            push:
+              sound: default
+              interruption-level: critical
+      - delay:
+          minutes: 2
+  mode: restart
+- id: notif_critical_fuite_evier
+  alias: Notif - 🚨 ÉVIER — fuite d'eau détectée
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.fuite_evier
+    to: 'on'
+  action:
+  - action: notify.iphones
+    data:
+      message: 🚨 ÉVIER — fuite d'eau détectée
+      data:
+        push:
+          sound: default
+          interruption-level: critical
+  mode: single
+- id: notif_critical_fuite_baignoire
+  alias: Notif - 🚨 BAIGNOIRE — fuite d'eau déte
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.fuite_baignoire
+    to: 'on'
+  action:
+  - action: notify.iphones
+    data:
+      message: 🚨 BAIGNOIRE — fuite d'eau détectée
+      data:
+        push:
+          sound: default
+          interruption-level: critical
+  mode: single
+- id: notif_critical_fuite_machine_a_laver
+  alias: Notif - 🚨 MACHINE À LAVER — fuite d'ea
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.fuite_machine_a_laver
+    to: 'on'
+  action:
+  - action: notify.iphones
+    data:
+      message: 🚨 MACHINE À LAVER — fuite d'eau détectée
+      data:
+        push:
+          sound: default
+          interruption-level: critical
+  mode: single
+- id: notif_humidite_raphael_basse
+  alias: Notif - Humidité Raphaël < 40%
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.weather_station_chambre_de_raphael_humidite
+    below: 40
+    for:
+      minutes: 30
+  - platform: time
+    at: 07:00:00
+    id: matin
+  action:
+  - action: notify.iphones
+    data:
+      message: '💧 Chambre Raphaël : humidité {{ states(''sensor.weather_station_chambre_de_raphael_humidite'') }}% (trop sèche).'
+  mode: single
+  condition:
+  - condition: template
+    value_template: '{{ trigger.platform == ''time'' or trigger.from_state.state not in [''unavailable'', ''unknown'', ''none''] }}'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  - condition: numeric_state
+    entity_id: sensor.weather_station_chambre_de_raphael_humidite
+    below: 40
+  description: Fenêtre 7h-23h ; rattrapage à 7h si état toujours actif.
+- id: notif_humidite_raphael_haute
+  alias: Notif - Humidité Raphaël > 60%
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.weather_station_chambre_de_raphael_humidite
+    above: 60
+    for:
+      minutes: 30
+  - platform: time
+    at: 07:00:00
+    id: matin
+  action:
+  - action: notify.iphones
+    data:
+      message: '💦 Chambre Raphaël : humidité {{ states(''sensor.weather_station_chambre_de_raphael_humidite'') }}% (trop humide).'
+  mode: single
+  condition:
+  - condition: template
+    value_template: '{{ trigger.platform == ''time'' or trigger.from_state.state not in [''unavailable'', ''unknown'', ''none''] }}'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  - condition: numeric_state
+    entity_id: sensor.weather_station_chambre_de_raphael_humidite
+    above: 60
+  description: Fenêtre 7h-23h ; rattrapage à 7h si état toujours actif.
+- id: notif_frigo_trop_chaud
+  alias: Notif - Frigo trop chaud (>8°C pendant 1h)
+  description: Alerte si la température du frigo dépasse 8°C plus d'une heure (porte mal fermée, panne)
+  trigger:
+  - platform: numeric_state
+    entity_id: number.refrigerateur_fridge_temperature
+    above: 8
+    for:
+      hours: 1
+  action:
+  - action: notify.iphones
+    data:
+      message: 🌡️🥶 Frigo à {{ states('number.refrigerateur_fridge_temperature') }}°C depuis 1h — vérifier la porte ou contacter SAV.
+      data:
+        push:
+          sound: default
+          interruption-level: critical
+  mode: single
+- id: notif_tesla_ouverture_prolongee
+  alias: Notif - Tesla porte/coffre/fenêtre ouvert > 5 min
+  description: Notif si une ouverture Tesla reste 5 min. Conditions anti faux-positif (donnees figees quand la voiture dort) - voiture online + deverrouillee. Fenêtre 7h-23h ; rattrapage à 7h si état toujours actif.
+  trigger:
+  - platform: state
+    entity_id:
+    - cover.josette_coffre
+    - cover.josette_coffre_avant
+    - cover.josette_windows
+    - binary_sensor.josette_porte_avant_conducteur
+    - binary_sensor.josette_porte_avant_passager
+    - binary_sensor.josette_porte_arriere_conducteur
+    - binary_sensor.josette_porte_arriere_passager
+    to:
+    - open
+    - 'on'
+    for:
+      minutes: 5
+  - platform: time
+    at: 07:00:00
+    id: matin
+  condition:
+  - condition: state
+    entity_id: binary_sensor.josette_status
+    state: 'on'
+  - condition: state
+    entity_id: lock.josette_lock
+    state: unlocked
+  - condition: template
+    value_template: '{{ trigger.platform == ''time'' or trigger.from_state.state not in [''unavailable'', ''unknown'', ''none''] }}'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  action:
+  - action: notify.iphones
+    data:
+      message: '🚗 Tesla : {{ trigger.to_state.attributes.friendly_name }} ouvert depuis 5 min.'
+  mode: parallel
+  max: 5
+- id: notif_imprimante_3d_terminee
+  alias: Notif - Imprimante 3D terminée
+  trigger:
+  - platform: state
+    entity_id: sensor.prusa_mk4s
+    to: finished
+  - platform: time
+    at: 07:00:00
+    id: matin
+  action:
+  - action: notify.mobile_app_iphone_17_pro
+    data:
+      title: 🖨️ Impression terminée
+      message: '{{ states("sensor.prusa_mk4s_fichier") }} — pense à récupérer la pièce.'
+      data:
+        push:
+          sound: default
+          interruption-level: time-sensitive
+  mode: single
+  condition:
+  - condition: template
+    value_template: '{{ trigger.platform == ''time'' or trigger.from_state.state not in [''unavailable'', ''unknown'', ''none''] }}'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  - condition: state
+    entity_id: sensor.prusa_mk4s
+    state: finished
+  description: Fenêtre 7h-23h ; rattrapage à 7h si état toujours actif.
+- id: notif_imprimante_3d_erreur
+  alias: Notif - Imprimante 3D erreur
+  trigger:
+  - platform: state
+    entity_id: sensor.prusa_mk4s
+    to:
+    - error
+    - attention
+    - stopped
+  - platform: time
+    at: 07:00:00
+    id: matin
+  action:
+  - action: notify.iphones
+    data:
+      message: '🖨️ Imprimante 3D : {% set etats = {''error'': ''erreur'', ''attention'': ''attention requise'', ''stopped'': ''arrêtée'', ''paused'': ''en pause''} %}{{ etats.get(states(''sensor.prusa_mk4s''), states(''sensor.prusa_mk4s'')) }} — intervention requise.'
+      data:
+        push:
+          sound: default
+          interruption-level: time-sensitive
+  mode: single
+  condition:
+  - condition: template
+    value_template: '{{ trigger.platform == ''time'' or trigger.from_state.state not in [''unavailable'', ''unknown'', ''none''] }}'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  description: Fenêtre 7h-23h ; rattrapage à 7h si état toujours actif.
+- id: notif_vacuum_erreur
+  alias: Notif - Robot aspirateur en erreur / coincé
+  description: Couvre état error, code erreur aspirateur (coincé/bumper/cliff/etc) et erreur dock. time-sensitive. Fenêtre 7h-23h ; rattrapage à 7h si état toujours actif.
+  trigger:
+  - platform: state
+    entity_id: vacuum.s8_pro_ultra
+    to: error
+  - platform: state
+    entity_id: sensor.s8_pro_ultra_erreur_de_l_aspirateur
+    for:
+      seconds: 20
+  - platform: state
+    entity_id: sensor.s8_pro_ultra_erreur_de_dock
+    for:
+      seconds: 20
+  - platform: time
+    at: 07:00:00
+    id: matin
+  condition:
+  - condition: template
+    value_template: "{{ is_state('vacuum.s8_pro_ultra','error')\n   or (states('sensor.s8_pro_ultra_erreur_de_l_aspirateur') not in ['none','unknown','unavailable',''])\n   or (states('sensor.s8_pro_ultra_erreur_de_dock') not in ['ok','unknown','unavailable','']) }}\n"
+  - condition: template
+    value_template: '{{ trigger.platform == ''time'' or trigger.from_state.state not in [''unavailable'', ''unknown'', ''none''] }}'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  - condition: state
+    entity_id: vacuum.s8_pro_ultra
+    state: error
+  action:
+  - action: notify.iphones
+    data:
+      title: 🤖 Roborock
+      message: '❌ Problème robot : {% set e = states(''sensor.s8_pro_ultra_erreur_de_l_aspirateur'') %}{% set d = states(''sensor.s8_pro_ultra_erreur_de_dock'') %}{% if e not in [''none'',''unknown'',''unavailable'',''''] %}{{ e }}{% elif d not in [''ok'',''unknown'',''unavailable'',''''] %}dock {{ d }}{% else %}en erreur{% endif %} — intervention requise.'
+      data:
+        push:
+          sound: default
+          interruption-level: time-sensitive
+  mode: single
+- id: notif_meteo_froid_extreme
+  alias: Notif - Froid extrême (<-5°C)
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.weather_station_outdoor_module_temperature
+    below: -5
+    for:
+      minutes: 30
+  action:
+  - action: notify.iphones
+    data:
+      title: 🥶 Froid extrême
+      message: '{{ states("sensor.weather_station_outdoor_module_temperature") }}°C dehors — pense au chauffage.'
+      data:
+        push:
+          sound: default
+          interruption-level: time-sensitive
+        actions:
+        - action: METEO_CHAUFFAGE_PLUS
+          title: 🔥 Radiateurs +2°C
+        - action: METEO_FERMER_VOLETS
+          title: 🪟 Fermer tous les volets
+  mode: single
+- id: action_meteo_fermer_volets
+  alias: Action - Fermer tous les volets (depuis notif météo)
+  trigger:
+  - platform: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: METEO_FERMER_VOLETS
+  action:
+  - action: cover.close_cover
+    target:
+      entity_id:
+      - cover.raphael_volet_shutter
+      - cover.cuisine_volet_shutter
+      - cover.salon_baie_vitree_shutter
+      - cover.salon_fenetre_volet_shutter
+  - action: notify.iphones
+    data:
+      message: 🪟 Volets fermés.
+  mode: single
+- id: action_meteo_clim_22
+  alias: Action - Clim 22°C (depuis notif météo)
+  trigger:
+  - platform: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: METEO_CLIM_22
+  action:
+  - action: input_number.set_value
+    target:
+      entity_id: input_number.salon_target_temperature
+    data:
+      value: 22
+  - action: climate.set_hvac_mode
+    target:
+      entity_id: climate.daikinap50458_room_temperature
+    data:
+      hvac_mode: cool
+  - action: notify.iphones
+    data:
+      message: ❄️ Clim en mode refroidissement, consigne salon 22°C.
+  mode: single
+- id: action_meteo_chauffage_plus
+  alias: Action - Radiateurs +2°C (depuis notif météo)
+  trigger:
+  - platform: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: METEO_CHAUFFAGE_PLUS
+  action:
+  - repeat:
+      for_each:
+      - climate.salon_2
+      - climate.entree
+      - climate.chambre
+      - climate.bureau
+      - climate.chambre_damis
+      - climate.cuisine
+      sequence:
+      - action: climate.set_temperature
+        target:
+          entity_id: '{{ repeat.item }}'
+        data:
+          temperature: '{{ (state_attr(repeat.item, ''temperature'') | float(19)) + 2 }}'
+  - action: notify.iphones
+    data:
+      message: 🔥 Consignes radiateurs montées de 2°C.
+  mode: single
+- id: notif_congelateur_trop_chaud
+  alias: Notif - Congélateur trop chaud (>-15°C 1h)
+  description: Alerte si le congélateur dépasse -15°C pendant plus d'une heure
+  trigger:
+  - platform: numeric_state
+    entity_id: number.refrigerateur_freezer_temperature
+    above: -15
+    for:
+      hours: 1
+  action:
+  - action: notify.iphones
+    data:
+      message: 🥶 Congélateur à {{ states('number.refrigerateur_freezer_temperature') }}°C depuis 1h — risque de décongélation.
+      data:
+        push:
+          sound: default
+          interruption-level: critical
+  mode: single
+- id: notif_tesla_charge_terminee
+  alias: Notif - Tesla charge terminée
+  trigger:
+  - platform: state
+    entity_id: sensor.josette_charging
+    from: charging
+    to: complete
+  - platform: time
+    at: 07:00:00
+    id: matin
+  action:
+  - action: notify.iphones
+    data:
+      message: ✅ Tesla rechargée à {{ states('sensor.josette_niveau_de_batterie') }}%.
+  mode: single
+  condition:
+  - condition: template
+    value_template: '{{ trigger.platform == ''time'' or trigger.from_state.state not in [''unavailable'', ''unknown'', ''none''] }}'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  - condition: state
+    entity_id: sensor.josette_charging
+    state: complete
+  description: Fenêtre 7h-23h ; rattrapage à 7h si état toujours actif.
+- id: suggest_mode_vacances
+  alias: Suggestion - Activer mode Vacances (absence > 24h)
+  description: Si les 2 personnes sont not_home depuis plus de 24h, suggérer d'activer le mode Vacances
+  trigger:
+  - platform: state
+    entity_id:
+    - person.kevin_allioli
+    - person.loutre
+    to: not_home
+    for:
+      hours: 24
+  condition:
+  - condition: state
+    entity_id: person.kevin_allioli
+    state: not_home
+  - condition: state
+    entity_id: person.loutre
+    state: not_home
+  - condition: state
+    entity_id: input_boolean.mode_vacances
+    state: 'off'
+  action:
+  - action: notify.iphones
+    data:
+      message: 🏖️ Absence >24h détectée. Activer le mode Vacances (simulation présence) ?
+      data:
+        actions:
+        - action: ACTIVATE_VACATION
+          title: Activer Vacances
+          activationMode: background
+        - action: DISMISS_VACATION
+          title: Ignorer
+          activationMode: background
+  mode: single
+- id: action_activate_vacation
+  alias: Action - Activer mode Vacances (depuis notif)
+  trigger:
+  - platform: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: ACTIVATE_VACATION
+  action:
+  - action: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.mode_vacances
+  - action: notify.iphones
+    data:
+      message: 🏖️ Mode Vacances activé.
+  mode: single
+- id: volets_chaleur_journee
+  alias: Volets - chaleur journée (12h-18h, T_ext > 28°C)
+  description: >-
+    Auto unifiée chaleur (fusion ex-`volets_chaleur_journee` + ex-`notif_meteo_chaud_extreme`).
+    Déclenchement : T_ext > 28°C + 12h-18h + lux salon > 5000.
+    Positions cibles des volets (mémorisées 2026-06-18) : baie 13, fenêtre salon 18, cuisine 20, raphael 19.
+    Branches : (1) présent + baie/cuisine ouverte → notif anti-enfermement (CHALEUR_FERMER_VOLETS / CHALEUR_DISMISS), garde last_triggered > 30 min.
+    (2) absent + 5 fenêtres fermées → volets aux positions + clim Daikin cool 20°C + notif info.
+    (3) absent + une fenêtre ouverte → volets aux positions seuls + notif info (pas de clim).
+    (4) défaut (présent + tout OK) → volets aux positions + lampes salon + glaçon + notif info.
+    Anti-spam : skip si tous les volets sont déjà <= cible + 5 (= déjà fermés au plus près des positions mémorisées).
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.weather_station_outdoor_module_temperature
+    above: 28
+    for:
+      minutes: 10
+  - platform: time_pattern
+    minutes: /10
+  condition:
+  - condition: numeric_state
+    entity_id: sensor.weather_station_outdoor_module_temperature
+    above: 28
+  - condition: time
+    after: '12:00:00'
+    before: '18:00:00'
+  - condition: numeric_state
+    entity_id: sensor.luminosite_salon_illuminance
+    above: 5000
+  - condition: template
+    value_template: >-
+      {{ (state_attr('cover.salon_baie_vitree_shutter','current_position')   | int(100)) > 13 + 5
+         or (state_attr('cover.salon_fenetre_volet_shutter','current_position') | int(100)) > 18 + 5
+         or (state_attr('cover.cuisine_volet_shutter','current_position')      | int(100)) > 20 + 5
+         or (state_attr('cover.raphael_volet_shutter','current_position')      | int(100)) > 19 + 5 }}
+  action:
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: state
+          entity_id: person.kevin_allioli
+          state: home
+        - condition: state
+          entity_id: person.loutre
+          state: home
+      - condition: or
+        conditions:
+        - condition: state
+          entity_id: binary_sensor.salon_baie_vitree_ouverture
+          state: 'on'
+        - condition: state
+          entity_id: binary_sensor.cuisine_fenetre_ouverture
+          state: 'on'
+      - condition: template
+        value_template: >-
+          {{ this.attributes.last_triggered is none
+             or (now() - this.attributes.last_triggered).total_seconds() > 1800 }}
+      sequence:
+      - action: notify.iphones
+        data:
+          message: ☀️ {{ states("sensor.weather_station_outdoor_module_temperature") }}°C dehors mais baie-vitrée ou cuisine ouverte. Fermer volets + allumer ?
+          data:
+            actions:
+            - action: CHALEUR_FERMER_VOLETS
+              title: Fermer & allumer
+              activationMode: background
+            - action: CHALEUR_DISMISS
+              title: Non merci
+              activationMode: background
+    - conditions:
+      - condition: state
+        entity_id: person.kevin_allioli
+        state: not_home
+      - condition: state
+        entity_id: person.loutre
+        state: not_home
+      - condition: state
+        entity_id: binary_sensor.salon_fenetre_ouverture
+        state: 'off'
+      - condition: state
+        entity_id: binary_sensor.salon_baie_vitree_ouverture
+        state: 'off'
+      - condition: state
+        entity_id: binary_sensor.cuisine_fenetre_ouverture
+        state: 'off'
+      - condition: state
+        entity_id: binary_sensor.bureau_fenetre_ouverture
+        state: 'off'
+      - condition: state
+        entity_id: binary_sensor.raphael_fenetre_ouverture
+        state: 'off'
+      sequence:
+      - action: cover.set_cover_position
+        target:
+          entity_id: cover.salon_baie_vitree_shutter
+        data:
+          position: 13
+      - action: cover.set_cover_position
+        target:
+          entity_id: cover.salon_fenetre_volet_shutter
+        data:
+          position: 18
+      - action: cover.set_cover_position
+        target:
+          entity_id: cover.cuisine_volet_shutter
+        data:
+          position: 20
+      - action: cover.set_cover_position
+        target:
+          entity_id: cover.raphael_volet_shutter
+        data:
+          position: 19
+      - action: climate.set_temperature
+        target:
+          entity_id: climate.daikinap50458_room_temperature
+        data:
+          hvac_mode: cool
+          temperature: 20
+      - action: notify.iphones
+        data:
+          message: ☀️ {{ states("sensor.weather_station_outdoor_module_temperature") }}°C dehors — appart vide, volets fermés (positions mémorisées) + clim Daikin 20°C.
+    - conditions:
+      - condition: state
+        entity_id: person.kevin_allioli
+        state: not_home
+      - condition: state
+        entity_id: person.loutre
+        state: not_home
+      sequence:
+      - action: cover.set_cover_position
+        target:
+          entity_id: cover.salon_baie_vitree_shutter
+        data:
+          position: 13
+      - action: cover.set_cover_position
+        target:
+          entity_id: cover.salon_fenetre_volet_shutter
+        data:
+          position: 18
+      - action: cover.set_cover_position
+        target:
+          entity_id: cover.cuisine_volet_shutter
+        data:
+          position: 20
+      - action: cover.set_cover_position
+        target:
+          entity_id: cover.raphael_volet_shutter
+        data:
+          position: 19
+      - action: notify.iphones
+        data:
+          message: ☀️ {{ states("sensor.weather_station_outdoor_module_temperature") }}°C dehors — volets fermés (positions mémorisées). Clim non activée (fenêtre ouverte).
+    default:
+    - action: cover.set_cover_position
+      target:
+        entity_id: cover.salon_baie_vitree_shutter
+      data:
+        position: 13
+    - action: cover.set_cover_position
+      target:
+        entity_id: cover.salon_fenetre_volet_shutter
+      data:
+        position: 18
+    - action: cover.set_cover_position
+      target:
+        entity_id: cover.cuisine_volet_shutter
+      data:
+        position: 20
+    - action: cover.set_cover_position
+      target:
+        entity_id: cover.raphael_volet_shutter
+      data:
+        position: 19
+    - action: light.turn_on
+      target:
+        entity_id:
+        - light.salon
+        - light.lampe_glacon
+    - action: notify.iphones
+      data:
+        message: ☀️ {{ states("sensor.weather_station_outdoor_module_temperature") }}°C dehors — volets fermés (positions mémorisées) + lampes salon allumées.
+  mode: single
+- id: action_chaleur_fermer_volets
+  alias: Action - Fermer volets chaleur (depuis notif)
+  trigger:
+  - platform: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: CHALEUR_FERMER_VOLETS
+  action:
+  - action: cover.set_cover_position
+    target:
+      entity_id: cover.salon_baie_vitree_shutter
+    data:
+      position: 13
+  - action: cover.set_cover_position
+    target:
+      entity_id: cover.salon_fenetre_volet_shutter
+    data:
+      position: 18
+  - action: cover.set_cover_position
+    target:
+      entity_id: cover.cuisine_volet_shutter
+    data:
+      position: 20
+  - action: cover.set_cover_position
+    target:
+      entity_id: cover.raphael_volet_shutter
+    data:
+      position: 19
+  - action: light.turn_on
+    target:
+      entity_id:
+      - light.salon
+      - light.lampe_glacon
+  mode: single
+- id: bridge_daikin_target_to_input
+  alias: Bridge - Daikin target → input_number salon (Siri/UI)
+  description: Quand l'utilisateur (ou Siri via HomeKit) change la consigne du Daikin, propage la valeur dans input_number.salon_target_temperature. L'automation salon_climate_setpoint_adjust prend ensuite le relais pour la calibration.
+  trigger:
+  - platform: state
+    entity_id: climate.daikinap50458_room_temperature
+    attribute: temperature
+  condition:
+  - condition: template
+    value_template: '{% set u = trigger.context.user_id if trigger.context is defined else none %}{% set p = trigger.context.parent_id if trigger.context is defined else none %}{% set t = trigger.to_state.attributes.temperature if trigger.to_state and trigger.to_state.attributes else none %}{% set f = trigger.from_state.attributes.temperature if trigger.from_state and trigger.from_state.attributes else none %}{{ u is not none and p is none and t is not none and t != f }}'
+  action:
+  - action: input_number.set_value
+    target:
+      entity_id: input_number.salon_target_temperature
+    data:
+      value: '{{ trigger.to_state.attributes.temperature }}'
+  mode: single
+- id: notif_porte_frigo_ouverte_5min
+  alias: Notif - Porte frigo/congélo ouverte > 5 min
+  description: Alerte si la porte du combiné frigo+congélateur reste ouverte plus de 5 min
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.refrigerateur_porte
+    to: 'on'
+    for:
+      minutes: 5
+  action:
+  - action: notify.iphones
+    data:
+      message: 🚪🥶 Porte du frigo/congélateur ouverte depuis 5 min — risque de décongélation.
+      data:
+        push:
+          sound: default
+          interruption-level: time-sensitive
+  mode: single
+- id: anti_oubli_depart
+  alias: Anti-oubli départ - fenêtres/portes ouvertes
+  description: 'Quand tout le monde devient not_home : alerte si porte d''entrée ouverte (TOUJOURS) ou si une fenêtre est ouverte ET il fait < 15°C dehors (saison froide). En été, fenêtres ouvertes = comportement normal volets fermés, pas d''alerte.'
+  trigger:
+  - platform: state
+    entity_id:
+    - person.kevin_allioli
+    - person.loutre
+    to: not_home
+    for:
+      minutes: 2
+  condition:
+  - condition: state
+    entity_id: person.kevin_allioli
+    state: not_home
+  - condition: state
+    entity_id: person.loutre
+    state: not_home
+  - condition: template
+    value_template: '{% set porte = is_state(''binary_sensor.entree_porte_ouverture'',''on'') %}{% set t_ext = states(''sensor.weather_station_outdoor_module_temperature'') | float(20) %}{% set fenetres = expand(''binary_sensor.salon_fenetre_ouverture'',''binary_sensor.salon_baie_vitree_ouverture'',''binary_sensor.cuisine_fenetre_ouverture'',''binary_sensor.bureau_fenetre_ouverture'',''binary_sensor.raphael_fenetre_ouverture'') | selectattr(''state'',''eq'',''on'') | list | count > 0 %}{{ porte or (fenetres and t_ext < 15) }}'
+  action:
+  - action: notify.iphones
+    data:
+      message: '🚨 ALERTE DÉPART : {% set ouv = expand(''binary_sensor.entree_porte_ouverture'',''binary_sensor.salon_fenetre_ouverture'',''binary_sensor.salon_baie_vitree_ouverture'',''binary_sensor.cuisine_fenetre_ouverture'',''binary_sensor.bureau_fenetre_ouverture'',''binary_sensor.raphael_fenetre_ouverture'') | selectattr(''state'',''eq'',''on'') | list %}{% for o in ouv %}{{ o.attributes.friendly_name or o.entity_id }}{{ '', '' if not loop.last }}{% endfor %}.'
+      data:
+        push:
+          sound: default
+          interruption-level: time-sensitive
+  mode: single
+- id: notif_pluie_anticipation_shiva
+  alias: Notif - Anticipation pluie pour Shiva
+  description: Si pluie prévue dans les 2 prochaines heures et Shiva pas sorti depuis 2h, notifier
+  trigger:
+  - platform: time_pattern
+    hours: /1
+  condition:
+  - condition: template
+    value_template: '{{ (as_timestamp(now()) - as_timestamp(states("input_datetime.last_shiva_walk"))) / 3600 > 2 }}'
+  - condition: time
+    after: 07:00:00
+    before: '22:00:00'
+  action:
+  - action: weather.get_forecasts
+    target:
+      entity_id: weather.forecast_maison
+    data:
+      type: hourly
+    response_variable: forecast
+  - if:
+    - condition: template
+      value_template: '{% set hours = forecast["weather.forecast_maison"].forecast[:2] %}{{ hours | selectattr("precipitation","gt",0.5) | list | count > 0 }}'
+    then:
+    - action: notify.iphones
+      data:
+        message: 🌧️🐕 Pluie prévue dans <2h — sors Shiva maintenant tant quil fait sec.
+  mode: single
+- id: notif_conso_anormale
+  alias: Notif - Conso électrique anormale (>5 kW 10 min)
+  description: Alerte si la puissance instantanée dépasse 5 kW pendant plus de 10 min
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.lixee_papp
+    above: 5000
+    for:
+      minutes: 10
+  action:
+  - action: notify.iphones
+    data:
+      message: '⚡ Conso anormale : {{ states("sensor.lixee_papp") }} W depuis 10 min — radiateur/four oublié ?'
+      data:
+        push:
+          sound: default
+          interruption-level: time-sensitive
+  mode: single
+- id: mode_cinema_auto
+  alias: Mode Cinéma auto - TV salon ON soir (transition off → on)
+  description: TV passe physiquement de off à on (vraie mise en marche, pas bascule Art↔TV) après 19h → tamise Fauteuil + Lampe glaçon + Lampe d'ambiance
+  trigger:
+  - platform: state
+    entity_id: media_player.55_the_frame
+    from: 'off'
+    to: 'on'
+    for:
+      seconds: 10
+  condition:
+  - condition: time
+    after: '19:00:00'
+    before: '23:59:59'
+  action:
+  - action: light.turn_on
+    target:
+      entity_id:
+      - light.hue_play_1
+      - light.lampe_glacon
+      - light.lampe_dambiance
+    data:
+      brightness_pct: 30
+      color_temp_kelvin: 2200
+  mode: single
+- id: motion_lighting_sdb
+  alias: SDB - éclairage sur présence (couplé humidité)
+  description: Allume sur mouvement. Coupe après 60s sans mouvement SI humidité < 58% (laisse la vapeur monter avant extinction, préserve l'éclairage pendant la douche).
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.detecteur_de_mouvement_sdb_occupation
+    to: 'on'
+    id: arrive
+  - platform: state
+    entity_id: binary_sensor.detecteur_de_mouvement_sdb_occupation
+    to: 'off'
+    for:
+      seconds: 60
+    id: leave
+  - platform: numeric_state
+    entity_id: sensor.temperature_humidity_bathroom_humidity
+    below: 65
+    for:
+      minutes: 2
+    id: humidity_drop
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: arrive
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.luminaire_sdb_3
+    - conditions:
+      - condition: trigger
+        id: leave
+      - condition: numeric_state
+        entity_id: sensor.temperature_humidity_bathroom_humidity
+        below: 58
+      sequence:
+      - action: light.turn_off
+        target:
+          entity_id: light.luminaire_sdb_3
+    - conditions:
+      - condition: trigger
+        id: humidity_drop
+      - condition: state
+        entity_id: binary_sensor.detecteur_de_mouvement_sdb_occupation
+        state: 'off'
+        for:
+          seconds: 60
+      sequence:
+      - action: light.turn_off
+        target:
+          entity_id: light.luminaire_sdb_3
+  mode: restart
+- id: motion_lighting_cuisine
+  alias: Cuisine - éclairage sur présence
+  description: Allume sur présence FP300 si lux < 250. Coupe après 2 min sans présence OU si la luminosité dépasse 320 lux (assez de jour, hystérésis 250/320).
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.aqara_presence_multisensor_fp300_occupation
+    to: 'on'
+    id: arrive
+  - platform: state
+    entity_id: binary_sensor.aqara_presence_multisensor_fp300_occupation
+    to: 'off'
+    for:
+      minutes: 2
+    id: leave
+  - platform: numeric_state
+    entity_id: sensor.aqara_presence_multisensor_fp300_eclairement
+    above: 320
+    for:
+      minutes: 1
+    id: assez_de_jour
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: arrive
+      - condition: numeric_state
+        entity_id: sensor.aqara_presence_multisensor_fp300_eclairement
+        below: 250
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.plan_de_travail_6
+    - conditions:
+      - condition: trigger
+        id: leave
+      sequence:
+      - action: light.turn_off
+        target:
+          entity_id: light.plan_de_travail_6
+    - conditions:
+      - condition: trigger
+        id: assez_de_jour
+      - condition: state
+        entity_id: light.plan_de_travail_6
+        state: 'on'
+      sequence:
+      - action: light.turn_off
+        target:
+          entity_id: light.plan_de_travail_6
+  mode: restart
+- id: pi_entree_screen_wake
+  alias: Pi entrée - réveil écran sur présence
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.detecteur_entree_mouvement
+    to: 'on'
+  action:
+  - action: shell_command.pi_screen_wake
+  mode: single
+  description: Allume l'écran Pi entrée sur mouvement, MAIS PAS la nuit (23h-7h) sauf si la porte d'entrée vient d'être ouverte (= vraie présence humaine, pas le chat).
+  condition:
+  - condition: or
+    conditions:
+    - condition: time
+      after: 07:00:00
+      before: '23:00:00'
+    - condition: template
+      value_template: '{% set p = states.binary_sensor.entree_porte_ouverture %}{{ p is not none and (as_timestamp(now()) - as_timestamp(p.last_changed)) < 120 }}'
+- id: pi_entree_screen_sleep
+  alias: Pi entrée - mise en veille écran (2 min sans mouvement)
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.detecteur_entree_mouvement
+    to: 'off'
+    for:
+      minutes: 2
+  action:
+  - action: shell_command.pi_screen_sleep
+  mode: single
+- id: tv_frame_art_remet_nuit_silencieuse
+  alias: TV Frame - Retour Art Mode → restore ambiance Nuit silencieuse
+  description: Quand la TV passe d'un contenu actif (HDMI/Netflix/etc) vers Art Mode en soirée, remet les 3 lampes salon en preset Nuit silencieuse
+  trigger:
+  - platform: state
+    entity_id: sensor.55_the_frame_tv_channel_name
+    to: art
+  condition:
+  - condition: template
+    value_template: '{{ trigger.from_state.state not in [''art'', '''', ''unknown'', ''unavailable'', ''none''] }}'
+  - condition: time
+    after: '17:00:00'
+    before: '23:59:59'
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: person.kevin_allioli
+      state: home
+    - condition: state
+      entity_id: person.loutre
+      state: home
+  action:
+  - action: light.turn_on
+    target:
+      entity_id: light.hue_play_1
+    data:
+      brightness_pct: 65
+      xy_color:
+      - 0.5068
+      - 0.3702
+      transition: 3
+  - action: light.turn_on
+    target:
+      entity_id: light.lampe_dambiance
+    data:
+      brightness_pct: 65
+      xy_color:
+      - 0.4777
+      - 0.3856
+      transition: 3
+  - action: light.turn_on
+    target:
+      entity_id: light.lampe_glacon
+    data:
+      brightness_pct: 20
+      color_temp_kelvin: 2702
+      transition: 3
+  mode: single
+- id: soir_ambiance_lampes
+  alias: Soir - ambiance Nuit silencieuse (lampes basses quand luminosité baisse)
+  description: Quand la luminosité salon baisse en soirée et quon est à la maison, allume Fauteuil + Lampe dambiance + Lampe glaçon en preset Hue Nuit silencieuse
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.luminosite_salon_illuminance
+    below: 15
+    for:
+      minutes: 5
+  condition:
+  - condition: time
+    after: '17:00:00'
+    before: '23:00:00'
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: person.kevin_allioli
+      state: home
+    - condition: state
+      entity_id: person.loutre
+      state: home
+  action:
+  - action: light.turn_on
+    target:
+      entity_id: light.hue_play_1
+    data:
+      brightness_pct: 65
+      xy_color:
+      - 0.5068
+      - 0.3702
+      transition: 3
+  - action: light.turn_on
+    target:
+      entity_id: light.lampe_dambiance
+    data:
+      brightness_pct: 65
+      xy_color:
+      - 0.4777
+      - 0.3856
+      transition: 3
+  - action: light.turn_on
+    target:
+      entity_id: light.lampe_glacon
+    data:
+      brightness_pct: 20
+      color_temp_kelvin: 2702
+      transition: 3
+  mode: single
+- id: volets_soir_global_v2
+  alias: Volets - fermeture nuit global (élévation soleil < -8°)
+  description: Ferme les volets quand le soleil est à -8° (= fin du crépuscule nautique = vraiment la nuit). Fin mai ~22:10, hiver ~17:30. Plus prédictible que lux, pas affecté par les montagnes qui font tomber le lux trop tôt.
+  trigger:
+  - platform: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    below: -8
+    id: sun_dark
+  condition:
+  - condition: state
+    entity_id: input_boolean.mode_nounou
+    state: 'off'
+  - condition: time
+    after: '16:00:00'
+    before: '23:30:00'
+  action:
+  - variables:
+      volets:
+      - cover.salon_baie_vitree_shutter
+      - cover.salon_fenetre_volet_shutter
+      - cover.cuisine_volet_shutter
+      - cover.raphael_volet_shutter
+      ouverts: '{{ expand(volets) | rejectattr(''state'', ''eq'', ''closed'') | map(attribute=''entity_id'') | list }}'
+  - condition: template
+    value_template: '{{ ouverts | length > 0 }}'
+  - action: cover.close_cover
+    target:
+      entity_id: '{{ ouverts }}'
+  mode: single
+- id: chambre_interrupteur_hue_soir_on
+  alias: Chambre - bouton ON Hue dimmer → ambiance soir
+  description: Quand on appuie sur le bouton ON du Hue dimmer chambre en soirée, allume Bibliothèque + Lit en preset Nuit silencieuse + Lampe sel
+  trigger:
+  - platform: state
+    entity_id: event.hue_dimmer_switch_1_bouton_1
+    attribute: event_type
+    to: short_release
+  condition:
+  - condition: time
+    after: '19:00:00'
+    before: '23:59:00'
+  action:
+  - action: light.turn_on
+    target:
+      entity_id: light.hue_go_1_2
+    data:
+      brightness_pct: 35
+      xy_color:
+      - 0.5068
+      - 0.3702
+      transition: 2
+  - action: light.turn_on
+    target:
+      entity_id: light.lit
+    data:
+      brightness_pct: 10
+      xy_color:
+      - 0.5068
+      - 0.3702
+      transition: 2
+  - action: switch.turn_on
+    target:
+      entity_id: switch.lampe_sel
+  mode: single
+- id: nuit_extinction_salon_absent
+  alias: Nuit - extinction salon/cuisine/TV si plus de présence (22h-6h)
+  description: Entre 22h et 6h, si aucune présence salon (G4) ET cuisine (FP300) depuis 10 min, bureau éteint et au moins une personne home → éteint salon/cuisine/TV
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.g4_instant_person_detected
+    to: 'off'
+    for:
+      minutes: 10
+  - platform: state
+    entity_id: binary_sensor.aqara_presence_multisensor_fp300_occupation
+    to: 'off'
+    for:
+      minutes: 10
+  condition:
+  - condition: state
+    entity_id: binary_sensor.g4_instant_person_detected
+    state: 'off'
+  - condition: state
+    entity_id: binary_sensor.aqara_presence_multisensor_fp300_occupation
+    state: 'off'
+  - condition: time
+    after: '22:00:00'
+    before: 06:00:00
+  - condition: state
+    entity_id: light.luminaire_bureau_5
+    state: 'off'
+  - condition: state
+    entity_id: light.luminaire_toilettes_2
+    state: 'off'
+  - condition: state
+    entity_id: light.luminaire_sdb_3
+    state: 'off'
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: person.kevin_allioli
+      state: home
+    - condition: state
+      entity_id: person.loutre
+      state: home
+  action:
+  - action: light.turn_off
+    target:
+      entity_id:
+      - light.salon
+      - light.luminaire_cuisine_7
+      - light.plan_de_travail_6
+  - action: media_player.turn_off
+    target:
+      entity_id: media_player.television
+  mode: single
+- id: prusa_spaghetti_check
+  alias: Prusa - détection spaghetti via Claude
+  description: Pendant impression, capture caméra toutes les 30 min et envoie à Claude pour analyse visuelle. Notif actionnable si échec détecté.
+  trigger:
+  - platform: time_pattern
+    minutes: /30
+  condition:
+  - condition: state
+    entity_id: sensor.prusa_mk4s
+    state: printing
+  - condition: numeric_state
+    entity_id: sensor.prusa_mk4s_avancement
+    above: 0
+    below: 100
+  action:
+  - action: camera.snapshot
+    target:
+      entity_id: camera.prusa_mk4s_buddy_cam
+    data:
+      filename: /media/prusa_check.jpg
+  - delay:
+      seconds: 2
+  - action: ai_task.generate_data
+    data:
+      entity_id: ai_task.claude_ai_task
+      task_name: prusa_spaghetti
+      instructions: 'Tu es l''assistant maison de Kevin. Analyse cette image d''une impression 3D en cours sur la Prusa MK4S.
+
+        Détecte tout problème visible : spaghetti (fil emmêlé en hauteur), désadhésion plateau (objet décollé),
+
+        sous-extrusion, blob excessif, couche manquée, déformation visible.
+
+
+        Réponds STRICTEMENT au format suivant (une seule ligne) :
+
+        STATUS=ok|warn|fail | DETAIL=<phrase courte en français>
+
+
+        Exemples :
+
+        STATUS=ok | DETAIL=Impression en cours, aspect normal.
+
+        STATUS=warn | DETAIL=Léger défaut sur le bord droit, à surveiller.
+
+        STATUS=fail | DETAIL=Spaghetti détecté, l''objet est décollé du plateau.
+
+        '
+      attachments:
+      - media_content_id: media-source://media_source/local/prusa_check.jpg
+        media_content_type: image/jpeg
+    response_variable: ai
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ ai.data | regex_search(''STATUS\s*=\s*FAIL'', ignorecase=True) }}'
+      sequence:
+      - action: notify.iphones
+        data:
+          title: '🚨 Prusa : impression compromise'
+          message: '{{ ai.data }}'
+          data:
+            push:
+              sound: default
+              interruption-level: time-sensitive
+            actions:
+            - action: PRUSA_PAUSE
+              title: ⏸ Mettre en pause
+            - action: PRUSA_CANCEL
+              title: 🛑 Annuler
+    - conditions:
+      - condition: template
+        value_template: '{{ ai.data | regex_search(''STATUS\s*=\s*WARN'', ignorecase=True) }}'
+      sequence:
+      - action: notify.iphones
+        data:
+          title: '⚠️ Prusa : à surveiller'
+          message: '{{ ai.data }}'
+  mode: single
+- id: action_prusa_pause_claude
+  alias: Action - Pause Prusa (depuis notif Claude)
+  trigger:
+  - platform: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: PRUSA_PAUSE
+  action:
+  - action: button.press
+    target:
+      entity_id: button.prusa_mk4s_mettre_en_pause_la_tache
+  - action: notify.iphones
+    data:
+      message: ⏸ Prusa mise en pause.
+  mode: single
+- id: action_prusa_cancel_claude
+  alias: Action - Annuler Prusa (depuis notif Claude)
+  trigger:
+  - platform: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: PRUSA_CANCEL
+  action:
+  - action: button.press
+    target:
+      entity_id: button.prusa_mk4s_annuler_la_tache
+  - action: notify.iphones
+    data:
+      message: 🛑 Prusa annulée.
+  mode: single
+- id: sdb_anti_extinction_douche
+  alias: SDB - rallume immédiatement si extinction pendant douche
+  description: Si la light SDB passe OFF alors que quelqu'un est dedans + humidité élevée (douche), rallume tout de suite.
+  trigger:
+  - platform: state
+    entity_id: light.luminaire_sdb_3
+    to: 'off'
+  condition:
+  - condition: numeric_state
+    entity_id: sensor.temperature_humidity_bathroom_humidity
+    above: 55
+  - condition: state
+    entity_id: binary_sensor.detecteur_de_mouvement_sdb_occupation
+    state: 'on'
+  action:
+  - delay:
+      seconds: 1
+  - action: light.turn_on
+    target:
+      entity_id: light.luminaire_sdb_3
+  mode: single
+- id: notif_colis_livre
+  alias: Notif - Colis livré
+  description: Notif quand l'attribut delivered_today incrémente sur l'intégration Parcel Fenêtre 7h-23h ; rattrapage à 7h si état toujours actif.
+  trigger:
+  - platform: state
+    entity_id: sensor.parcel_app_parcel_active_shipment
+    attribute: delivered_today
+  - platform: time
+    at: 07:00:00
+    id: matin
+  condition:
+  - condition: template
+    value_template: '{% set new = trigger.to_state.attributes.delivered_today | int(0) %} {% set old = trigger.from_state.attributes.delivered_today | int(0) if trigger.from_state else 0 %} {{ new > old }}'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  action:
+  - action: notify.iphones
+    data:
+      title: 📦 Colis livré
+      message: Un colis vient d'être livré ({{ trigger.to_state.attributes.delivered_today }} aujourd'hui). Reste {{ trigger.to_state.attributes.number_of_active_parcels }} colis en cours.
+      data:
+        push:
+          sound: default
+          interruption-level: time-sensitive
+  mode: single
+- id: notif_colis_jour_matin
+  alias: Notif - Colis attendus aujourd'hui (8h)
+  description: À 8h, si au moins 1 colis est prévu pour aujourd'hui, notifie
+  trigger:
+  - platform: time
+    at: 08:00:00
+  condition:
+  - condition: numeric_state
+    entity_id: sensor.parcel_app_parcel_active_shipment
+    attribute: parcels_arriving_today
+    above: 0
+  action:
+  - action: notify.iphones
+    data:
+      title: 📦 Livraisons prévues aujourd'hui
+      message: '{{ state_attr(''sensor.parcel_app_parcel_active_shipment'',''parcels_arriving_today'') }} colis prévu(s) aujourd''hui. {%- set desc = state_attr(''sensor.parcel_app_parcel_active_shipment'',''full_description'') -%} {%- if desc %}\n→ {{ desc }}{% endif -%}'
+  mode: single
+- id: purificateur_pilotage_pollution
+  alias: Purificateur - bascule auto/sleep selon pollution
+  description: 'Si PM2.5 > 15 ou qualité non excellente → mode auto (le device gère la vitesse).
+
+    La nuit 22h-7h + air excellent + PM2.5 < 10 → sleep (silence).
+
+    '
+  trigger:
+  - platform: state
+    entity_id: sensor.core_300s_qualite_de_l_air
+  - platform: numeric_state
+    entity_id: sensor.core_300s_pm2_5
+    above: 15
+  - platform: numeric_state
+    entity_id: sensor.core_300s_pm2_5
+    below: 10
+  - platform: time
+    at: '22:00:00'
+  - platform: time
+    at: 07:00:00
+  - platform: state
+    entity_id: fan.core_300s
+    attribute: preset_mode
+  action:
+  - variables:
+      pm25: '{{ states(''sensor.core_300s_pm2_5'') | float(0) }}'
+      qa: '{{ states(''sensor.core_300s_qualite_de_l_air'') }}'
+      now_h: '{{ now().hour }}'
+      is_night: '{{ now().hour >= 22 or now().hour < 7 }}'
+      current_preset: '{{ state_attr(''fan.core_300s'',''preset_mode'') }}'
+      target: '{% if pm25 > 15 or qa not in [''excellent'',''good''] %}auto {% elif is_night and pm25 < 10 and qa == ''excellent'' %}sleep {% else %}auto{% endif %}'
+  - condition: template
+    value_template: '{{ target | trim != current_preset and is_state(''fan.core_300s'',''on'') }}'
+  - action: fan.set_preset_mode
+    target:
+      entity_id: fan.core_300s
+    data:
+      preset_mode: '{{ target | trim }}'
+  mode: single
+- id: notif_sonnette_interphone
+  alias: Notif - Sonnette interphone (vibration détectée)
+  description: Détecte vibration sur le capteur Tuya collé au combiné Farfisa → notif iPhones
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.vibration_interphone
+    to: 'on'
+  action:
+  - action: notify.iphones
+    data:
+      title: 🔔 Quelqu'un sonne
+      message: Quelqu'un sonne à la porte d'entrée.
+      data:
+        push:
+          sound: default
+          interruption-level: time-sensitive
+  - delay:
+      seconds: 30
+  mode: single
+- id: notif_four_pret
+  alias: Notif - Four à température (iPhones présents)
+  description: Notifie les iPhones des personnes à la maison quand le four atteint sa température cible Fenêtre 7h-23h ; rattrapage à 7h si état toujours actif.
+  trigger:
+  - platform: template
+    value_template: '{% set t = states(''sensor.four_temperature'') | float(0) %} {% set sp = states(''sensor.four_set_point'') | float(0) %} {{ sp > 30 and t >= sp }}'
+  - platform: time
+    at: 07:00:00
+    id: matin
+  condition:
+  - condition: state
+    entity_id: sensor.four_machine_state
+    state:
+    - running
+    - operating
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: person.kevin_allioli
+      state: home
+    - condition: state
+      entity_id: person.loutre
+      state: home
+  - condition: template
+    value_template: '{{ trigger.platform == ''time'' or trigger.from_state.state not in [''unavailable'', ''unknown'', ''none''] }}'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  action:
+  - variables:
+      sp_text: '{{ states(''sensor.four_set_point'') | int(0) }}'
+      msg: 🔥 Four prêt à {{ sp_text }}°C, tu peux enfourner !
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: person.kevin_allioli
+        state: home
+      - condition: state
+        entity_id: person.loutre
+        state: home
+      sequence:
+      - action: notify.iphones
+        data:
+          title: 🍳 Four prêt
+          message: '{{ msg }}'
+          data:
+            push:
+              sound: default
+              interruption-level: time-sensitive
+    - conditions:
+      - condition: state
+        entity_id: person.kevin_allioli
+        state: home
+      sequence:
+      - action: notify.mobile_app_iphone_17_pro
+        data:
+          title: 🍳 Four prêt
+          message: '{{ msg }}'
+          data:
+            push:
+              sound: default
+              interruption-level: time-sensitive
+    - conditions:
+      - condition: state
+        entity_id: person.loutre
+        state: home
+      sequence:
+      - action: notify.mobile_app_iphone
+        data:
+          title: 🍳 Four prêt
+          message: '{{ msg }}'
+          data:
+            push:
+              sound: default
+              interruption-level: time-sensitive
+  - delay:
+      minutes: 15
+  mode: single
+- id: notif_four_securite_absence
+  alias: 🚨 Sécurité - Four en marche pendant absence
+  description: Alerte critique si le four tourne alors que les 2 personnes sont absentes
+  trigger:
+  - platform: state
+    entity_id:
+    - person.kevin_allioli
+    - person.loutre
+    to: not_home
+    for:
+      minutes: 5
+  - platform: state
+    entity_id: sensor.four_machine_state
+    to: running
+  - platform: state
+    entity_id: sensor.four_machine_state
+    to: operating
+  condition:
+  - condition: state
+    entity_id: person.kevin_allioli
+    state: not_home
+  - condition: state
+    entity_id: person.loutre
+    state: not_home
+  - condition: state
+    entity_id: sensor.four_machine_state
+    state:
+    - running
+    - operating
+  action:
+  - action: notify.iphones
+    data:
+      title: '🚨 SÉCURITÉ : Four en marche, personne à la maison'
+      message: Four à {{ states("sensor.four_temperature") }}°C (cible {{ states("sensor.four_set_point") }}°C). Personne à la maison — vérifie ou arrête à distance.
+      data:
+        push:
+          sound: default
+          interruption-level: critical
+        actions:
+        - action: FOUR_STOP
+          title: 🛑 Arrêter le four
+        - action: FOUR_DISMISS
+          title: Ignorer
+  mode: single
+- id: action_four_stop_distance
+  alias: Action - Arrêter four (depuis notif sécurité)
+  trigger:
+  - platform: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: FOUR_STOP
+  action:
+  - action: button.press
+    target:
+      entity_id: button.four_stop
+  - action: notify.iphones
+    data:
+      message: 🛑 Four arrêté à distance.
+  mode: single
+- id: notif_porte_entree_oubli
+  alias: Notif - Porte d'entrée ouverte > 5 min (oubli ?)
+  description: Alerte si la porte d'entrée reste ouverte plus de 5 min en présence (oubli probable)
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.entree_porte_ouverture
+    to: 'on'
+    for:
+      minutes: 5
+  condition:
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: person.kevin_allioli
+      state: home
+    - condition: state
+      entity_id: person.loutre
+      state: home
+  action:
+  - action: notify.iphones
+    data:
+      title: 🚪 Porte d'entrée ouverte
+      message: La porte d'entrée est ouverte depuis 5 min — oubli ?
+      data:
+        push:
+          sound: default
+          interruption-level: time-sensitive
+  mode: single
+- id: claude_brief_soir_signal
+  alias: Claude - brief soir Signal (Sharmaison)
+  description: Brief du soir exhaustif, ton loutre, envoye sur le groupe Signal Sharmaison
+  trigger:
+  - platform: time
+    at: '22:00:00'
+  action:
+  - action: calendar.get_events
+    target:
+      entity_id: calendar.famille
+    data:
+      start_date_time: '{{ (now() + timedelta(days=1)).strftime(''%Y-%m-%d 00:00:00'') }}'
+      end_date_time: '{{ (now() + timedelta(days=1)).strftime(''%Y-%m-%d 23:59:59'') }}'
+    response_variable: ev_famille
+  - action: calendar.get_events
+    target:
+      entity_id: calendar.personnel
+    data:
+      start_date_time: '{{ (now() + timedelta(days=1)).strftime(''%Y-%m-%d 00:00:00'') }}'
+      end_date_time: '{{ (now() + timedelta(days=1)).strftime(''%Y-%m-%d 23:59:59'') }}'
+    response_variable: ev_personnel
+  - action: calendar.get_events
+    target:
+      entity_id: calendar.travail
+    data:
+      start_date_time: '{{ (now() + timedelta(days=1)).strftime(''%Y-%m-%d 00:00:00'') }}'
+      end_date_time: '{{ (now() + timedelta(days=1)).strftime(''%Y-%m-%d 23:59:59'') }}'
+    response_variable: ev_travail
+  - action: calendar.get_events
+    target:
+      entity_id: calendar.gros_champi
+    data:
+      start_date_time: '{{ (now() + timedelta(days=1)).strftime(''%Y-%m-%d 00:00:00'') }}'
+      end_date_time: '{{ (now() + timedelta(days=1)).strftime(''%Y-%m-%d 23:59:59'') }}'
+    response_variable: ev_champi
+  - action: calendar.get_events
+    target:
+      entity_id: calendar.famille
+    data:
+      start_date_time: '{{ now().strftime(''%Y-%m-%d 00:00:00'') }}'
+      end_date_time: '{{ now().strftime(''%Y-%m-%d %H:%M:%S'') }}'
+    response_variable: ev_famille_today
+  - action: calendar.get_events
+    target:
+      entity_id: calendar.personnel
+    data:
+      start_date_time: '{{ now().strftime(''%Y-%m-%d 00:00:00'') }}'
+      end_date_time: '{{ now().strftime(''%Y-%m-%d %H:%M:%S'') }}'
+    response_variable: ev_personnel_today
+  - action: calendar.get_events
+    target:
+      entity_id: calendar.travail
+    data:
+      start_date_time: '{{ now().strftime(''%Y-%m-%d 00:00:00'') }}'
+      end_date_time: '{{ now().strftime(''%Y-%m-%d %H:%M:%S'') }}'
+    response_variable: ev_travail_today
+  - action: calendar.get_events
+    target:
+      entity_id: calendar.gros_champi
+    data:
+      start_date_time: '{{ now().strftime(''%Y-%m-%d 00:00:00'') }}'
+      end_date_time: '{{ now().strftime(''%Y-%m-%d %H:%M:%S'') }}'
+    response_variable: ev_champi_today
+  - action: conversation.process
+    data:
+      agent_id: conversation.claude_brief
+      text: "Tu es l'assistant maison de Kevin et Loutre. Tu rediges le BRIEF DU SOIR, envoye sur Signal\n(format long). Le but n'est PAS de decrire l'etat de la maison a 22h00, mais de raconter ce qui\ns'est PASSE pendant la journee : qui a fait quoi, quels appareils ont tourne, qui est sorti et\nquand, quels evenements ont eu lieu, quel a ete le rythme de la journee. Tu narres au passe ce\nqui s'est deroule, puis tu donnes un coup d'oeil rapide a la nuit qui commence. Ton \"a la loutre\"\nfacon cyberloutre.fr : chaleureux, complice, un brin espiegle, anti-corporate, jamais marketing.\nTutoie le foyer.\n\nREGLES ABSOLUES (elles priment sur tout le reste) :\n1. INTERDICTION TOTALE d'halluciner ou d'inventer. Tu n'utilises QUE les donnees du SNAPSHOT\n   ci-dessous. Tu ne mentionnes JAMAIS un appareil, une piece, un volet, une porte, un\n   evenement, une meteo ou un etat qui n'y figure pas. Tu ne deduis rien, tu ne supposes rien :\n   dans le doute, tu n'en parles pas. Chaque affirmation doit etre directement appuyee par une\n   donnee du snapshot.\n2. Respecte EXACTEMENT l'etat de chaque appareil, sans jamais les confondre (le lave-vaisselle,\n   le lave-linge et le seche-linge sont trois machines distinctes).\n2bis. METEO : pour parler de PLUIE, utilise UNIQUEMENT le champ 'pluie aujourdhui' (vraie mesure pluvio). weather.forecast_maison est une PREVISION, JAMAIS un fait. Si pluie aujourdhui = 0 mm, NE DIS JAMAIS qu'il a plu. 2ter. IMPRIMANTE 3D : si 'Imprimante 3D Prusa' = 'inactive', ne la mentionne PAS dans le brief. Ne dis JAMAIS qu'elle 'a fini' sans preuve d'impression terminee aujourd'hui.\n2quater. ANOMALIES : pour lampes oubliees / fenetres ouvertes > 4h / batteries faibles, utilise UNIQUEMENT le champ 'Anomalies actionnables' du SNAPSHOT. Si dit 'aucune', NE LE MENTIONNE PAS dans le brief (= rien d'anormal). Sinon, signale les listes nommees dans la section *Vigilance*. 2septies. MAINTENANCE NOMINEE : pour la section maintenance, tu dois TOUJOURS nommer explicitement les tâches en attente du champ 'Maintenance' du snapshot, AVEC leur ancienneté. Les taches marquees ÇA TRAÎNE (3-6 jours) doivent etre signalees avec un ton un peu pressant. Les taches marquees ÇA URGE BORDEL (>= 7 jours) doivent etre signalees en TOUT PREMIER avec un ton clairement insistant, sans etre alarmiste. Si 'Maintenance: tout est en ordre' → mentionne juste 'rien à signaler côté maintenance'. JAMAIS de formulation 'X actions' sans détailler quoi. 2novies. PRESENCE TEMPORELLE : tu n'affirmes JAMAIS qu'une personne a ete a la maison 'toute la journee' ou 'au chaud avec toi'. Le snapshot ne donne que l'etat MAINTENANT + l'heure du dernier changement. Si Kevin est 'home depuis 19h00', il etait DEHORS avant (probablement au travail). Formule du type 'Kevin vient de rentrer' ou 'Kevin est rentre vers 19h, profite de la soiree avec toi maintenant'. JAMAIS de fausse generalisation sur la journee complete. 2octies. VOLETS : utilise UNIQUEMENT le champ 'Volets_synthese'. Ne JAMAIS énumérer les 4 volets individuellement. Si 'tous ouverts (normal en journee)' → ne MENTIONNE PAS les volets du tout dans le brief (= info inutile). Si volets mixtes ou tous fermés → mentionne en une phrase courte ('les volets sont déjà fermés', 'X/4 volets ouverts'). 2quinquies. ANTI-ENUMERATION : tu n'écris JAMAIS de liste pièce par pièce avec leurs chiffres (ex: 'chambre 21C humidité 50% CO2 600ppm'). Pour la section *Le confort des pièces*, utilise EXCLUSIVEMENT le champ 'Confort_synthese' du snapshot. Si tout est OK → une seule phrase de synthèse. Si anomalies → mentionne nominativement UNIQUEMENT les pièces problématiques avec le geste recommandé. Style narratif uniquement, jamais de format 'pièce: chiffres'.\n2sexies. NOMS HUMAINS UNIQUEMENT : tu n'écris JAMAIS d'identifiant technique. Interdits : entity_id (ex: sensor.X, binary_sensor.X, light.X), références à des marques/modèles (Aqara, FP300, Hue, MK4S, S8 Pro, Ledvance...), noms construits avec underscores ou suffixes numériques (_2, _3). Utilise UNIQUEMENT des formulations humaines fluides : 'le détecteur d'''entrée', 'le radiateur du salon', 'l'''imprimante 3D', 'l'''aspirateur robot', 'la chambre Raphaël', 'la lampe du couloir'. Si tu ne sais pas comment nommer quelque chose proprement, n'''en parle PAS du tout. 3. Francais naturel et idiomatique uniquement. AUCUN anglicisme, AUCUN mot invente ni neologisme\n   (ne fabrique jamais un adjectif ou un surnom), AUCUNE tournure qui sonne traduite. L'espieglerie\n   passe par le ton et le regard sur la journee, jamais par des mots forces. Ouvre simplement par\n   \"\U0001F9A6 *Bonsoir*\" sans surnom ajoute pour Kevin et Loutre.\n4. Si une donnee est indisponible (unknown / unavailable / none), tu l'ignores, tu ne l'affiches\n   jamais telle quelle.\n\nMise en forme Signal \"styled\" : *texte* = gras (titres de section), _texte_ = italique leger.\nUne ligne vide entre les sections. Pas de markdown #, pas de tableaux, pas de listes a puces.\nQuelques emojis ponctuels (pas a chaque ligne). Longueur : exhaustif mais digeste (1500-2500 caracteres).\n\nStructure (n'aborde une section que si tu as des donnees pour elle, et tu RACONTES au passe) :\n- Ouverture \"\U0001F9A6 *Bonsoir*\" puis une phrase qui resume le caractere de la journee.\n- *La journee* : RECAP CHRONOLOGIQUE de ce qui s'est passe. Croise les agregats 'Presence' et 'Appareils' (qui sont des compteurs du JOUR fiables) avec les evenements calendrier d'aujourd'hui (champ 'Evenements aujourd hui'). Exemple de narration : 'Loutre tu as commence la journee tot avec X, vous etes rentres ensemble en debut d'apres-midi pour Y, le lave-vaisselle a tourne dans la matinee, le robot a fait son passage tot...'. Si une donnee chronologique manque (ex: heure precise du cycle LV), tu restes vague ('le lave-vaisselle a tourne dans la journee') sans l'inventer.\n- *Le confort des pieces* : un point sur le confort actuel, anomalies seulement.\n- *Energie* : conso du jour, cout, couleur Tempo de demain, ce que le solaire Beem a rapporte aujourd'hui (production en Wh + economies en euros), et un conseil concret pour DEMAIN.\n- *Vigilance* : fenetres, serrure, Tesla, maintenance, anomalies. Ton observationnel, pas alarmiste.\n- *Demain* : prochain evenement du calendrier + meteo au lever, termine par une question actionnable UNIQUEMENT si une action concrète mérite vraiment d'être posée. Sinon, conclus par une touche chaleureuse en une phrase, sans forcer de question.\n\nSNAPSHOT 24h:\nPresence (agregats du JOUR — fiables, ne PAS extrapoler au-dela): Kevin etat MAINTENANT={{ states('person.kevin_allioli') }}, a passe {{ states('sensor.kevin_home_today') | float(0) | round(1) }}h a la maison aujourd hui sur {{ ((as_timestamp(now()) - as_timestamp(today_at('00:00'))) / 3600) | round(1) }}h ecoulees ({{ states('sensor.kevin_home_arrivals_today') }} retours), donc {% set kr = states('sensor.kevin_home_today') | float(0) / (((as_timestamp(now()) - as_timestamp(today_at('00:00'))) / 3600) | float(0.01)) * 100 %}{% if kr > 80 %}a passe l essentiel de la journee A LA MAISON, sorti(es) brievement{% elif kr > 40 %}a alterne presence et sorties dans la journee{% else %}etait absent une bonne partie de la journee{% endif %}. Loutre etat MAINTENANT={{ states('person.loutre') }}, a passe {{ states('sensor.loutre_home_today') | float(0) | round(1) }}h a la maison aujourd hui sur {{ ((as_timestamp(now()) - as_timestamp(today_at('00:00'))) / 3600) | round(1) }}h ecoulees ({{ states('sensor.loutre_home_arrivals_today') }} retours), donc {% set lr = states('sensor.loutre_home_today') | float(0) / (((as_timestamp(now()) - as_timestamp(today_at('00:00'))) / 3600) | float(0.01)) * 100 %}{% if lr > 80 %}a passe l essentiel de la journee A LA MAISON, sortie(s) brieve(s){% elif lr > 40 %}a alterne presence et sorties dans la journee{% else %}etait absente une bonne partie de la journee{% endif %}\nConso jour: {{ states('sensor.energy_daily_cost') | float(0) | round(2) }} EUR\nTarif: {{ state_attr('sensor.current_tariff_price','period') }} {{ state_attr('sensor.current_tariff_price','color') }}\nTempo aujourdhui: {{ states('sensor.rte_tempo_couleur_actuelle') }} {{ states('sensor.rte_tempo_couleur_actuelle_visuel') }}\nTempo demain: {{ states('sensor.rte_tempo_prochaine_couleur') }} {{ states('sensor.rte_tempo_prochaine_couleur_visuel') }}\nConso live: {{ (states('sensor.power_net') | float(0) / 1000) | round(2) }} kW{% set p = states('sensor.power_net') | float(0) %}{% if p > 5000 %} — CONSO ANORMALE: quelque chose tourne fort, vérifie{% endif %}\nSolaire Beem aujourd'hui: production {{ states('sensor.beembox_18562_production_du_jour') }} Wh, economies du jour {{ states('sensor.solar_daily_savings') | float(0) | round(2) }} EUR, autoconsommation {{ states('sensor.solar_self_consumption_rate') }}%, economies cumulees {{ states('sensor.solar_savings_running_total') | float(0) | round(2) }} EUR\nT salon: {{ states('sensor.weather_station_temperature') }}C, dehors {{ states('sensor.weather_station_outdoor_module_temperature') }}C, ciel {{ states('weather.forecast_maison') }} (prévision), pluie aujourdhui: {{ states('sensor.weather_station_pluviometre_precipitation_aujourd_hui') }} mm (vraie mesure)\nConfort_synthese: {% set rooms_T = {'Chambre Raphaël': states('sensor.weather_station_chambre_de_raphael_temperature')|float(20),'Chambre parentale': states('sensor.weather_station_chambre_temperature')|float(20),'Bureau': states('sensor.weather_station_bureau_temperature')|float(20),'Salle de bain': states('sensor.temperature_humidity_bathroom_temperature')|float(20),'Salon': states('sensor.weather_station_temperature')|float(20)} %}{% set t_anom = [] %}{% for k, v in rooms_T.items() %}{% if v < 18 %}{% set t_anom = t_anom + [k ~ ' froid (' ~ v|round(1) ~ 'C)'] %}{% elif v > 26 %}{% set t_anom = t_anom + [k ~ ' chaud (' ~ v|round(1) ~ 'C)'] %}{% endif %}{% endfor %}Temp: {% if t_anom %}{{ t_anom | join(', ') }}{% else %}confort OK partout ({{ (rooms_T.values()|list|sum\
+        \ / rooms_T|count)|round(1) }}C moy){% endif %}. {% set rooms_H = {'Chambre Raphaël': states('sensor.weather_station_chambre_de_raphael_humidite')|float(50),'Chambre parentale': states('sensor.weather_station_chambre_humidite')|float(50),'Salle de bain': states('sensor.temperature_humidity_bathroom_humidity')|float(50),'Bureau': states('sensor.weather_station_bureau_humidite')|float(50)} %}{% set h_anom = [] %}{% for k, v in rooms_H.items() %}{% if v < 35 %}{% set h_anom = h_anom + [k ~ ' sec (' ~ v|round(0) ~ '%)'] %}{% elif v > 65 %}{% set h_anom = h_anom + [k ~ ' humide (' ~ v|round(0) ~ '%)'] %}{% endif %}{% endfor %}Humid: {% if h_anom %}{{ h_anom | join(', ') }}{% else %}OK{% endif %}. {% set rooms_C = {'Chambre Raphaël': states('sensor.weather_station_chambre_de_raphael_dioxyde_de_carbone')|int(0),'Chambre parentale': states('sensor.weather_station_chambre_dioxyde_de_carbone')|int(0),'Bureau': states('sensor.weather_station_bureau_dioxyde_de_carbone')|int(0)} %}{% set c_anom = [] %}{% for k, v in rooms_C.items() %}{% if v > 1500 %}{% set c_anom = c_anom + [k ~ ' AERATION URGENTE (' ~ v ~ 'ppm)'] %}{% elif v > 1000 %}{% set c_anom = c_anom + [k ~ ' à aérer (' ~ v ~ 'ppm)'] %}{% endif %}{% endfor %}CO2: {% if c_anom %}{{ c_anom | join(', ') }}{% else %}OK partout{% endif %}.\nChambre Raphael: {{ states('sensor.weather_station_chambre_de_raphael_temperature') }}C, Humidite {{ states('sensor.weather_station_chambre_de_raphael_humidite') }}%, CO2 {{ states('sensor.weather_station_chambre_de_raphael_dioxyde_de_carbone') }}ppm ({% set c = states('sensor.weather_station_chambre_de_raphael_dioxyde_de_carbone')|int(0) %}{% if c < 1000 %}qualite bonne{% elif c < 1500 %}aeration a faire dans la journee{% else %}AERATION RECOMMANDEE AVANT COUCHER{% endif %})\nChambre parentale: {{ states('sensor.weather_station_chambre_temperature') }}C, Humidite {{ states('sensor.weather_station_chambre_humidite') }}%, CO2 {{ states('sensor.weather_station_chambre_dioxyde_de_carbone') }}ppm\nBureau: {{ states('sensor.weather_station_bureau_temperature') }}C, CO2 {{ states('sensor.weather_station_bureau_dioxyde_de_carbone') }}ppm\nSDB: {{ states('sensor.temperature_humidity_bathroom_temperature') }}C, Humidite {{ states('sensor.temperature_humidity_bathroom_humidity') }}%\nShiva: derniere sortie il y a {% set h_shiva = ((as_timestamp(now()) - as_timestamp(states('input_datetime.last_shiva_walk'))) / 3600) | float(0) %}{{ h_shiva | round(1) }}h{% if h_shiva > 5 %} — A SORTIR (>{{ 5 }}h){% endif %}\nLumieres ON: {{ states.light | selectattr('state','eq','on') | rejectattr('attributes.entity_id','defined') | rejectattr('entity_id','match','.*_dnd$') | list | count }}\nFenetres ouvertes: {% set ouvertes = states.binary_sensor | selectattr('attributes.device_class','in',['window','door','opening']) | reject('match', '.*(lave_vaisselle|lave_linge|seche_linge|refrigerateur|frigo|congelateur|four_door|machine_a_cafe|imprimante|josette|aqara_door_and_window_sensor).*') | selectattr('state','eq','on') | list %}{{ ouvertes | count }}{% if ouvertes %} ({% for o in ouvertes %}{{ o.attributes.friendly_name }}{{ ', ' if not loop.last }}{% endfor %}){% endif %}\nVolets_synthese: {% set vs = ['cover.raphael_volet_shutter','cover.cuisine_volet_shutter','cover.salon_baie_vitree_shutter','cover.salon_fenetre_volet_shutter'] %}{% set ouverts = vs | select('is_state','open') | list %}{% set fermes = vs | select('is_state','closed') | list %}{% if ouverts | count == vs | count %}tous ouverts (normal en journee){% elif fermes | count == vs | count %}tous fermes{% else %}{{ ouverts | count }}/{{ vs | count }} ouverts{% endif %}\nSerrure: {{ states('lock.smart_lock_pro') }}{% set lock_off = not is_state('lock.smart_lock_pro','locked') %}{% set absents = is_state('person.kevin_allioli','not_home') and is_state('person.loutre','not_home') %}{% if lock_off and absents %} — URGENCE: PORTE NON VERROUILLEE ET PERSONNE A LA MAISON{% endif %}\nModes maison: Vacances={{ states('input_boolean.mode_vacances') }}, Nounou={{ states('input_boolean.mode_nounou') }} (Nounou=on explique volets ouverts/fenetres laissees)\nMaintenance: {% set items = state_attr('sensor.maintenance_actions','items') or [] %}{% if items|count == 0 %}tout est en ordre{% else %}{% set ns = namespace(out=[]) %}{% for it in items %}{% set st = states[it.entity] %}{% if st and st.last_changed %}{% set days = ((as_timestamp(now()) - as_timestamp(st.last_changed)) / 86400) | int %}{% set tag = (' [JOUR-MEME]' if days == 0 else ' [' ~ days ~ 'j]' if days < 3 else ' [' ~ days ~ 'j — ÇA TRAÎNE]' if days < 7 else ' [' ~ days ~ 'j — ÇA URGE BORDEL]') %}{% set ns.out = ns.out + [{'name': it.name, 'days': days, 'tag': tag}] %}{% else %}{% set ns.out = ns.out + [{'name': it.name, 'days': -1, 'tag': ''}] %}{% endif %}{% endfor %}{% set sorted_out = ns.out | sort(attribute='days', reverse=true) %}{% for x in sorted_out %}{{ x.name }}{{ x.tag }}{{ '. ' if not loop.last else '' }}{% endfor %}{% endif %}. Batteries faibles (<20%): {%- set out = namespace(l=[]) -%}{%- for x in states.sensor -%}{%- if x.attributes.device_class == 'battery' and 'tension' not in x.entity_id and 'iphone' not in x.entity_id and 'watch' not in x.entity_id and x.state|float(-1) >= 0 and x.state|float(-1) < 20 -%}{%- set out.l = out.l + [(x.attributes.friendly_name | replace(' Batterie','') | replace(' Battery','') | trim) ~ ' (' ~ x.state ~ '%)'] -%}{%- endif -%}{%- endfor -%}{{ out.l | join(', ') if out.l else 'aucune' }}\nAnomalies actionnables: Lampes ON > 4h: {%- set la = namespace(l=[]) -%}{%- for L in states.light | selectattr('state','eq','on') | rejectattr('attributes.entity_id','defined') | rejectattr('entity_id','match','.*_dnd$') -%}{%- set h = ((as_timestamp(now()) - as_timestamp(L.last_changed)) / 3600) | float(0) -%}{%- if h > 4 -%}{%- set la.l = la.l + [L.attributes.friendly_name ~ ' (' ~ (h | round(1)) ~ 'h)'] -%}{%- endif -%}{%- endfor -%}{{ la.l | join(', ') if la.l else 'aucune' }}. Fenetres ouvertes > 4h: {%- set fa = namespace(l=[]) -%}{%- for F in states.binary_sensor | selectattr('attributes.device_class','in',['window','door','opening']) | selectattr('state','eq','on') -%}{%- set h = ((as_timestamp(now()) - as_timestamp(F.last_changed)) / 3600) | float(0) -%}{%- if h > 4 -%}{%- set fa.l = fa.l + [F.attributes.friendly_name ~ ' (' ~ (h | round(1)) ~ 'h)'] -%}{%- endif -%}{%- endfor -%}{{ fa.l | join(', ') if fa.l else 'aucune' }}. Devices indisponibles: {{ states | selectattr('state','in',['unavailable','unknown']) | rejectattr('entity_id','match','.*_dnd$') | rejectattr('entity_id','match','^scene\\.') | list | count }}\nTesla: {{ states('sensor.josette_niveau_de_batterie') }}% ({{ states('sensor.josette_charging') }})\nEvenements aujourd hui DEJA PASSES (TOUS les events des 4 calendriers): {%- set nt = namespace(events=[]) -%}{%- for src in [ev_famille_today, ev_personnel_today, ev_travail_today, ev_champi_today] -%}{%- for cal_data in (src.values() if src is mapping else []) -%}{%- for e in (cal_data.events if cal_data is mapping and cal_data.events is defined else []) -%}{%- set hm = (e.start | default('00:00:00'))[11:16] if (e.start | default('')) and ':' in (e.start | default('')) else '00:00' -%}{%- set entry = hm ~ '  ·  ' ~ (e.summary | default('sans titre')) -%}{%- if (e.location | default('')) -%}{%- set entry = entry ~ '  ·  \U0001F4CD ' ~ (e.location | default('')) -%}{%- endif -%}{%- set nt.events = nt.events + [entry] -%}{%- endfor -%}{%- endfor -%}{%- endfor -%}{%- if nt.events -%} | {{ nt.events | sort | join(' | ') }}{%- else -%} (aucun){%- endif -%}\nEvenements demain (TOUS les events des 4 calendriers): {%- set ns = namespace(events=[]) -%}{%- for src in [ev_famille, ev_personnel, ev_travail, ev_champi] -%}{%- for cal_data in (src.values() if src is mapping else []) -%}{%- for e in (cal_data.events if cal_data is mapping and cal_data.events is defined else []) -%}{%- set hm = (e.start | default('00:00:00'))[11:16] if (e.start | default('')) and ':' in (e.start | default('')) else '00:00' -%}{%- set entry = hm ~ '  ·  ' ~ (e.summary | default('sans titre')) -%}{%- if (e.location | default('')) -%}{%- set entry = entry ~ '  ·  \U0001F4CD ' ~ (e.location | default('')) -%}{%- endif -%}{%- set ns.events = ns.events + [entry] -%}{%- endfor -%}{%- endfor -%}{%- endfor -%}{%- if ns.events -%} | {{ ns.events | sort | join(' | ') }}{%- else -%} (rien de prevu){%- endif -%}\nAppareils (compteurs du JOUR — agreges via history_stats, fiables): Lave-vaisselle {{ states('sensor.cuisine_lave_vaisselle_cycles_today') }} cycle(s) termine(s) aujourd hui (statut a l instant: {{ states('sensor.lave_vaisselle_current_status') }}), Lave-linge {{ states('sensor.salle_de_bains_machine_a_laver_lave_linge_hublot_cycles_today') }} cycle(s) termine(s) aujourd hui (statut: {{ states('sensor.lave_linge_hublot_current_status') }}), Seche-linge {{ states('sensor.toilettes_seche_linge_seche_linge_cycles_today') }} cycle(s) termine(s) aujourd hui (statut: {{ states('sensor.seche_linge_current_status') }}), Aspirateur robot {{ states('sensor.salon_s8_pro_ultra_sessions_today') }} session(s) aujourd hui pour {{ states('sensor.salon_s8_pro_ultra_time_today') | float(0) | round(1) }}h cumulees{% if states('vacuum.s8_pro_ultra') in ['cleaning','returning'] %} — EN COURS MAINTENANT{% endif %}, eau propre={% if is_state('binary_sensor.s8_pro_ultra_dock_clean_water_box','on') %}A REMPLIR{% else %}OK{% endif %}, eau sale={% if is_state('binary_sensor.s8_pro_ultra_dock_dirty_water_box','on') %}A VIDER{% else %}OK{% endif %}, Imprimante 3D Prusa {% if states('sensor.prusa_mk4s') in ['printing','paused','error','attention'] %}{{ states('sensor.prusa_mk4s') }} (avancement {{ states('sensor.prusa_mk4s_avancement') }}%, fin estimée {{ states('sensor.prusa_mk4s_fin_de_l_impression') }}){% else %}inactive (PAS d impression en cours){% endif %}\n"
+    response_variable: ai
+  - action: shell_command.signal_sharmaison
+    data:
+      message: '{{ (ai.response.speech.plain.speech if ai is defined and ai.response is defined else "DEBUG: ai vide ou response manquante. ai=" ~ (ai | string)[:300]) }}'
+  mode: single
+- id: lg_appliance_alerts_relay
+  alias: Notif - Alertes electromenager LG
+  description: Relaie les alertes LG non couvertes par les blueprints (sel, fuite, erreurs, echecs, filtre air frigo) vers les iPhones, et capture le besoin de sel pour la maintenance. Fenêtre 7h-23h ; rattrapage à 7h si état toujours actif.
+  trigger:
+  - platform: state
+    entity_id:
+    - event.lave_vaisselle_notification
+    - event.lave_vaisselle_error
+    - event.lave_linge_hublot_notification
+    - event.lave_linge_hublot_error
+    - event.seche_linge_notification
+    - event.seche_linge_error
+    - event.refrigerateur_notification
+  - platform: time
+    at: 07:00:00
+    id: matin
+  condition:
+  - condition: template
+    value_template: '{{ trigger.from_state.state not in ["unavailable","unknown","none",""] and trigger.to_state.state not in ["unavailable","unknown","none",""] }}'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  action:
+  - variables:
+      eid: '{{ trigger.entity_id }}'
+      et: '{{ trigger.to_state.attributes.event_type }}'
+      appl: '{% if "lave_vaisselle" in eid %}Lave-vaisselle{% elif "lave_linge" in eid %}Lave-linge{% elif "seche_linge" in eid %}Sèche-linge{% elif "refrigerateur" in eid %}Frigo{% else %}Électroménager{% endif %}'
+      base: '{% if eid.endswith("_error") %}Erreur technique ({{ et }}){% else %}{{ {"salt_refill_is_needed":"Ajouter du sel régénérant","water_leak_has_occurred":"Fuite d''eau détectée","error_during_cleaning":"Erreur pendant le cycle","drying_failed":"Échec du séchage","error_during_washing":"Erreur pendant le lavage","time_to_change_filter":"Filtre à changer"}.get(et, "") }}{% endif %}'
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ base | trim != "" }}'
+      sequence:
+      - action: notify.iphones
+        data:
+          title: 🔧 {{ appl }}
+          message: '{{ base }}'
+  - if:
+    - condition: template
+      value_template: '{{ et == "salt_refill_is_needed" }}'
+    then:
+    - action: input_boolean.turn_on
+      target:
+        entity_id: input_boolean.lave_vaisselle_sel
+  mode: queued
+  max: 10
+- id: lametric_visiteur
+  alias: LaMetric - Visiteur interphone
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.vibration_interphone
+    to: 'on'
+  action:
+  - action: script.lametric_notify
+    data:
+      message: Visiteur a la porte
+      sound: knock-knock
+      priority: critical
+      cycles: 3
+  mode: single
+- id: lametric_lv_fini
+  alias: LaMetric - Lave-vaisselle fini
+  description: Fin LV. Fenêtre 7h-23h ; détection nocturne reportée à 7h si toujours end.
+  trigger:
+  - platform: state
+    entity_id: sensor.lave_vaisselle_current_status
+    to: end
+  - platform: time
+    at: 07:00:00
+    id: matin
+  condition:
+  - condition: template
+    value_template: '{{ trigger.platform == ''time'' or trigger.from_state.state not in [''unavailable'', ''unknown'', ''none''] }}'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  - condition: state
+    entity_id: sensor.lave_vaisselle_current_status
+    state: end
+  action:
+  - action: script.lametric_notify
+    data:
+      message: Lave-vaisselle termine
+      sound: positive1
+      priority: info
+  mode: single
+- id: lametric_ll_fini
+  alias: LaMetric - Linge propre
+  description: Fin LL. Fenêtre 7h-23h ; détection nocturne reportée à 7h si toujours end.
+  trigger:
+  - platform: state
+    entity_id: sensor.lave_linge_hublot_current_status
+    to: end
+  - platform: time
+    at: 07:00:00
+    id: matin
+  condition:
+  - condition: template
+    value_template: '{{ trigger.platform == ''time'' or trigger.from_state.state not in [''unavailable'', ''unknown'', ''none''] }}'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  - condition: state
+    entity_id: sensor.lave_linge_hublot_current_status
+    state: end
+  action:
+  - action: script.lametric_notify
+    data:
+      message: Linge propre
+      sound: positive1
+      priority: info
+  mode: single
+- id: lametric_sl_fini
+  alias: LaMetric - Linge sec
+  description: Fin SL. Fenêtre 7h-23h ; détection nocturne reportée à 7h si toujours end.
+  trigger:
+  - platform: state
+    entity_id: sensor.seche_linge_current_status
+    to: end
+  - platform: time
+    at: 07:00:00
+    id: matin
+  condition:
+  - condition: template
+    value_template: '{{ trigger.platform == ''time'' or trigger.from_state.state not in [''unavailable'', ''unknown'', ''none''] }}'
+  - condition: time
+    after: 07:00:00
+    before: '23:00:00'
+  - condition: state
+    entity_id: sensor.seche_linge_current_status
+    state: end
+  action:
+  - action: script.lametric_notify
+    data:
+      message: Linge sec
+      sound: positive1
+      priority: info
+  mode: single
+- id: lametric_shiva
+  alias: LaMetric - Rappel sortie Shiva
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.shiva_walk_due
+    to: 'on'
+  action:
+  - action: script.lametric_notify
+    data:
+      message: Shiva doit sortir
+      sound: dog
+      priority: warning
+  mode: single
+- id: lametric_cafe_pret
+  alias: LaMetric - Cafe pret
+  trigger:
+  - platform: state
+    entity_id: sensor.machine_a_cafe_progression_infusion
+    to: '100'
+  condition:
+  - condition: template
+    value_template: '{{ trigger.from_state.state not in ["unavailable","unknown","none","100"] }}'
+  action:
+  - action: script.lametric_notify
+    data:
+      message: Cafe pret
+      sound: positive2
+      priority: info
+  mode: single
+- id: lametric_co2
+  alias: LaMetric - CO2 eleve
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.weather_station_chambre_de_raphael_dioxyde_de_carbone
+    above: 1500
+    for:
+      minutes: 10
+    id: raphael
+  - platform: numeric_state
+    entity_id: sensor.weather_station_bureau_dioxyde_de_carbone
+    above: 1500
+    for:
+      minutes: 10
+    id: bureau
+  - platform: numeric_state
+    entity_id: sensor.weather_station_chambre_dioxyde_de_carbone
+    above: 1500
+    for:
+      minutes: 10
+    id: chambre
+  - platform: numeric_state
+    entity_id: sensor.weather_station_dioxyde_de_carbone
+    above: 1500
+    for:
+      minutes: 10
+    id: salon
+  action:
+  - variables:
+      piece: '{% set m = {''raphael'':''Chambre Raphael'',''bureau'':''Bureau'',''chambre'':''Chambre'',''salon'':''Salon''} %}{{ m.get(trigger.id,'''') }}'
+      prio: '{{ "critical" if trigger.id == "raphael" else "info" }}'
+  - action: script.lametric_notify
+    data:
+      message: CO2 eleve - {{ piece }} ({{ trigger.to_state.state }} ppm) - aerer
+      sound: notification
+      priority: '{{ prio }}'
+      cycles: 2
+  mode: queued
+  max: 6
+- id: lametric_fuite
+  alias: LaMetric - Fuite d'eau
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.fuite_evier
+    - binary_sensor.fuite_baignoire
+    - binary_sensor.fuite_machine_a_laver
+    to: 'on'
+  action:
+  - variables:
+      ou: '{% if ''evier'' in trigger.entity_id %}evier{% elif ''baignoire'' in trigger.entity_id %}baignoire{% elif ''machine'' in trigger.entity_id %}machine a laver{% else %}maison{% endif %}'
+  - action: script.lametric_notify
+    data:
+      message: FUITE - {{ ou }}
+      sound: alarm1
+      priority: critical
+      cycles: 5
+  mode: queued
+  max: 4
+- id: lametric_fumee
+  alias: LaMetric - Fumee detectee
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.detecteur_de_fumee_fumee
+    to: 'on'
+  action:
+  - action: script.lametric_notify
+    data:
+      message: FUMEE DETECTEE
+      sound: alarm2
+      priority: critical
+      cycles: 6
+  mode: single
+- id: '1780334352732'
+  alias: Salle de bain - présence / lumière
+  description: ''
+  triggers:
+  - entity_id:
+    - binary_sensor.aqara_presence_multisensor_fp300_occupation_4
+    to:
+    - 'on'
+    id: arrive
+    trigger: state
+  - entity_id:
+    - binary_sensor.aqara_presence_multisensor_fp300_occupation_4
+    to:
+    - 'off'
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 30
+    id: leave
+    trigger: state
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: arrive
+      sequence:
+      - action: light.turn_on
+        data: {}
+        target:
+          entity_id: light.luminaire_sdb_3
+    - conditions:
+      - condition: trigger
+        id: leave
+      sequence:
+      - action: light.turn_off
+        data: {}
+        target:
+          entity_id: light.luminaire_sdb_3
+  mode: restart
+- id: robot_reset_flag_absence_au_dock
+  alias: Robot - reset flag absence quand retour au dock
+  description: 'Sécurité : quand le robot revient à docked, on remet le flag à off pour ne pas que le prochain cycle hérite d''un flag stale.'
+  trigger:
+  - platform: state
+    entity_id: vacuum.s8_pro_ultra
+    to: docked
+  condition:
+  - condition: state
+    entity_id: input_boolean.robot_lance_par_absence
+    state: 'on'
+  action:
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.robot_lance_par_absence
+  mode: single
+- id: notif_filtre_purificateur_chambre
+  alias: Notif - filtre purificateur chambre
+  description: Filtre du Core 200S (chambre parentale) sous 15% restant.
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.core_200s_series_filter_lifetime
+    below: 15
+  condition: []
+  action:
+  - action: notify.iphones
+    data:
+      title: 🔧 Purificateur chambre
+      message: ⚠️ Changer le filtre du purificateur d'air de la chambre.
+      data:
+        push:
+          sound: default
+          interruption-level: time-sensitive
+  mode: single
+- id: purificateur_chambre_pilotage_co2
+  alias: Purificateur chambre - pilotage CO2 / mode nuit
+  description: >-
+    Jour (8h-19h) : vitesse selon le CO2 Netatmo de la chambre (33/66/100%).
+    Nuit (19h-8h, coucher bébé) : preset sleep (silencieux).
+    N'agit que si le purificateur est allumé (ne le rallume pas tout seul).
+  trigger:
+  - platform: state
+    entity_id: sensor.weather_station_chambre_dioxyde_de_carbone
+  - platform: time
+    at: '19:00:00'
+  - platform: time
+    at: '08:00:00'
+  - platform: state
+    entity_id: fan.core_200s_series
+    attribute: preset_mode
+  - platform: state
+    entity_id: fan.core_200s_series
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: fan.core_200s_series
+    state: 'on'
+  action:
+  - variables:
+      co2: "{{ states('sensor.weather_station_chambre_dioxyde_de_carbone') | float(0) }}"
+      is_night: "{{ now().hour >= 19 or now().hour < 8 }}"
+      current_preset: "{{ state_attr('fan.core_200s_series','preset_mode') }}"
+      current_pct: "{{ state_attr('fan.core_200s_series','percentage') | int(-1) }}"
+      target_pct: "{% if co2 < 800 %}33{% elif co2 <= 1100 %}66{% else %}100{% endif %}"
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: "{{ is_night }}"
+      sequence:
+      - condition: template
+        value_template: "{{ current_preset != 'sleep' }}"
+      - action: fan.set_preset_mode
+        target:
+          entity_id: fan.core_200s_series
+        data:
+          preset_mode: sleep
+    default:
+    - condition: template
+      value_template: "{{ current_preset == 'sleep' or (current_pct - (target_pct | int)) | abs > 5 }}"
+    - action: fan.set_percentage
+      target:
+        entity_id: fan.core_200s_series
+      data:
+        percentage: "{{ target_pct | int }}"
+  mode: single
+- id: bambu_spaghetti_check
+  alias: Bambu A1 mini - détection spaghetti via Claude
+  description: Pendant impression (uniquement), capture la caméra A1 mini toutes les
+    30 min et envoie à Claude pour analyse visuelle. Notif actionnable si échec détecté.
+  trigger:
+  - platform: time_pattern
+    minutes: /30
+  condition:
+  - condition: state
+    entity_id: sensor.a1mini_0300da610200644_etat_de_l_impression
+    state: running
+  - condition: numeric_state
+    entity_id: sensor.a1mini_0300da610200644_progression_de_l_impression
+    above: 0
+    below: 100
+  action:
+  - action: camera.snapshot
+    target:
+      entity_id: camera.a1mini_0300da610200644_camera
+    data:
+      filename: /media/bambu_check.jpg
+  - delay:
+      seconds: 2
+  - action: ai_task.generate_data
+    data:
+      entity_id: ai_task.claude_ai_task
+      task_name: bambu_spaghetti
+      instructions: 'Tu es l''assistant maison de Kevin. Analyse cette image d''une
+        impression 3D en cours sur la Bambu Lab A1 mini.
+
+        Détecte tout problème visible : spaghetti (fil emmêlé en hauteur), désadhésion
+        plateau (objet décollé), sous-extrusion, blob excessif, couche manquée, déformation
+        visible.
+
+
+        Réponds STRICTEMENT au format suivant (une seule ligne) :
+
+        STATUS=ok|warn|fail | DETAIL=<phrase courte en français>
+
+
+        Exemples :
+
+        STATUS=ok | DETAIL=Impression en cours, aspect normal.
+
+        STATUS=warn | DETAIL=Léger défaut sur le bord droit, à surveiller.
+
+        STATUS=fail | DETAIL=Spaghetti détecté, l''objet est décollé du plateau.
+
+        '
+      attachments:
+      - media_content_id: media-source://media_source/local/bambu_check.jpg
+        media_content_type: image/jpeg
+    response_variable: ai
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ ai.data | regex_search(''STATUS\s*=\s*FAIL'', ignorecase=True) }}'
+      sequence:
+      - action: notify.iphones
+        data:
+          title: '🚨 Bambu A1 mini : impression compromise'
+          message: '{{ ai.data }}'
+          data:
+            push:
+              sound: default
+              interruption-level: time-sensitive
+            actions:
+            - action: BAMBU_PAUSE
+              title: ⏸ Mettre en pause
+            - action: BAMBU_CANCEL
+              title: 🛑 Annuler
+    - conditions:
+      - condition: template
+        value_template: '{{ ai.data | regex_search(''STATUS\s*=\s*WARN'', ignorecase=True) }}'
+      sequence:
+      - action: notify.iphones
+        data:
+          title: '⚠️ Bambu A1 mini : à surveiller'
+          message: '{{ ai.data }}'
+  mode: single
+- id: action_bambu_pause_claude
+  alias: Action - Pause Bambu (depuis notif Claude)
+  description: Bouton "Mettre en pause" de la notif spaghetti Bambu.
+  trigger:
+  - platform: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: BAMBU_PAUSE
+  action:
+  - action: button.press
+    target:
+      entity_id: button.a1mini_0300da610200644_pause
+  - action: notify.iphones
+    data:
+      message: ⏸ Bambu A1 mini mise en pause.
+  mode: single
+- id: action_bambu_cancel_claude
+  alias: Action - Annuler Bambu (depuis notif Claude)
+  description: Bouton "Annuler" de la notif spaghetti Bambu.
+  trigger:
+  - platform: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: BAMBU_CANCEL
+  action:
+  - action: button.press
+    target:
+      entity_id: button.a1mini_0300da610200644_arret
+  - action: notify.iphones
+    data:
+      message: 🛑 Bambu A1 mini annulée.
+  mode: single

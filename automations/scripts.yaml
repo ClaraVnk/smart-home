@@ -1,0 +1,431 @@
+speciale_nounou:
+  alias: 🐈 Spéciale Nounou
+  description: Volets en positions chat (baie 19%, cuisine 25%, salon fenêtre + Raphaël fermés)
+  icon: mdi:cat
+  sequence:
+  - action: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.mode_nounou
+  - action: cover.set_cover_position
+    target:
+      entity_id: cover.salon_baie_vitree_shutter
+    data:
+      position: 19
+  - action: cover.set_cover_position
+    target:
+      entity_id: cover.cuisine_volet_shutter
+    data:
+      position: 25
+  - action: cover.close_cover
+    target:
+      entity_id:
+      - cover.salon_fenetre_volet_shutter
+      - cover.raphael_volet_shutter
+veilleuse_raphael:
+  alias: 🌙 Veilleuse Raphaël
+  description: Allume guirlande + Hue Go + lampe nuage en mode veilleuse
+  icon: mdi:weather-night
+  sequence:
+  - action: light.turn_on
+    target:
+      entity_id:
+      - light.guirlande
+      - light.hue_go_1
+      - light.hue_ambiance_candle_1
+    data:
+      brightness_pct: 20
+      color_temp_kelvin: 2200
+a_la_sieste:
+  alias: 😴 À la sieste (Raphaël)
+  description: Ambiance sieste — volet fermé, luminaire et accessoires off, lampe nuage 15%, HomePod en pause
+  icon: mdi:sleep
+  sequence:
+  - action: cover.close_cover
+    target:
+      entity_id: cover.raphael_volet_shutter
+  - action: light.turn_off
+    target:
+      entity_id:
+      - light.luminaire_chambre_bebe
+      - light.guirlande
+      - light.hue_go_1
+  - action: light.turn_on
+    target:
+      entity_id: light.hue_ambiance_candle_1
+    data:
+      brightness_pct: 15
+      color_temp_kelvin: 2200
+  - action: media_player.media_pause
+    target:
+      entity_id: media_player.chambre
+au_dodo:
+  alias: 😴 Au dodo
+  description: Coucher parental — luminaire chambre off, HomePod pause, bibliothèque 35%, lit 20%
+  icon: mdi:bed
+  sequence:
+  - action: light.turn_off
+    target:
+      entity_id: light.chambre
+  - action: light.turn_on
+    target:
+      entity_id: light.hue_go_1_2
+    data:
+      brightness_pct: 35
+  - action: light.turn_on
+    target:
+      entity_id: light.lit
+    data:
+      brightness_pct: 20
+  - action: media_player.media_pause
+    target:
+      entity_id: media_player.chambre
+ouvre_tous_volets:
+  alias: 🪟 Ouvre tous les volets
+  description: Ouvre salon (baie + fenêtre) + cuisine (préserve volet Raphaël)
+  icon: mdi:window-shutter-open
+  sequence:
+  - action: cover.open_cover
+    target:
+      entity_id:
+      - cover.salon_baie_vitree_shutter
+      - cover.salon_fenetre_volet_shutter
+      - cover.cuisine_volet_shutter
+quitter_la_maison:
+  alias: 🚪 Quitter la maison
+  description: Mode goodbye manuel - tout off + lock + ferme volets
+  icon: mdi:door-closed-lock
+  sequence:
+  - action: light.turn_off
+    target:
+      entity_id: all
+  - action: lock.lock
+    target:
+      entity_id: lock.smart_lock_pro
+  - action: cover.close_cover
+    target:
+      entity_id:
+      - cover.salon_baie_vitree_shutter
+      - cover.salon_fenetre_volet_shutter
+      - cover.cuisine_volet_shutter
+  - action: notify.iphones
+    data:
+      message: 🚪 Maison fermée - lumières off, porte verrouillée, volets fermés.
+toggle_serrure_entree:
+  alias: 🔒 Toggle serrure entrée
+  icon: mdi:lock
+  sequence:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: lock.smart_lock_pro
+        state: locked
+      sequence:
+      - action: lock.unlock
+        target:
+          entity_id: lock.smart_lock_pro
+    - conditions:
+      - condition: state
+        entity_id: lock.smart_lock_pro
+        state: unlocked
+      sequence:
+      - action: lock.lock
+        target:
+          entity_id: lock.smart_lock_pro
+menage_passage_rapide_invites:
+  alias: 🚀 Ménage - passage rapide invités (salon + cuisine)
+  icon: mdi:run-fast
+  sequence:
+  - action: vacuum.set_fan_speed
+    target:
+      entity_id: vacuum.s8_pro_ultra
+    data:
+      fan_speed: max
+  - action: select.select_option
+    target:
+      entity_id: select.s8_pro_ultra_intensite_de_frottement
+    data:
+      option: 'off'
+  - action: vacuum.send_command
+    target:
+      entity_id: vacuum.s8_pro_ultra
+    data:
+      command: app_segment_clean
+      params:
+      - 22
+      - 21
+menage_complet:
+  alias: 🧹 Ménage - nettoyage complet
+  icon: mdi:broom
+  sequence:
+  - action: vacuum.set_fan_speed
+    target:
+      entity_id: vacuum.s8_pro_ultra
+    data:
+      fan_speed: balanced
+  - action: vacuum.start
+    target:
+      entity_id: vacuum.s8_pro_ultra
+nettoyer_salon:
+  alias: 🛋️ Salon
+  icon: mdi:sofa
+  sequence:
+  - action: vacuum.send_command
+    target:
+      entity_id: vacuum.s8_pro_ultra
+    data:
+      command: app_segment_clean
+      params:
+      - 22
+nettoyer_cuisine:
+  alias: 🍴 Cuisine
+  icon: mdi:silverware-fork-knife
+  sequence:
+  - action: vacuum.send_command
+    target:
+      entity_id: vacuum.s8_pro_ultra
+    data:
+      command: app_segment_clean
+      params:
+      - 21
+nettoyer_chambre_parentale:
+  alias: 🛏️ Chambre parentale
+  icon: mdi:bed-king
+  sequence:
+  - action: vacuum.send_command
+    target:
+      entity_id: vacuum.s8_pro_ultra
+    data:
+      command: app_segment_clean
+      params:
+      - 20
+nettoyer_chambre_raphael:
+  alias: 👶 Chambre Raphaël
+  icon: mdi:cradle
+  sequence:
+  - action: vacuum.send_command
+    target:
+      entity_id: vacuum.s8_pro_ultra
+    data:
+      command: app_segment_clean
+      params:
+      - 18
+nettoyer_bureau:
+  alias: 💼 Bureau
+  icon: mdi:desk
+  sequence:
+  - action: vacuum.send_command
+    target:
+      entity_id: vacuum.s8_pro_ultra
+    data:
+      command: app_segment_clean
+      params:
+      - 17
+nettoyer_sdb:
+  alias: 🛁 Salle de bain
+  icon: mdi:shower
+  sequence:
+  - action: vacuum.send_command
+    target:
+      entity_id: vacuum.s8_pro_ultra
+    data:
+      command: app_segment_clean
+      params:
+      - 16
+nettoyer_couloir:
+  alias: 🚪 Couloir
+  icon: mdi:vector-polyline
+  sequence:
+  - action: vacuum.send_command
+    target:
+      entity_id: vacuum.s8_pro_ultra
+    data:
+      command: app_segment_clean
+      params:
+      - 19
+ambiance_soir_silencieux:
+  alias: 🌙 Soir silencieux (salon + entrée)
+  description: Allume Hue Play, Lampe d'ambiance, Lampe glaçon (preset Nuit silencieuse) + plafonnier entrée
+  icon: mdi:weather-night
+  sequence:
+  - action: light.turn_on
+    target:
+      entity_id: light.hue_play_1
+    data:
+      brightness_pct: 65
+      xy_color:
+      - 0.5068
+      - 0.3702
+      transition: 3
+  - action: light.turn_on
+    target:
+      entity_id: light.lampe_dambiance
+    data:
+      brightness_pct: 65
+      xy_color:
+      - 0.4777
+      - 0.3856
+      transition: 3
+  - action: light.turn_on
+    target:
+      entity_id: light.lampe_glacon
+    data:
+      brightness_pct: 20
+      color_temp_kelvin: 2702
+      transition: 3
+ambiance_cinema:
+  alias: 🎬 Cinéma (lampes salon tamisées 30%)
+  description: Tamise Hue Play, Lampe d'ambiance, Lampe glaçon à 30% chaud pour ambiance film
+  icon: mdi:movie-roll
+  sequence:
+  - action: light.turn_on
+    target:
+      entity_id: light.hue_play_1
+    data:
+      brightness_pct: 30
+      color_temp_kelvin: 2200
+      transition: 3
+  - action: light.turn_on
+    target:
+      entity_id: light.lampe_dambiance
+    data:
+      brightness_pct: 30
+      color_temp_kelvin: 2200
+      transition: 3
+  - action: light.turn_on
+    target:
+      entity_id: light.lampe_glacon
+    data:
+      brightness_pct: 30
+      color_temp_kelvin: 2200
+      transition: 3
+bouilloire_bouillir:
+  alias: 🫖 Bouilloire - faire bouillir
+  icon: mdi:kettle-steam
+  sequence:
+  - action: media_player.play_media
+    target:
+      entity_id: media_player.echo_dot
+    data:
+      media_content_type: routine
+      media_content_id: fais bouillir de l'eau
+bouilloire_the_vert:
+  alias: 🍵 Bouilloire - thé vert
+  icon: mdi:tea
+  sequence:
+  - action: media_player.play_media
+    target:
+      entity_id: media_player.echo_dot
+    data:
+      media_content_type: routine
+      media_content_id: fais un thé vert
+bouilloire_the_noir:
+  alias: 🍵 Bouilloire - thé noir
+  icon: mdi:tea
+  sequence:
+  - action: media_player.play_media
+    target:
+      entity_id: media_player.echo_dot
+    data:
+      media_content_type: routine
+      media_content_id: fais un thé noir
+bouilloire_eteindre:
+  alias: 🫖 Bouilloire - éteindre
+  icon: mdi:kettle-off
+  sequence:
+  - action: media_player.play_media
+    target:
+      entity_id: media_player.echo_dot
+    data:
+      media_content_type: routine
+      media_content_id: éteins la bouilloire
+bouilloire_faux_cafe:
+  alias: ☕ Bouilloire - faux café
+  icon: mdi:coffee
+  sequence:
+  - action: media_player.play_media
+    target:
+      entity_id: media_player.echo_dot
+    data:
+      media_content_type: routine
+      media_content_id: fais un faux café
+lametric_notify:
+  alias: LaMetric - notifier
+  icon: mdi:clock-digital
+  mode: queued
+  max: 10
+  fields:
+    message:
+      description: Texte a afficher
+      required: true
+    icon:
+      description: ID icone LaMetric
+      default: '2867'
+    sound:
+      description: Son
+      default: notification
+    priority:
+      description: info / warning / critical
+      default: info
+    cycles:
+      description: Repetitions
+      default: 2
+  sequence:
+  - action: lametric.message
+    continue_on_error: true
+    data:
+      device_id: 9522b171c66e32422ee4a83a6f8d2b69
+      message: '{{ message }}'
+      icon: '{{ icon | default(''2867'') }}'
+      sound: '{{ sound | default(''notification'') }}'
+      priority: '{{ priority | default(''info'') }}'
+      cycles: '{{ cycles | default(2) | int }}'
+radiateurs_tout_couper:
+  alias: ❄️ Couper tous les radiateurs
+  icon: mdi:radiator-off
+  description: Passe les 6 radiateurs Atlantic en preset frost_guard (= 7°C hors gel). Évite l'erreur 403 Netatmo causée par climate.turn_off.
+  sequence:
+  - action: climate.set_preset_mode
+    target:
+      entity_id: &id001
+      - climate.salon_2
+      - climate.entree
+      - climate.cuisine
+      - climate.chambre
+      - climate.bureau
+      - climate.chambre_damis
+    data:
+      preset_mode: frost_guard
+  mode: single
+radiateurs_tout_auto:
+  alias: 🔥 Radiateurs en mode programme
+  icon: mdi:radiator
+  description: Repasse les 6 radiateurs Atlantic en preset 'schedule' (= leur programme normal). Action inverse de 'tout couper'.
+  sequence:
+  - action: climate.set_preset_mode
+    target:
+      entity_id: *id001
+    data:
+      preset_mode: schedule
+  mode: single
+clim_bureau_mode_dry:
+  alias: ❄️ Clim bureau — Mode déshumidification
+  icon: mdi:water-percent
+  description: Passe le clim du bureau en mode déshumidification (dry).
+  sequence:
+  - action: climate.set_hvac_mode
+    target:
+      entity_id: climate.clim_bureau
+    data:
+      hvac_mode: dry
+  mode: single
+clim_bureau_mode_fan_only:
+  alias: 💨 Clim bureau — Mode ventilation
+  icon: mdi:fan
+  description: Passe le clim du bureau en mode ventilation seule (fan only).
+  sequence:
+  - action: climate.set_hvac_mode
+    target:
+      entity_id: climate.clim_bureau
+    data:
+      hvac_mode: fan_only
+  mode: single

@@ -1,0 +1,1342 @@
+title: Maintenance
+views:
+- title: À faire
+  path: todo
+  icon: mdi:checkbox-marked-circle-outline
+  theme: home_glass
+  background: "linear-gradient(180deg,\n  rgba(134, 239, 172, 0.50) 0%,\n  rgba(165, 243, 252, 0.40) 50%,\n  rgba(147, 197, 253, 0.50) 100%\n) fixed\n"
+  type: sections
+  max_columns: 2
+  sections:
+  - type: grid
+    cards:
+    - type: heading
+      heading: État
+      heading_style: title
+      icon: mdi:bell-ring-outline
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-template-card
+      entity: sensor.maintenance_actions
+      primary: '{% set n = states(''sensor.maintenance_actions'') | int(0) %} {{ n }} action{{ ''s'' if n > 1 else '''' }}'
+      secondary: '{% set n = states(''sensor.maintenance_actions'') | int(0) %} {% set urgent = is_state_attr(''sensor.maintenance_actions'',''urgent'',true) %} {% if urgent %}🚨 urgences détectées {% elif
+        n == 0 %}Tout est en ordre {% else %}à traiter{% endif %}'
+      icon: '{% if is_state_attr(''sensor.maintenance_actions'',''urgent'',true) %}mdi:alert-octagram {% elif states(''sensor.maintenance_actions'') | int(0) > 0 %}mdi:format-list-checks {% else %}mdi:check-circle-outline{%
+        endif %}'
+      icon_color: '{% set urgent = is_state_attr(''sensor.maintenance_actions'',''urgent'',true) %} {% set n = states(''sensor.maintenance_actions'') | int(0) %} {% if urgent %}red{% elif n > 0 %}orange{%
+        else %}green{% endif %}'
+      tap_action:
+        action: none
+  - type: grid
+    cards:
+    - type: heading
+      heading: Énergie aujourd'hui
+      heading_style: title
+      icon: mdi:lightning-bolt
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-chips-card
+      alignment: justify
+      chips:
+      - type: template
+        entity: sensor.current_tariff_price
+        icon: '{% set p = state_attr(entity,''period'') %} {% if p == ''HC'' %}mdi:weather-night{% else %}mdi:weather-sunny{% endif %}'
+        content: '{{ state_attr(entity,''period'') }} {{ state_attr(entity,''color'') }}'
+        icon_color: '{% set c = state_attr(entity,''color'') %} {% if c == ''Bleu'' %}blue{% elif c == ''Blanc'' %}grey{% elif c == ''Rouge'' %}red{% else %}grey{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.energy_daily_cost
+        icon: mdi:currency-eur
+        content: '{{ states(entity) }} €'
+        icon_color: '{% set v = states(entity) | float(0) %} {% if v < 2 %}green{% elif v < 5 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.current_tariff_price
+        icon: '{% set period = state_attr(entity,''period'') %} {% set color = state_attr(entity,''color'') %} {% if period == ''HC'' %}mdi:check-circle {% elif color == ''Rouge'' %}mdi:close-circle {%
+          else %}mdi:alert-circle{% endif %}'
+        content: '{% set period = state_attr(entity,''period'') %} {% set color = state_attr(entity,''color'') %} {% if period == ''HC'' %}Bon moment {% elif color == ''Rouge'' %}À éviter {% else %}Normal{%
+          endif %}'
+        icon_color: '{% set period = state_attr(entity,''period'') %} {% set color = state_attr(entity,''color'') %} {% if period == ''HC'' %}green {% elif color == ''Rouge'' %}red {% else %}orange{% endif
+          %}'
+        tap_action:
+          action: more-info
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+  - type: grid
+    cards:
+    - type: heading
+      heading: Actions à faire
+      heading_style: title
+      icon: mdi:format-list-checks
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:auto-entities
+      show_empty: false
+      card:
+        type: vertical-stack
+      card_param: cards
+      filter:
+        template: "{% set items = state_attr('sensor.maintenance_actions','items') or [] %} {% set urgent = is_state_attr('sensor.maintenance_actions','urgent', true) %} {% set ns = namespace(out=[]) %}\
+          \ {% for it in items %}\n  {% set ns.out = ns.out + [{\n    'type': 'custom:mushroom-template-card',\n    'entity': it.entity,\n    'primary': it.name,\n    'secondary': '',\n    'icon': it.icon,\n\
+          \    'icon_color': 'red' if urgent else 'orange',\n    'layout': 'horizontal',\n    'fill_container': false,\n    'tap_action': {'action': 'more-info'}\n  }] %}\n{% endfor %} {{ ns.out }}"
+    - type: conditional
+      conditions:
+      - condition: numeric_state
+        entity: sensor.maintenance_actions
+        below: 1
+      card:
+        type: markdown
+        content: '✅ **Tout est en ordre.**
+
+          '
+  - type: grid
+    cards:
+    - type: heading
+      heading: Tâches récurrentes
+      heading_style: title
+      icon: mdi:calendar-check
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-template-card
+      entity: binary_sensor.task_clean_humidifier_due
+      primary: Nettoyer humidificateur
+      secondary: '{{ ''À faire'' if is_state(entity,''on'') else ''OK'' }}'
+      icon: mdi:water
+      icon_color: '{{ ''red'' if is_state(entity,''on'') else ''green'' }}'
+      layout: horizontal
+      fill_container: false
+      tap_action:
+        action: perform-action
+        perform_action: script.validate_task_clean_humidifier
+    - type: custom:mushroom-template-card
+      entity: binary_sensor.task_robot_mop_filter_due
+      primary: Serpillère + filtre robot
+      secondary: '{{ ''À faire'' if is_state(entity,''on'') else ''OK'' }}'
+      icon: mdi:broom
+      icon_color: '{{ ''red'' if is_state(entity,''on'') else ''green'' }}'
+      layout: horizontal
+      fill_container: false
+      tap_action:
+        action: perform-action
+        perform_action: script.validate_task_robot_mop_filter
+    - type: custom:mushroom-template-card
+      entity: binary_sensor.task_clean_pet_fountain_due
+      primary: Fontaine animaux
+      secondary: '{{ ''À faire'' if is_state(entity,''on'') else ''OK'' }}'
+      icon: mdi:cup-water
+      icon_color: '{{ ''red'' if is_state(entity,''on'') else ''green'' }}'
+      layout: horizontal
+      fill_container: false
+      tap_action:
+        action: perform-action
+        perform_action: script.validate_task_clean_pet_fountain
+    - type: custom:mushroom-template-card
+      entity: binary_sensor.task_clean_dishwasher_due
+      primary: Nettoyer lave-vaisselle
+      secondary: '{{ ''À faire'' if is_state(entity,''on'') else ''OK'' }}'
+      icon: mdi:dishwasher
+      icon_color: '{{ ''red'' if is_state(entity,''on'') else ''green'' }}'
+      layout: horizontal
+      fill_container: false
+      tap_action:
+        action: perform-action
+        perform_action: script.validate_task_clean_dishwasher
+    - type: custom:mushroom-template-card
+      entity: binary_sensor.task_clean_washer_due
+      primary: Nettoyer machine à laver
+      secondary: '{{ ''À faire'' if is_state(entity,''on'') else ''OK'' }}'
+      icon: mdi:washing-machine
+      icon_color: '{{ ''red'' if is_state(entity,''on'') else ''green'' }}'
+      layout: horizontal
+      fill_container: false
+      tap_action:
+        action: perform-action
+        perform_action: script.validate_task_clean_washer
+    - type: custom:mushroom-template-card
+      entity: binary_sensor.task_litiere_due
+      primary: Litière chat
+      secondary: '{{ ''À faire'' if is_state(entity,''on'') else ''OK'' }}'
+      icon: mdi:cat
+      icon_color: '{{ ''red'' if is_state(entity,''on'') else ''green'' }}'
+      layout: horizontal
+      fill_container: false
+      tap_action:
+        action: perform-action
+        perform_action: script.validate_task_litiere
+    - type: custom:mushroom-template-card
+      entity: binary_sensor.task_shiva_ears_due
+      primary: Oreilles Shiva
+      secondary: '{{ ''À faire'' if is_state(entity,''on'') else ''OK'' }}'
+      icon: mdi:dog
+      icon_color: '{{ ''red'' if is_state(entity,''on'') else ''green'' }}'
+      layout: horizontal
+      fill_container: false
+      tap_action:
+        action: perform-action
+        perform_action: script.validate_task_shiva_ears
+    - type: custom:mushroom-template-card
+      entity: input_boolean.lave_vaisselle_sel
+      primary: Sel lave-vaisselle
+      secondary: '{{ "À remplir" if is_state(entity,"on") else "OK" }}'
+      icon: mdi:shaker-outline
+      icon_color: '{{ "red" if is_state(entity,"on") else "green" }}'
+      layout: horizontal
+      fill_container: false
+      tap_action:
+        action: perform-action
+        perform_action: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.lave_vaisselle_sel
+  - type: grid
+    cards:
+    - type: heading
+      heading: Détecteurs
+      heading_style: title
+      icon: mdi:shield-check-outline
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-entity-card
+      entity: binary_sensor.detecteur_de_fumee_fumee
+      name: Fumée
+      icon: mdi:smoke-detector-variant
+      icon_color: '{{ ''red'' if is_state(''binary_sensor.detecteur_de_fumee_fumee'',''on'') else ''green'' }}'
+    - type: custom:mushroom-entity-card
+      entity: binary_sensor.fuite_evier
+      name: Fuite évier
+      icon: mdi:water
+      icon_color: '{{ ''red'' if is_state(''binary_sensor.fuite_evier'',''on'') else ''green'' }}'
+    - type: custom:mushroom-entity-card
+      entity: binary_sensor.fuite_baignoire
+      name: Fuite baignoire
+      icon: mdi:water
+      icon_color: '{{ ''red'' if is_state(''binary_sensor.fuite_baignoire'',''on'') else ''green'' }}'
+    - type: custom:mushroom-entity-card
+      entity: binary_sensor.fuite_machine_a_laver
+      name: Fuite machine à laver
+      icon: mdi:water
+      icon_color: '{{ ''red'' if is_state(''binary_sensor.fuite_machine_a_laver'',''on'') else ''green'' }}'
+  - type: grid
+    cards:
+    - type: heading
+      heading: Électroménager
+      heading_style: title
+      icon: mdi:dishwasher
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-entity-card
+      entity: sensor.lave_vaisselle_current_status
+      name: Lave-vaisselle
+      icon: mdi:dishwasher
+      secondary_info: state
+    - type: custom:mushroom-entity-card
+      entity: sensor.lave_linge_hublot_current_status
+      name: Lave-linge
+      icon: mdi:washing-machine
+      secondary_info: state
+    - type: custom:mushroom-entity-card
+      entity: sensor.seche_linge_current_status
+      name: Sèche-linge
+      icon: mdi:tumble-dryer
+      secondary_info: state
+  - type: grid
+    cards:
+    - type: heading
+      heading: Consommables
+      heading_style: title
+      icon: mdi:archive-outline
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-template-card
+      entity: sensor.core_300s_filter_lifetime
+      primary: Filtre purificateur salon
+      secondary: '{{ states(entity) }}% restant'
+      icon: mdi:air-filter
+      icon_color: '{% set v = states(entity) | int(0) %} {% if v < 15 %}red{% elif v < 30 %}orange{% else %}green{% endif %}'
+      tap_action:
+        action: more-info
+    - type: custom:mushroom-template-card
+      entity: sensor.core_200s_series_filter_lifetime
+      primary: Filtre purificateur chambre
+      secondary: '{{ states(entity) }}% restant'
+      icon: mdi:air-filter
+      icon_color: '{% set v = states(entity) | int(0) %} {% if v < 15 %}red{% elif v < 30 %}orange{% else %}green{% endif %}'
+      tap_action:
+        action: more-info
+    - type: custom:mushroom-template-card
+      entity: sensor.refrigerateur_water_filter
+      primary: Filtre eau frigo
+      secondary: '{% set s = states(entity) %} {% set used = states(''sensor.refrigerateur_water_filter_used'') %} {% if s == ''replace'' %}À remplacer{% else %}OK — {{ used }} mois{% endif %}'
+      icon: mdi:water-pump
+      icon_color: '{% if is_state(entity,''replace'') %}red{% else %}green{% endif %}'
+      tap_action:
+        action: more-info
+  - type: grid
+    cards:
+    - type: heading
+      heading: Robot aspirateur
+      heading_style: title
+      icon: mdi:robot-vacuum
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-template-card
+      entity: sensor.s8_pro_ultra_temps_restant_filtre
+      primary: Filtre
+      secondary: '{% set s = states(entity) | int(0) %} {% if s <= 0 %}À remplacer — tap pour reset {% elif s < 86400 %}{{ (s / 3600) | int }} h restantes {% else %}{{ (s / 86400) | round(1) }} j restants{% endif %}'
+      icon: mdi:air-filter
+      icon_color: '{% set s = states(entity) | int(0) %} {% if s <= 0 %}red{% elif s < 7*86400 %}orange{% else %}green{% endif %}'
+      tap_action:
+        action: perform-action
+        perform_action: vacuum.send_command
+        target:
+          entity_id: vacuum.s8_pro_ultra
+        data:
+          command: reset_consumable
+          params:
+            - filter_work_time
+        confirmation:
+          text: Réinitialiser le compteur filtre (après remplacement) ?
+    - type: custom:mushroom-template-card
+      entity: sensor.s8_pro_ultra_temps_restant_brosse_principale
+      primary: Brosse principale
+      secondary: '{% set s = states(entity) | int(0) %} {% if s <= 0 %}À remplacer — tap pour reset {% elif s < 86400 %}{{ (s / 3600) | int }} h restantes {% else %}{{ (s / 86400) | round(1) }} j restants{% endif %}'
+      icon: mdi:broom
+      icon_color: '{% set s = states(entity) | int(0) %} {% if s <= 0 %}red{% elif s < 7*86400 %}orange{% else %}green{% endif %}'
+      tap_action:
+        action: perform-action
+        perform_action: vacuum.send_command
+        target:
+          entity_id: vacuum.s8_pro_ultra
+        data:
+          command: reset_consumable
+          params:
+            - main_brush_work_time
+        confirmation:
+          text: Réinitialiser le compteur brosse principale ?
+    - type: custom:mushroom-template-card
+      entity: sensor.s8_pro_ultra_temps_restant_brosse_laterale
+      primary: Brosse latérale
+      secondary: '{% set s = states(entity) | int(0) %} {% if s <= 0 %}À remplacer — tap pour reset {% elif s < 86400 %}{{ (s / 3600) | int }} h restantes {% else %}{{ (s / 86400) | round(1) }} j restants{% endif %}'
+      icon: mdi:broom
+      icon_color: '{% set s = states(entity) | int(0) %} {% if s <= 0 %}red{% elif s < 7*86400 %}orange{% else %}green{% endif %}'
+      tap_action:
+        action: perform-action
+        perform_action: vacuum.send_command
+        target:
+          entity_id: vacuum.s8_pro_ultra
+        data:
+          command: reset_consumable
+          params:
+            - side_brush_work_time
+        confirmation:
+          text: Réinitialiser le compteur brosse latérale ?
+    - type: custom:mushroom-template-card
+      entity: sensor.s8_pro_ultra_temps_restant_capteurs
+      primary: Capteurs (nettoyer)
+      secondary: '{% set s = states(entity) | int(0) %} {% if s <= 0 %}À nettoyer — tap pour reset {% elif s < 86400 %}{{ (s / 3600) | int }} h restantes {% else %}{{ (s / 86400) | round(1) }} j restants{% endif %}'
+      icon: mdi:eye-circle-outline
+      icon_color: '{% set s = states(entity) | int(0) %} {% if s <= 0 %}red{% elif s < 7*86400 %}orange{% else %}green{% endif %}'
+      tap_action:
+        action: perform-action
+        perform_action: vacuum.send_command
+        target:
+          entity_id: vacuum.s8_pro_ultra
+        data:
+          command: reset_consumable
+          params:
+            - sensor_dirty_time
+        confirmation:
+          text: Réinitialiser le compteur capteurs (après nettoyage) ?
+    - type: custom:mushroom-template-card
+      entity: sensor.s8_pro_ultra_dock_strainer_time_left
+      primary: Filtre dock
+      secondary: '{% set h = states(entity) | int(0) %} {% if h <= 0 %}À remplacer {% elif h < 24 %}{{ h }} h restantes {% else %}{{ (h / 24) | round(1) }} j restants{% endif %}'
+      icon: mdi:filter-variant
+      icon_color: '{% set h = states(entity) | int(0) %} {% if h <= 0 %}red{% elif h < 24*7 %}orange{% else %}green{% endif %}'
+      tap_action:
+        action: more-info
+    - type: custom:mushroom-template-card
+      entity: sensor.s8_pro_ultra_dock_maintenance_brush_time_left
+      primary: Brosse dock
+      secondary: '{% set h = states(entity) | int(0) %} {% if h <= 0 %}À nettoyer {% elif h < 24 %}{{ h }} h restantes {% else %}{{ (h / 24) | round(1) }} j restants{% endif %}'
+      icon: mdi:broom
+      icon_color: '{% set h = states(entity) | int(0) %} {% if h <= 0 %}red{% elif h < 24*7 %}orange{% else %}green{% endif %}'
+      tap_action:
+        action: more-info
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: binary_sensor.s8_pro_ultra_dock_clean_water_box
+        state: 'on'
+      card:
+        type: custom:mushroom-chips-card
+        chips:
+        - type: template
+          entity: binary_sensor.s8_pro_ultra_dock_clean_water_box
+          icon: mdi:water
+          content: Eau propre à remplir
+          icon_color: red
+          tap_action:
+            action: more-info
+        card_mod:
+          style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: binary_sensor.s8_pro_ultra_dock_dirty_water_box
+        state: 'on'
+      card:
+        type: custom:mushroom-chips-card
+        chips:
+        - type: template
+          entity: binary_sensor.s8_pro_ultra_dock_dirty_water_box
+          icon: mdi:water-off
+          content: Eau sale à vider
+          icon_color: red
+          tap_action:
+            action: more-info
+        card_mod:
+          style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: binary_sensor.s8_pro_ultra_dock_cleaning_fluid
+        state: 'on'
+      card:
+        type: custom:mushroom-chips-card
+        chips:
+        - type: template
+          entity: binary_sensor.s8_pro_ultra_dock_cleaning_fluid
+          icon: mdi:bottle-tonic
+          content: Détergent à remplir
+          icon_color: red
+          tap_action:
+            action: more-info
+        card_mod:
+          style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: binary_sensor.s8_pro_ultra_penurie_d_eau
+        state: 'on'
+      card:
+        type: custom:mushroom-chips-card
+        chips:
+        - type: template
+          entity: binary_sensor.s8_pro_ultra_penurie_d_eau
+          icon: mdi:water-alert
+          content: Pénurie d'eau
+          icon_color: red
+          tap_action:
+            action: more-info
+        card_mod:
+          style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+  - type: grid
+    cards:
+    - type: heading
+      heading: Plantes
+      heading_style: title
+      icon: mdi:flower
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: horizontal-stack
+      cards:
+      - type: gauge
+        entity: sensor.ficus_soil_moisture
+        name: Ficus
+        min: 0
+        max: 100
+        severity:
+          red: 0
+          yellow: 25
+          green: 40
+      - type: gauge
+        entity: sensor.dragonnier_de_madagascar_soil_moisture
+        name: Dragonnier
+        min: 0
+        max: 100
+        severity:
+          red: 0
+          yellow: 25
+          green: 40
+  - type: grid
+    cards:
+    - type: heading
+      heading: Devices hors ligne
+      heading_style: title
+      icon: mdi:lan-disconnect
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:auto-entities
+      show_empty: false
+      card:
+        type: entities
+        show_header_toggle: false
+        state_color: false
+      filter:
+        include:
+        - domain: light
+          state: unavailable
+          options:
+            secondary_info: last-changed
+        - domain: switch
+          state: unavailable
+          options:
+            secondary_info: last-changed
+        - domain: climate
+          state: unavailable
+          options:
+            secondary_info: last-changed
+        - domain: cover
+          state: unavailable
+          options:
+            secondary_info: last-changed
+        - domain: vacuum
+          state: unavailable
+          options:
+            secondary_info: last-changed
+        - domain: media_player
+          state: unavailable
+          options:
+            secondary_info: last-changed
+        - domain: lock
+          state: unavailable
+          options:
+            secondary_info: last-changed
+        - domain: fan
+          state: unavailable
+          options:
+            secondary_info: last-changed
+        - domain: camera
+          state: unavailable
+          options:
+            secondary_info: last-changed
+        exclude:
+        - entity_id: /.*iphone.*/
+        - entity_id: /.*watch.*/
+        - entity_id: /.*synchroniser.*/
+        - entity_id: /.*inverser.*/
+        - entity_id: /.*preservation.*/
+        - entity_id: /.*remplacement.*/
+        - entity_id: /.*liste_de_lecture.*/
+        - entity_id: /.*palette.*/
+        - entity_id: /.*prereglage.*/
+        - entity_id: /.*veilleuse.*/
+        - entity_id: /.*comportement.*/
+        - entity_id: /.*intensite.*/
+        - entity_id: /.*vitesse.*/
+        - entity_id: /.*sapin_noel.*/
+        - entity_id: /switch\.bouilloire_.*/
+        - entity_id: /select\.wled_.*/
+        - entity_id: /.*lave_vaisselle.*/
+        - entity_id: /.*lave_linge.*/
+        - entity_id: /.*machine_a_laver.*/
+        - entity_id: media_player.g4_instant
+        - entity_id: camera.prusa_mk4s_previsualisation
+        - entity_id: /sonoff_1001364e3c.*/
+        - entity_id: /.*seche_linge.*/
+        - entity_id: /switch\.wled_.*/
+        - entity_id: /number\.wled_.*/
+        - entity_id: /button\..*/
+        - attributes:
+            entity_category: diagnostic
+        - attributes:
+            entity_category: config
+      sort:
+        method: last_changed
+        reverse: true
+- title: Calendrier
+  path: calendrier
+  icon: mdi:calendar-month
+  theme: home_glass
+  background: "linear-gradient(180deg,\n  rgba(96, 165, 250, 0.40) 0%,\n  rgba(167, 139, 250, 0.35) 50%,\n  rgba(244, 114, 182, 0.40) 100%\n)\n"
+  type: sections
+  max_columns: 1
+  sections:
+  - type: grid
+    cards:
+    - type: heading
+      heading: 📅 Agenda 7 jours
+      heading_style: title
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: calendar
+      entities:
+      - calendar.famille
+      - calendar.personnel
+      - calendar.travail
+      - calendar.gros_champi
+      initial_view: listWeek
+  - type: grid
+    cards:
+    - type: heading
+      heading: 🗓️ Vue mois
+      heading_style: subtitle
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: calendar
+      entities:
+      - calendar.famille
+      - calendar.personnel
+      - calendar.travail
+      - calendar.gros_champi
+      initial_view: dayGridMonth
+      card_mod:
+        style: 'ha-card .fc-daygrid-day { min-height: 110px !important; }
+
+          ha-card .fc-daygrid-day-events { min-height: 90px !important; max-height: none !important; }
+
+          ha-card .fc-daygrid-day-bottom { display: none !important; }
+
+          ha-card .fc-more-link { display: none !important; }
+
+          ha-card .fc-daygrid-event-harness { visibility: visible !important; }
+
+          '
+- title: Ménage
+  path: menage
+  icon: mdi:robot-vacuum
+  theme: home_glass
+  background: "linear-gradient(180deg,\n  rgba(96, 165, 250, 0.40) 0%,\n  rgba(167, 139, 250, 0.35) 50%,\n  rgba(244, 114, 182, 0.40) 100%\n) fixed\n"
+  type: sections
+  max_columns: 2
+  sections:
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: 🗺️ Carte de la maison
+      heading_style: title
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: picture-entity
+      entity: image.s8_pro_ultra_map_0
+      show_state: false
+      show_name: false
+      camera_view: auto
+      card_mod:
+        style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius:
+          22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+  - type: grid
+    cards:
+    - type: heading
+      heading: 🤖 État
+      heading_style: title
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: custom:mushroom-template-card
+        entity: sensor.s8_pro_ultra_etat
+        primary: État
+        secondary: '{{ state_translated(entity) | capitalize }}'
+        icon: '{% set s = states(entity) %}
+
+          {% if s == ''cleaning'' %}mdi:vacuum
+
+          {% elif s == ''docked'' or s == ''charging'' %}mdi:home-import-outline
+
+          {% elif s == ''returning'' %}mdi:home-export-outline
+
+          {% elif s in [''error'',''unavailable''] %}mdi:alert-circle
+
+          {% else %}mdi:robot-vacuum{% endif %}'
+        icon_color: '{% set s = states(entity) %}
+
+          {% if s == ''cleaning'' %}blue
+
+          {% elif s == ''returning'' %}orange
+
+          {% elif s in [''error'',''unavailable''] %}red
+
+          {% else %}grey{% endif %}'
+        layout: vertical
+      - type: custom:mushroom-template-card
+        entity: sensor.s8_pro_ultra_batterie
+        primary: Batterie
+        secondary: '{{ states(entity) }}%'
+        icon: mdi:battery
+        icon_color: '{% set v = states(entity) | int(0) %}{% if v < 20 %}red{% elif v < 50 %}orange{% else %}green{% endif %}'
+        layout: vertical
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: custom:mushroom-template-card
+        entity: sensor.s8_pro_ultra_current_room
+        primary: Pièce
+        secondary: '{{ states(entity) if states(entity) != ''unknown'' else ''—'' }}'
+        icon: mdi:floor-plan
+        icon_color: blue
+        layout: vertical
+      - type: custom:mushroom-template-card
+        entity: sensor.s8_pro_ultra_surface_de_nettoyage
+        primary: Surface (m²)
+        secondary: '{{ states(entity) }}'
+        icon: mdi:texture-box
+        icon_color: purple
+        layout: vertical
+  - type: grid
+    cards:
+    - type: heading
+      heading: 🎮 Contrôles
+      heading_style: title
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: grid
+      columns: 3
+      square: false
+      cards:
+      - type: custom:mushroom-template-card
+        primary: Démarrer
+        icon: mdi:play-circle
+        icon_color: green
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: vacuum.start
+          target:
+            entity_id: vacuum.s8_pro_ultra
+      - type: custom:mushroom-template-card
+        primary: Pause
+        icon: mdi:pause-circle
+        icon_color: amber
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: vacuum.pause
+          target:
+            entity_id: vacuum.s8_pro_ultra
+      - type: custom:mushroom-template-card
+        primary: Retour dock
+        icon: mdi:home-import-outline
+        icon_color: blue
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: vacuum.return_to_base
+          target:
+            entity_id: vacuum.s8_pro_ultra
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: ⚡ Scénarios rapides
+      heading_style: title
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: grid
+      columns: 3
+      square: false
+      cards:
+      - type: custom:mushroom-template-card
+        primary: Passage rapide
+        secondary: Invités · Salon + Cuisine
+        icon: mdi:run-fast
+        icon_color: orange
+        layout: vertical
+        multiline_secondary: true
+        tap_action:
+          action: perform-action
+          perform_action: script.menage_passage_rapide_invites
+      - type: custom:mushroom-template-card
+        primary: Nettoyage complet
+        secondary: Tout l'appart à fond
+        icon: mdi:broom
+        icon_color: green
+        layout: vertical
+        multiline_secondary: true
+        tap_action:
+          action: perform-action
+          perform_action: script.menage_complet
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: 🎯 Nettoyer une seule pièce
+      heading_style: title
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: grid
+      columns: 4
+      square: false
+      cards:
+      - type: custom:mushroom-template-card
+        primary: Salon
+        icon: mdi:sofa
+        icon_color: amber
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: script.nettoyer_salon
+      - type: custom:mushroom-template-card
+        primary: Cuisine
+        icon: mdi:silverware-fork-knife
+        icon_color: orange
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: script.nettoyer_cuisine
+      - type: custom:mushroom-template-card
+        primary: Chambre
+        icon: mdi:bed-king
+        icon_color: purple
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: script.nettoyer_chambre_parentale
+      - type: custom:mushroom-template-card
+        primary: Raphaël
+        icon: mdi:cradle
+        icon_color: pink
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: script.nettoyer_chambre_raphael
+      - type: custom:mushroom-template-card
+        primary: Bureau
+        icon: mdi:desk
+        icon_color: blue
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: script.nettoyer_bureau
+      - type: custom:mushroom-template-card
+        primary: SDB
+        icon: mdi:shower
+        icon_color: light-blue
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: script.nettoyer_sdb
+      - type: custom:mushroom-template-card
+        primary: Couloir
+        icon: mdi:vector-polyline
+        icon_color: grey
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: script.nettoyer_couloir
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: 🔧 Consommables
+      heading_style: subtitle
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: grid
+      columns: 3
+      square: false
+      cards:
+      - type: custom:mushroom-template-card
+        entity: sensor.s8_pro_ultra_temps_restant_brosse_principale
+        primary: Brosse princ.
+        secondary: '{% set s = states(entity) | int(0) %} {% if s <= 0 %}À remplacer {% elif s >= 86400 %}{{ (s // 86400) }} j {% elif s >= 3600 %}{{ (s // 3600) }} h {% else %}{{ (s // 60) }} min{% endif
+          %}'
+        icon: mdi:brush
+        icon_color: '{% set s = states(entity) | int(0) %} {% if s <= 0 %}red {% elif s < 86400 %}orange {% elif s < 604800 %}amber {% else %}green{% endif %}'
+        layout: vertical
+      - type: custom:mushroom-template-card
+        entity: sensor.s8_pro_ultra_temps_restant_brosse_laterale
+        primary: Brosse latér.
+        secondary: '{% set s = states(entity) | int(0) %} {% if s <= 0 %}À remplacer {% elif s >= 86400 %}{{ (s // 86400) }} j {% elif s >= 3600 %}{{ (s // 3600) }} h {% else %}{{ (s // 60) }} min{% endif
+          %}'
+        icon: mdi:brush-variant
+        icon_color: '{% set s = states(entity) | int(0) %} {% if s <= 0 %}red {% elif s < 86400 %}orange {% elif s < 604800 %}amber {% else %}green{% endif %}'
+        layout: vertical
+      - type: custom:mushroom-template-card
+        entity: sensor.s8_pro_ultra_temps_restant_filtre
+        primary: Filtre
+        secondary: '{% set s = states(entity) | int(0) %} {% if s <= 0 %}À remplacer {% elif s >= 86400 %}{{ (s // 86400) }} j {% elif s >= 3600 %}{{ (s // 3600) }} h {% else %}{{ (s // 60) }} min{% endif
+          %}'
+        icon: mdi:air-filter
+        icon_color: '{% set s = states(entity) | int(0) %} {% if s <= 0 %}red {% elif s < 86400 %}orange {% elif s < 604800 %}amber {% else %}green{% endif %}'
+        layout: vertical
+      - type: custom:mushroom-template-card
+        entity: sensor.s8_pro_ultra_temps_restant_capteurs
+        primary: Capteurs
+        secondary: '{% set s = states(entity) | int(0) %} {% if s <= 0 %}À nettoyer {% elif s >= 86400 %}{{ (s // 86400) }} j {% elif s >= 3600 %}{{ (s // 3600) }} h {% else %}{{ (s // 60) }} min{% endif
+          %}'
+        icon: mdi:radar
+        icon_color: '{% set s = states(entity) | int(0) %} {% if s <= 0 %}red {% elif s < 86400 %}orange {% elif s < 604800 %}amber {% else %}green{% endif %}'
+        layout: vertical
+      - type: custom:mushroom-template-card
+        entity: sensor.s8_pro_ultra_dock_maintenance_brush_time_left
+        primary: Brosse dock
+        secondary: '{% set h = states(entity) | int(0) %} {% if h <= 0 %}À remplacer {% elif h >= 24 %}{{ (h // 24) }} j {% else %}{{ h }} h{% endif %}'
+        icon: mdi:broom
+        icon_color: '{% set h = states(entity) | int(0) %} {% if h <= 0 %}red {% elif h < 24 %}orange {% elif h < 168 %}amber {% else %}green{% endif %}'
+        layout: vertical
+      - type: custom:mushroom-template-card
+        entity: sensor.s8_pro_ultra_dock_strainer_time_left
+        primary: Tamis dock
+        secondary: '{% set h = states(entity) | int(0) %} {% if h <= 0 %}À remplacer {% elif h >= 24 %}{{ (h // 24) }} j {% else %}{{ h }} h{% endif %}'
+        icon: mdi:filter
+        icon_color: '{% set h = states(entity) | int(0) %} {% if h <= 0 %}red {% elif h < 24 %}orange {% elif h < 168 %}amber {% else %}green{% endif %}'
+        layout: vertical
+- title: Batteries
+  path: batteries
+  icon: mdi:battery-high
+  theme: home_glass
+  background: "linear-gradient(180deg,\n  rgba(250, 204, 21, 0.45) 0%,\n  rgba(251, 113, 133, 0.35) 50%,\n  rgba(167, 139, 250, 0.50) 100%\n) fixed\n"
+  type: sections
+  max_columns: 2
+  sections:
+  - type: grid
+    cards:
+    - type: heading
+      heading: ⚠️ À changer (< 20%)
+      heading_style: title
+      icon: mdi:battery-alert
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:auto-entities
+      show_empty: false
+      card:
+        type: entities
+        show_header_toggle: false
+        state_color: true
+      filter:
+        template: "{%- set out = namespace(l=[]) -%}\n{%- for s in states.sensor -%}\n  {%- if s.attributes.device_class == \"battery\"\n     and \"tension\" not in s.entity_id\n     and \"iphone\" not\
+          \ in s.entity_id\n     and \"watch\" not in s.entity_id\n     and s.state | float(-1) >= 0\n     and s.state | float(-1) < 20 -%}\n    {%- set _name -%}{%- set area = area_name(s.entity_id) -%}{%-\
+          \ set base = s.attributes.friendly_name | replace(\" Batterie\",\"\") | replace(\" Battery\",\"\") | trim -%}{%- if area -%}{%- set base = base | replace(area, \"\") | replace(area | lower, \"\
+          \") | replace(area | upper, \"\") | replace(area | title, \"\") | replace(\"  \", \" \") | trim -%}{%- if base -%}{{ area }} - {{ base }}{%- else -%}{{ area }}{%- endif -%}{%- else -%}{{ base\
+          \ }}{%- endif -%}{%- endset -%}\n    {%- set out.l = out.l + [{\n      \"_level\": s.state | float,\n      \"_sort\": _name | trim,\n      \"entity\": s.entity_id,\n      \"name\": _name | trim\n\
+          \    }] -%}\n  {%- endif -%}\n{%- endfor -%}\n{{ out.l | sort(attribute=\"_level\") }}"
+  - type: grid
+    cards:
+    - type: heading
+      heading: 🔋 À surveiller (20-50%)
+      heading_style: title
+      icon: mdi:battery-50
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:auto-entities
+      show_empty: false
+      card:
+        type: entities
+        show_header_toggle: false
+        state_color: true
+      filter:
+        template: "{%- set out = namespace(l=[]) -%}\n{%- for s in states.sensor -%}\n  {%- if s.attributes.device_class == \"battery\"\n     and \"tension\" not in s.entity_id\n     and \"iphone\" not\
+          \ in s.entity_id\n     and \"watch\" not in s.entity_id\n     and s.state | float(-1) >= 20\n     and s.state | float(-1) < 50 -%}\n    {%- set _name -%}{%- set area = area_name(s.entity_id) -%}{%-\
+          \ set base = s.attributes.friendly_name | replace(\" Batterie\",\"\") | replace(\" Battery\",\"\") | trim -%}{%- if area -%}{%- set base = base | replace(area, \"\") | replace(area | lower, \"\
+          \") | replace(area | upper, \"\") | replace(area | title, \"\") | replace(\"  \", \" \") | trim -%}{%- if base -%}{{ area }} - {{ base }}{%- else -%}{{ area }}{%- endif -%}{%- else -%}{{ base\
+          \ }}{%- endif -%}{%- endset -%}\n    {%- set out.l = out.l + [{\n      \"_level\": s.state | float,\n      \"_sort\": _name | trim,\n      \"entity\": s.entity_id,\n      \"name\": _name | trim\n\
+          \    }] -%}\n  {%- endif -%}\n{%- endfor -%}\n{{ out.l | sort(attribute=\"_level\") }}"
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: ✅ Toutes les batteries
+      heading_style: title
+      icon: mdi:battery-high
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:auto-entities
+      card:
+        type: entities
+        show_header_toggle: false
+        state_color: true
+      filter:
+        template: "{%- set out = namespace(l=[]) -%}\n{%- for s in states.sensor -%}\n  {%- if s.attributes.device_class == \"battery\"\n     and \"tension\" not in s.entity_id\n     and \"iphone\" not\
+          \ in s.entity_id\n     and \"watch\" not in s.entity_id\n     and s.state | float(-1) >= 0 -%}\n    {%- set _name -%}{%- set area = area_name(s.entity_id) -%}{%- set base = s.attributes.friendly_name\
+          \ | replace(\" Batterie\",\"\") | replace(\" Battery\",\"\") | trim -%}{%- if area -%}{%- set base = base | replace(area, \"\") | replace(area | lower, \"\") | replace(area | upper, \"\") | replace(area\
+          \ | title, \"\") | replace(\"  \", \" \") | trim -%}{%- if base -%}{{ area }} - {{ base }}{%- else -%}{{ area }}{%- endif -%}{%- else -%}{{ base }}{%- endif -%}{%- endset -%}\n    {%- set out.l\
+          \ = out.l + [{\n      \"_level\": s.state | float,\n      \"_sort\": _name | trim,\n      \"entity\": s.entity_id,\n      \"name\": _name | trim\n    }] -%}\n  {%- endif -%}\n{%- endfor -%}\n\
+          {{ out.l | sort(attribute=\"_sort\") }}"
+- title: Colis
+  path: colis
+  icon: mdi:package-variant-closed
+  theme: home_glass
+  background: "linear-gradient(180deg,\n  rgba(249, 115, 22, 0.40) 0%,\n  rgba(251, 191, 36, 0.35) 50%,\n  rgba(167, 139, 250, 0.40) 100%\n) fixed\n"
+  type: sections
+  max_columns: 2
+  sections:
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: 📦 État du jour
+      heading_style: title
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: grid
+      columns: 3
+      square: false
+      cards:
+      - type: custom:mushroom-template-card
+        entity: sensor.parcel_app_parcel_active_shipment
+        primary: En cours
+        secondary: '{{ states(entity) }} colis'
+        icon: mdi:package-variant
+        icon_color: '{% set n = states(entity) | int(0) %}{% if n == 0 %}grey{% elif n < 5 %}blue{% else %}purple{% endif %}'
+        layout: vertical
+        tap_action:
+          action: more-info
+      - type: custom:mushroom-template-card
+        entity: sensor.parcel_app_parcel_active_shipment
+        primary: Aujourd'hui
+        secondary: '{{ state_attr(entity,''parcels_arriving_today'') }} prévu(s)'
+        icon: mdi:truck-fast
+        icon_color: '{% set n = state_attr(''sensor.parcel_app_parcel_active_shipment'',''parcels_arriving_today'') | int(0) %}{% if n == 0 %}grey{% elif n == 1 %}amber{% else %}orange{% endif %}'
+        layout: vertical
+      - type: custom:mushroom-template-card
+        entity: sensor.parcel_app_parcel_active_shipment
+        primary: Livrés today
+        secondary: '{{ state_attr(entity,''delivered_today'') | default(0) }}'
+        icon: mdi:check-circle
+        icon_color: green
+        layout: vertical
+  - type: grid
+    cards:
+    - type: heading
+      heading: ⏭️ Prochain colis attendu
+      heading_style: title
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-template-card
+      entity: sensor.parcel_app_parcel_active_shipment
+      primary: '{{ state_attr(entity,''full_description'') or ''Aucun colis'' }}'
+      secondary: '{%- set tn = state_attr(entity,''tracking_number'') -%} {%- set carrier = state_attr(entity,''next_delivery_carrier'') -%} {%- set date = state_attr(entity,''date_expected'') -%} {%- if
+        carrier %}{{ carrier }} · {% endif -%} {%- if date %}prévu {{ date }}{% endif -%} {%- if tn %} · {{ tn }}{% endif -%}'
+      icon: mdi:package-variant
+      icon_color: orange
+      layout: horizontal
+      multiline_secondary: true
+      fill_container: false
+      card_mod:
+        style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius:
+          22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+    - type: custom:mushroom-template-card
+      entity: sensor.parcel_app_parcel_active_shipment
+      primary: Dernier événement
+      secondary: '{{ state_attr(entity,''event'') or ''—'' }} {%- set loc = state_attr(entity,''event_location'') -%} {%- if loc and loc != ''Unknown'' %} ({{ loc }}){% endif -%}'
+      icon: mdi:information-outline
+      icon_color: blue
+      layout: horizontal
+      multiline_secondary: true
+      fill_container: false
+      card_mod:
+        style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius:
+          22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+  - type: grid
+    cards:
+    - type: heading
+      heading: 🆕 Dernier événement reçu
+      heading_style: title
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-template-card
+      entity: sensor.parcel_app_parcel_recent_shipment
+      primary: '{{ state_attr(entity,''full_description'') or ''—'' }}'
+      secondary: '{{ states(entity) }} {%- set tn = state_attr(entity,''tracking_number'') -%} {%- if tn %} · {{ tn }}{% endif -%} {%- set d = state_attr(entity,''event_date'') -%} {%- if d %} · {{ d }}{%
+        endif -%}'
+      icon: mdi:truck-delivery
+      icon_color: purple
+      layout: horizontal
+      multiline_secondary: true
+      fill_container: false
+      card_mod:
+        style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius:
+          22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: 🔗 Aller plus loin
+      heading_style: subtitle
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: markdown
+      content: 'Pour voir **tous les colis** en détail, gérer les tracking numbers ou ajouter un colis manuellement, ouvre l''app **Parcel** sur iPhone (intégration source).
+
+
+        L''intégration HA expose seulement un résumé (prochain colis attendu + dernier événement). La liste complète et l''historique sont dans l''app native.
+
+        '
+      card_mod:
+        style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius:
+          22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+- title: Animaux
+  path: animaux
+  icon: mdi:paw
+  theme: home_glass
+  background: "linear-gradient(180deg,\n  rgba(251, 191, 36, 0.40) 0%,\n  rgba(244, 114, 182, 0.30) 50%,\n  rgba(167, 139, 250, 0.40) 100%\n) fixed\n"
+  type: sections
+  max_columns: 2
+  sections:
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: 🐕 Shiva
+      heading_style: title
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: custom:mushroom-template-card
+        entity: input_datetime.last_shiva_walk
+        primary: Dernière sortie
+        secondary: '{% set h = ((as_timestamp(now()) - as_timestamp(states(entity))) / 3600) | round(1) %}Il y a {{ h }}h'
+        icon: mdi:dog-side
+        icon_color: '{% set h = (as_timestamp(now()) - as_timestamp(states(entity))) / 3600 %}{% if h > 8 %}red{% elif h > 6 %}orange{% else %}green{% endif %}'
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: script.shiva_walk_done
+          confirmation:
+            text: Valider la sortie Shiva ?
+      - type: custom:mushroom-template-card
+        entity: input_datetime.task_shiva_ears
+        primary: Oreilles Shiva
+        secondary: '{% set d = states(entity) %}{% if d %}Dernière : {{ as_timestamp(d) | timestamp_custom(''%d %b'', true) }}{% else %}—{% endif %}'
+        icon: mdi:ear-hearing
+        icon_color: '{{ ''red'' if is_state(''binary_sensor.task_shiva_ears_due'',''on'') else ''green'' }}'
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: script.validate_task_shiva_ears
+          confirmation:
+            text: Valider le nettoyage des oreilles ?
+  - type: grid
+    cards:
+    - type: heading
+      heading: 🐈 Hadès
+      heading_style: title
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-template-card
+      entity: input_datetime.task_litiere
+      primary: Litière
+      secondary: '{% set d = states(entity) %}{% if d %}Dernière : {{ as_timestamp(d) | timestamp_custom(''%d %b'', true) }}{% else %}—{% endif %}'
+      icon: mdi:cat
+      icon_color: '{{ ''red'' if is_state(''binary_sensor.task_litiere_due'',''on'') else ''green'' }}'
+      layout: horizontal
+      tap_action:
+        action: perform-action
+        perform_action: script.validate_task_litiere
+        confirmation:
+          text: Valider le nettoyage de la litière ?
+  - type: grid
+    cards:
+    - type: heading
+      heading: 🥣 Gamelle Shiva (distributeur Aqara)
+      heading_style: title
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: markdown
+      content: '🔄 **À configurer** — distributeur automatique Aqara pas encore appairé en Matter.
+
+
+        Une fois ajouté (via app Aqara Home → Matter → ajouter à autre plateforme), reviens ici et donne-moi le nom de device exact. J''ajouterai automatiquement :
+
+        - 📊 Niveau de croquettes restant
+
+        - 🍽️ Bouton « Distribuer maintenant »
+
+        - ⏰ Schedule (horaires des repas)
+
+        - 🔔 Notif iPhone à chaque distribution
+
+        - 📅 Historique distributions du jour
+
+        '
+      card_mod:
+        style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius:
+          22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+- title: Notifications
+  path: notifications
+  icon: mdi:bell-cog
+  theme: home_glass
+  background: "linear-gradient(180deg,\n  rgba(96, 165, 250, 0.40) 0%,\n  rgba(167, 139, 250, 0.35) 50%,\n  rgba(251, 113, 133, 0.40) 100%\n) fixed\n"
+  type: sections
+  max_columns: 2
+  sections:
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: 🔔 Gestion des notifications iPhone
+      heading_style: title
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: markdown
+      content: Toutes les automatisations qui envoient des notifications iPhone sont listées ci-dessous. Tu peux les activer/désactiver individuellement avec le toggle. Les notifs désactivées ne tomberont
+        plus jusqu'à réactivation.
+      card_mod:
+        style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius:
+          22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: 🏠 Maison & sécurité
+      heading_style: subtitle
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:auto-entities
+      show_empty: false
+      card:
+        type: entities
+        show_header_toggle: false
+        state_color: true
+      filter:
+        include:
+        - entity_id: automation.notif_intrusion*
+        - entity_id: automation.notif_porte*
+        - entity_id: automation.alert_*
+        - entity_id: automation.notif_fuite*
+        - entity_id: automation.notif_detecteur*
+        - entity_id: automation.notif_fumee*
+        - entity_id: automation.notif_sonnette*
+        exclude:
+        - state: unavailable
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: 🌡️ Confort & environnement
+      heading_style: subtitle
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:auto-entities
+      show_empty: false
+      card:
+        type: entities
+        show_header_toggle: false
+        state_color: true
+      filter:
+        include:
+        - entity_id: automation.notif_meteo*
+        - entity_id: automation.notif_chaleur*
+        - entity_id: automation.notif_froid*
+        - entity_id: automation.notif_pluie*
+        - entity_id: automation.notif_fenetre*
+        - entity_id: automation.notif_humidite*
+        - entity_id: automation.notif_co2*
+        exclude:
+        - state: unavailable
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: 🐕 Animaux
+      heading_style: subtitle
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:auto-entities
+      show_empty: false
+      card:
+        type: entities
+        show_header_toggle: false
+        state_color: true
+      filter:
+        include:
+        - entity_id: automation.notif_*shiva*
+        - entity_id: automation.notif_*hades*
+        - entity_id: automation.notif_oreilles*
+        - entity_id: automation.notif_*pluie*shiva*
+        - entity_id: automation.notif_anticipation_pluie*
+        exclude:
+        - state: unavailable
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: 🚗 Tesla & énergie
+      heading_style: subtitle
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:auto-entities
+      show_empty: false
+      card:
+        type: entities
+        show_header_toggle: false
+        state_color: true
+      filter:
+        include:
+        - entity_id: automation.notif_tesla*
+        - entity_id: automation.notif_*tempo*
+        - entity_id: automation.notif_conso*
+        - entity_id: automation.notif_*energie*
+        - entity_id: automation.bilan_*
+        exclude:
+        - state: unavailable
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: 🍽️ Appareils & maintenance
+      heading_style: subtitle
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:auto-entities
+      show_empty: false
+      card:
+        type: entities
+        show_header_toggle: false
+        state_color: true
+      filter:
+        include:
+        - entity_id: automation.notif_lave*
+        - entity_id: automation.notif_seche*
+        - entity_id: automation.notif_imprimante*
+        - entity_id: automation.notif_robot*
+        - entity_id: automation.notif_vacuum*
+        - entity_id: automation.notif_filtre*
+        - entity_id: automation.notif_batterie*
+        - entity_id: automation.notif_congelateur*
+        - entity_id: automation.notif_frigo*
+        - entity_id: automation.notif_colis*
+        exclude:
+        - state: unavailable
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: 🤖 Claude AI
+      heading_style: subtitle
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:auto-entities
+      show_empty: false
+      card:
+        type: entities
+        show_header_toggle: false
+        state_color: true
+      filter:
+        include:
+        - entity_id: automation.claude_*
+        - entity_id: automation.prusa_*
+        exclude:
+        - state: unavailable
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: 📋 Toutes les notifications
+      heading_style: subtitle
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:auto-entities
+      show_empty: false
+      card:
+        type: entities
+        show_header_toggle: false
+        state_color: true
+      filter:
+        include:
+        - entity_id: automation.notif_*
+        - entity_id: automation.alert_*
+        exclude:
+        - state: unavailable
+      sort:
+        method: friendly_name

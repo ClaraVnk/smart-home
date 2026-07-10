@@ -1,0 +1,370 @@
+title: Tablette
+views:
+- title: Maison
+  path: home
+  icon: mdi:home
+  theme: home_glass
+  background: "linear-gradient(135deg,\n  rgba(196, 181, 253, 0.50) 0%,\n  rgba(165, 243, 252, 0.40) 50%,\n  rgba(167, 243, 208, 0.50) 100%\n) fixed\n"
+  panel: true
+  cards:
+  - type: vertical-stack
+    cards:
+    - type: custom:mushroom-chips-card
+      alignment: justify
+      chips:
+      - type: template
+        icon: mdi:clock-outline
+        icon_color: blue-grey
+        content: '{{ now().strftime(''%H:%M'') }}'
+      - type: template
+        icon: mdi:calendar-clock
+        icon_color: purple
+        content: '{%- set today = now().strftime(''%Y-%m-%d'') -%}{%- set out = namespace(events=[]) -%}{%- for cal in [''calendar.famille'',''calendar.personnel'',''calendar.travail'',''calendar.gros_champi''] -%}{%- set start = state_attr(cal,''start_time'') -%}{%- set msg = state_attr(cal,''message'') -%}{%- if start and msg and start[:10] == today -%}{%- set ts = as_timestamp(start, 0) -%}{%- if ts > as_timestamp(now()) -%}{%- set out.events = out.events + [(ts, start[11:16], msg)] -%}{%- endif -%}{%- endif -%}{%- endfor -%}{%- if out.events -%}{%- set ev = out.events | sort | first -%}{{ ev[1] }} {{ ev[2] }}{%- else -%}Rien aujourd''hui{%- endif -%}'
+        tap_action:
+          action: navigate
+          navigation_path: /maintenance-yaml/calendrier
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: sensor.lave_vaisselle_current_status
+          state:
+          - running
+          - wash
+          - rinse
+          - rinsing
+          - spin
+          - spinning
+          - drain
+          - prewash
+          - soak
+          - drying
+          - detecting
+          - refreshing
+          - heat_dry
+          - dispense
+          - cool_down
+          - anti_crease
+          - more_dry
+          - wrinkle_care
+          - steam_softening
+          - rinse_hold
+        chip:
+          type: template
+          entity: sensor.lave_vaisselle_current_status
+          icon: mdi:dishwasher
+          icon_color: blue
+          content: '{% set rem = states(''sensor.lave_vaisselle_remaining_time'') %}{% if rem and rem not in [''unknown'',''unavailable'',''none''] %}{% set mins = ((as_timestamp(rem, 0) - as_timestamp(now()))
+            / 60) | round(0) %}{% if mins > 0 %}LV {% if mins >= 60 %}{{ (mins // 60) }}h{{ "%02d" | format(mins % 60) }}{% else %}{{ mins }} min{% endif %}{% else %}LV bientôt fini{% endif %}{% else %}LV
+            en cours{% endif %}'
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: sensor.lave_linge_hublot_current_status
+          state:
+          - running
+          - wash
+          - rinse
+          - rinsing
+          - spin
+          - spinning
+          - drain
+          - prewash
+          - soak
+          - drying
+          - detecting
+          - refreshing
+          - heat_dry
+          - dispense
+          - cool_down
+          - anti_crease
+          - more_dry
+          - wrinkle_care
+          - steam_softening
+          - rinse_hold
+        chip:
+          type: template
+          entity: sensor.lave_linge_hublot_current_status
+          icon: mdi:washing-machine
+          icon_color: indigo
+          content: '{% set rem = states(''sensor.lave_linge_hublot_remaining_time'') %}{% if rem and rem not in [''unknown'',''unavailable'',''none''] %}{% set mins = ((as_timestamp(rem, 0) - as_timestamp(now()))
+            / 60) | round(0) %}{% if mins > 0 %}LL {% if mins >= 60 %}{{ (mins // 60) }}h{{ "%02d" | format(mins % 60) }}{% else %}{{ mins }} min{% endif %}{% else %}LL bientôt fini{% endif %}{% else %}LL
+            en cours{% endif %}'
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: sensor.seche_linge_current_status
+          state:
+          - running
+          - wash
+          - rinse
+          - rinsing
+          - spin
+          - spinning
+          - drain
+          - prewash
+          - soak
+          - drying
+          - detecting
+          - refreshing
+          - heat_dry
+          - dispense
+          - cool_down
+          - anti_crease
+          - more_dry
+          - wrinkle_care
+          - steam_softening
+          - rinse_hold
+        chip:
+          type: template
+          entity: sensor.seche_linge_current_status
+          icon: mdi:tumble-dryer
+          icon_color: purple
+          content: '{% set rem = states(''sensor.seche_linge_remaining_time'') %}{% if rem and rem not in [''unknown'',''unavailable'',''none''] %}{% set mins = ((as_timestamp(rem, 0) - as_timestamp(now()))
+            / 60) | round(0) %}{% if mins > 0 %}SL {% if mins >= 60 %}{{ (mins // 60) }}h{{ "%02d" | format(mins % 60) }}{% else %}{{ mins }} min{% endif %}{% else %}SL bientôt fini{% endif %}{% else %}SL
+            en cours{% endif %}'
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: sensor.four_machine_state
+          state:
+          - running
+          - operating
+        chip:
+          type: template
+          entity: sensor.four_machine_state
+          icon: mdi:stove
+          icon_color: '{% set t = states(''sensor.four_temperature'') | float(0) %}{% set sp = states(''sensor.four_set_point'') | float(0) %}{% if t >= sp - 1 %}green{% else %}deep-orange{% endif %}'
+          content: '{% set t = states(''sensor.four_temperature'') | float(0) %}{% set sp = states(''sensor.four_set_point'') | float(0) %}{% set rem = states(''sensor.four_completion_time'') %}{% if sp
+            > 0 %}{% if t >= sp - 1 %}Four {{ sp | int }}°C ✓{% else %}Four {{ t | int }}°/{{ sp | int }}°{% endif %}{% if rem and rem not in [''unknown'',''unavailable'',''none''] %}{% set mins = ((as_timestamp(rem,
+            0) - as_timestamp(now())) / 60) | round(0) %}{% if mins > 0 %} · {{ mins }} min{% endif %}{% endif %}{% else %}Four en marche{% endif %}'
+          tap_action:
+            action: more-info
+      - type: template
+        entity: sensor.weather_station_temperature
+        icon: mdi:home-thermometer-outline
+        content: '{{ states(entity) }}°C salon'
+        icon_color: green
+      - type: template
+        entity: sensor.weather_station_outdoor_module_temperature
+        icon: '{% set s = states("weather.forecast_maison") %}{% if s in ["sunny","clear-night"] %}mdi:weather-sunny{% elif s == "partlycloudy" %}mdi:weather-partly-cloudy{% elif s == "cloudy" %}mdi:weather-cloudy{%
+          elif s == "rainy" %}mdi:weather-rainy{% elif s == "pouring" %}mdi:weather-pouring{% elif s in ["lightning","lightning-rainy"] %}mdi:weather-lightning{% elif s == "snowy" %}mdi:weather-snowy{%
+          elif s == "fog" %}mdi:weather-fog{% elif s in ["windy","windy-variant"] %}mdi:weather-windy{% else %}mdi:weather-partly-cloudy{% endif %}'
+        content: '{{ states(entity) }}°C dehors'
+        icon_color: '{% set s = states("weather.forecast_maison") %}{% if s == "sunny" %}amber{% elif s in ["rainy","pouring","lightning-rainy"] %}blue{% elif s == "snowy" %}light-blue{% elif s == "lightning"
+          %}purple{% else %}blue-grey{% endif %}'
+      - type: template
+        entity: sensor.current_tariff_price
+        icon: '{% set p = state_attr(entity,''period'') %}{% if p == ''HC'' %}mdi:weather-night{% else %}mdi:weather-sunny{% endif %}'
+        content: '{{ state_attr(entity,''period'') }} {{ state_attr(entity,''color'') }}'
+        icon_color: '{% set c = state_attr(entity,''color'') %}{% if c == ''Bleu'' %}blue{% elif c == ''Rouge'' %}red{% else %}grey{% endif %}'
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: horizontal-stack
+      cards:
+      - type: custom:mushroom-template-card
+        primary: Salon
+        secondary: '{% set n = [''light.salon_plafonnier'',''light.lampe_dambiance'',''light.hue_play_1''] | map(''states'') | select(''eq'',''on'') | list | count %}{% if n == 0 %}Éteint{% else %}{{ n
+          }} on{% endif %}'
+        icon: mdi:sofa
+        icon_color: '{{ ''amber'' if ([''light.salon_plafonnier'',''light.lampe_dambiance'',''light.hue_play_1''] | map(''states'') | select(''eq'',''on'') | list | count) > 0 else ''grey'' }}'
+        tap_action:
+          action: perform-action
+          perform_action: light.toggle
+          target:
+            entity_id:
+            - light.salon_plafonnier
+            - light.lampe_dambiance
+        layout: vertical
+      - type: custom:mushroom-template-card
+        primary: Cuisine
+        secondary: '{% set n = [''light.luminaire_cuisine_7'',''light.plan_de_travail_6''] | map(''states'') | select(''eq'',''on'') | list | count %}{% if n == 0 %}Éteint{% else %}{{ n }} on{% endif %}'
+        icon: mdi:silverware-fork-knife
+        icon_color: '{{ ''amber'' if ([''light.luminaire_cuisine_7'',''light.plan_de_travail_6''] | map(''states'') | select(''eq'',''on'') | list | count) > 0 else ''grey'' }}'
+        tap_action:
+          action: perform-action
+          perform_action: light.toggle
+          target:
+            entity_id:
+            - light.luminaire_cuisine_7
+            - light.plan_de_travail_6
+        layout: vertical
+      - type: custom:mushroom-template-card
+        primary: Entrée
+        secondary: '{% set n = [''light.entree_plafonnier'',''light.lampe_glacon''] | map(''states'') | select(''eq'',''on'') | list | count %}{% if n == 0 %}Éteint{% else %}{{ n }} on{% endif %}'
+        icon: mdi:coat-rack
+        icon_color: '{{ ''amber'' if ([''light.entree_plafonnier'',''light.lampe_glacon''] | map(''states'') | select(''eq'',''on'') | list | count) > 0 else ''grey'' }}'
+        tap_action:
+          action: perform-action
+          perform_action: light.toggle
+          target:
+            entity_id:
+            - light.entree_plafonnier
+            - light.lampe_glacon
+        layout: vertical
+      - type: custom:mushroom-template-card
+        primary: Chambre
+        secondary: '{% set n = [''light.lit'',''light.hue_go_1_2''] | map(''states'') | select(''eq'',''on'') | list | count %}{% if n == 0 %}Éteint{% else %}{{ n }} on{% endif %}'
+        icon: mdi:bed
+        icon_color: '{{ ''amber'' if ([''light.lit'',''light.hue_go_1_2''] | map(''states'') | select(''eq'',''on'') | list | count) > 0 else ''grey'' }}'
+        tap_action:
+          action: perform-action
+          perform_action: light.toggle
+          target:
+            entity_id:
+            - light.lit
+            - light.hue_go_1_2
+        layout: vertical
+      - type: custom:mushroom-template-card
+        primary: Raphaël
+        secondary: '{% set n = [''light.luminaire_chambre_bebe'',''light.guirlande'',''light.hue_go_1'',''light.hue_ambiance_candle_1''] | map(''states'') | select(''eq'',''on'') | list | count %}{% if
+          n == 0 %}Éteint{% else %}{{ n }} on{% endif %}'
+        icon: mdi:cradle-outline
+        icon_color: '{{ ''amber'' if ([''light.luminaire_chambre_bebe'',''light.guirlande'',''light.hue_go_1'',''light.hue_ambiance_candle_1''] | map(''states'') | select(''eq'',''on'') | list | count)
+          > 0 else ''grey'' }}'
+        tap_action:
+          action: perform-action
+          perform_action: light.toggle
+          target:
+            entity_id:
+            - light.luminaire_chambre_bebe
+            - light.guirlande
+        layout: vertical
+      - type: custom:mushroom-template-card
+        primary: Tout off
+        secondary: Toutes
+        icon: mdi:lightbulb-off-outline
+        icon_color: indigo
+        tap_action:
+          action: perform-action
+          perform_action: light.turn_off
+          target:
+            entity_id: all
+        layout: vertical
+      card_mod:
+        style: '#root { gap: 10px !important; }'
+    - type: horizontal-stack
+      cards:
+      - type: custom:mushroom-cover-card
+        entity: cover.salon_baie_vitree_shutter
+        name: Baie salon
+        show_buttons_control: true
+        layout: vertical
+      - type: custom:mushroom-cover-card
+        entity: cover.salon_fenetre_volet_shutter
+        name: Salon
+        show_buttons_control: true
+        layout: vertical
+      - type: custom:mushroom-cover-card
+        entity: cover.cuisine_volet_shutter
+        name: Cuisine
+        show_buttons_control: true
+        layout: vertical
+      - type: custom:mushroom-cover-card
+        entity: cover.raphael_volet_shutter
+        name: Raphaël
+        show_buttons_control: true
+        layout: vertical
+      - type: custom:mushroom-template-card
+        primary: Tout ouvrir
+        secondary: Sauf Raphaël
+        icon: mdi:window-shutter-open
+        icon_color: green
+        tap_action:
+          action: perform-action
+          perform_action: script.ouvre_tous_volets
+        layout: vertical
+      - type: custom:mushroom-template-card
+        primary: Tout fermer
+        secondary: Sauf Raphaël
+        icon: mdi:window-shutter
+        icon_color: indigo
+        tap_action:
+          action: perform-action
+          perform_action: cover.close_cover
+          target:
+            entity_id:
+            - cover.salon_baie_vitree_shutter
+            - cover.salon_fenetre_volet_shutter
+            - cover.cuisine_volet_shutter
+        layout: vertical
+      card_mod:
+        style: '#root { gap: 10px !important; }'
+    - type: horizontal-stack
+      cards:
+      - type: custom:mushroom-template-card
+        entity: input_datetime.last_shiva_walk
+        primary: Shiva
+        secondary: '{% set h = ((as_timestamp(now()) - as_timestamp(states(entity))) / 3600) | round(1) %}{{ h }}h'
+        icon: mdi:dog-side
+        icon_color: '{% set h = (as_timestamp(now()) - as_timestamp(states(entity))) / 3600 %}{% if h > 8 %}red{% elif h > 6 %}orange{% else %}green{% endif %}'
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: script.shiva_walk_done
+      - type: custom:mushroom-template-card
+        entity: lock.smart_lock_pro
+        primary: Serrure
+        secondary: '{{ ''Verrou'' if is_state(entity,''locked'') else ''Déverrou'' }}'
+        icon: '{{ ''mdi:lock'' if is_state(entity,''locked'') else ''mdi:lock-open'' }}'
+        icon_color: '{{ ''green'' if is_state(entity,''locked'') else ''orange'' }}'
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: script.toggle_serrure_entree
+      - type: custom:mushroom-template-card
+        entity: input_boolean.mode_vacances
+        primary: Vacances
+        secondary: '{{ ''Actif'' if is_state(entity,''on'') else ''Off'' }}'
+        icon: '{{ ''mdi:beach'' if is_state(entity,''on'') else ''mdi:home'' }}'
+        icon_color: '{{ ''amber'' if is_state(entity,''on'') else ''grey'' }}'
+        layout: vertical
+        tap_action:
+          action: toggle
+          confirmation:
+            text: Activer / désactiver le mode Vacances ?
+      - type: custom:mushroom-template-card
+        primary: Soir silencieux
+        secondary: Salon + entrée
+        icon: mdi:weather-night
+        icon_color: indigo
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: script.ambiance_soir_silencieux
+      - type: custom:mushroom-template-card
+        primary: Cinéma
+        secondary: Tamisé 30%
+        icon: mdi:movie-roll
+        icon_color: deep-purple
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: script.ambiance_cinema
+      - type: custom:mushroom-template-card
+        primary: Sieste
+        secondary: Raphaël dort
+        icon: mdi:sleep
+        icon_color: purple
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: script.a_la_sieste
+      - type: custom:mushroom-template-card
+        primary: Nounou
+        secondary: Volets 30%
+        icon: mdi:cat
+        icon_color: amber
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: script.speciale_nounou
+      card_mod:
+        style: '#root { gap: 10px !important; }'
+    card_mod:
+      style: '#root { gap: 14px !important; padding: 8px 0 !important; }'

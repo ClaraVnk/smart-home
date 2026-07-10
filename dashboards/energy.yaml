@@ -1,0 +1,525 @@
+title: Énergie
+views:
+- title: Live
+  path: live
+  icon: mdi:flash
+  theme: home_glass_tempo
+  background: "linear-gradient(180deg,\n  rgba(253, 224, 71, 0.45) 0%,\n  rgba(251, 146, 60, 0.35) 50%,\n  rgba(34, 197, 94, 0.45) 100%\n) fixed\n"
+  type: sections
+  max_columns: 2
+  sections:
+  - type: grid
+    cards:
+    - type: heading
+      heading: Tarif courant
+      heading_style: title
+      icon: mdi:cash
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-template-card
+      entity: sensor.current_tariff_price
+      primary: '{{ state_attr(entity,''period'') }} {{ state_attr(entity,''color'') }}'
+      secondary: '{{ states(entity) }} €/kWh'
+      icon: '{% set p = state_attr(entity,''period'') %} {% if p == ''HC'' %}mdi:weather-night{% else %}mdi:weather-sunny{% endif %}'
+      icon_color: '{% set c = state_attr(entity,''color'') %} {% if c == ''Bleu'' %}blue{% elif c == ''Blanc'' %}grey{% elif c == ''Rouge'' %}red{% else %}grey{% endif %}'
+      tap_action:
+        action: more-info
+    - type: custom:mushroom-chips-card
+      alignment: justify
+      chips:
+      - type: template
+        entity: sensor.energy_daily_cost
+        icon: mdi:currency-eur
+        content: '{{ states(entity) }} €'
+        icon_color: '{% set v = states(entity) | float(0) %} {% if v < 2 %}green{% elif v < 5 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.current_tariff_price
+        icon: '{% set period = state_attr(entity,''period'') %} {% set color = state_attr(entity,''color'') %} {% if period == ''HC'' %}mdi:check-circle {% elif color == ''Rouge'' %}mdi:close-circle {%
+          else %}mdi:alert-circle{% endif %}'
+        content: '{% set period = state_attr(entity,''period'') %} {% set color = state_attr(entity,''color'') %} {% if period == ''HC'' %}Bon moment {% elif color == ''Rouge'' %}À éviter {% else %}Normal{%
+          endif %}'
+        icon_color: '{% set period = state_attr(entity,''period'') %} {% set color = state_attr(entity,''color'') %} {% if period == ''HC'' %}green {% elif color == ''Rouge'' %}red {% else %}orange{% endif
+          %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.rte_tempo_prochaine_couleur
+        icon: mdi:calendar-tomorrow
+        content: Demain {{ states(entity) }}
+        icon_color: '{% if is_state(entity,''Blanc'') %}grey {% elif is_state(entity,''Bleu'') %}blue {% elif is_state(entity,''Rouge'') %}red {% else %}grey{% endif %}'
+        tap_action:
+          action: more-info
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+  - type: grid
+    cards:
+    - type: heading
+      heading: Flux temps réel
+      heading_style: title
+      icon: mdi:transmission-tower
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:power-flow-card-plus
+      entities:
+        grid:
+          entity: sensor.lixee_papp
+          name: Réseau
+        solar:
+          entity: sensor.beembox_18562_puissance
+          name: Solaire
+      w_decimals: 0
+      kw_decimals: 2
+    - type: custom:mushroom-chips-card
+      alignment: justify
+      chips:
+      - type: template
+        entity: sensor.grid_import
+        icon: mdi:home-import-outline
+        content: '{{ states(entity) | int(0) }} W import'
+        icon_color: red
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.grid_export
+        icon: mdi:home-export-outline
+        content: '{{ states(entity) | int(0) }} W export'
+        icon_color: green
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.current_hourly_cost
+        icon: mdi:cash-clock
+        content: '{{ states(entity) }} €/h'
+        icon_color: amber
+        tap_action:
+          action: more-info
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: Conso vs Production (24h)
+      heading_style: title
+      icon: mdi:chart-bell-curve
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:apexcharts-card
+      graph_span: 24h
+      header:
+        show: true
+        show_states: true
+        colorize_states: true
+      series:
+      - entity: sensor.lixee_papp
+        name: Réseau
+        color: '#ef4444'
+        stroke_width: 2
+        group_by:
+          func: avg
+          duration: 15min
+      - entity: sensor.beembox_18562_puissance
+        name: Solaire
+        color: '#f59e0b'
+        stroke_width: 2
+        group_by:
+          func: avg
+          duration: 15min
+  - type: grid
+    cards:
+    - type: heading
+      heading: Production solaire
+      heading_style: title
+      icon: mdi:solar-panel
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: gauge
+      entity: sensor.beembox_18562_puissance
+      needle: true
+      min: 0
+      max: 300
+      name: Instantané (W)
+      severity:
+        green: 200
+        yellow: 100
+        red: 0
+    - type: custom:mushroom-chips-card
+      alignment: justify
+      chips:
+      - type: template
+        entity: sensor.beembox_18562_production_du_jour
+        icon: mdi:weather-sunny
+        content: '{{ states(entity) | int(0) }} Wh aujourd''hui'
+        icon_color: amber
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.beembox_18562_production_du_mois
+        icon: mdi:calendar-month
+        content: '{{ (states(entity) | float(0) / 1000) | round(1) }} kWh ce mois'
+        icon_color: amber
+        tap_action:
+          action: more-info
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-chips-card
+      alignment: justify
+      chips:
+      - type: template
+        entity: sensor.solar_daily_savings
+        icon: mdi:piggy-bank
+        content: '{{ states(entity) }} € économisé (jour)'
+        icon_color: green
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.solar_monthly_savings
+        icon: mdi:cash-multiple
+        content: '{{ states(entity) }} € économisé (mois)'
+        icon_color: green
+        tap_action:
+          action: more-info
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+  - type: grid
+    cards:
+    - type: heading
+      heading: Top consommateurs (>5 W)
+      heading_style: title
+      icon: mdi:lightning-bolt-outline
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:auto-entities
+      show_empty: false
+      card:
+        type: entities
+        show_header_toggle: false
+        state_color: false
+      filter:
+        include:
+        - entity_id: sensor.*_power
+          state: '> 5'
+          options:
+            secondary_info: last-changed
+        exclude:
+        - entity_id: sensor.beembox_18562_puissance
+        - entity_id: sensor.lixee_papp
+        - entity_id: sensor.power_net
+        - entity_id: sensor.grid_import
+        - entity_id: sensor.grid_export
+        - entity_id: sensor.current_hourly_cost
+        - attributes:
+            entity_category: diagnostic
+      sort:
+        method: state
+        numeric: true
+        reverse: true
+  - type: grid
+    cards:
+    - type: heading
+      heading: 🖥️ Baie serveur (Nous A8M)
+      heading_style: title
+      icon: mdi:server-network
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-template-card
+      entity: sensor.a8m_puissance
+      primary: '{{ states(entity) | int(0) }} W'
+      secondary: Puissance instantanée
+      icon: mdi:flash
+      icon_color: '{% set w = states(entity) | float(0) %} {% if w > 80 %}red{% elif w > 50 %}orange{% else %}green{% endif %}'
+      tap_action:
+        action: more-info
+    - type: custom:mushroom-template-card
+      entity: sensor.a8m_energie
+      primary: '{{ states(entity) | float(0) | round(1) }} kWh'
+      secondary: Énergie cumulée
+      icon: mdi:counter
+      icon_color: indigo
+      tap_action:
+        action: more-info
+    - type: custom:apexcharts-card
+      graph_span: 24h
+      header:
+        show: true
+        title: Conso baie serveur — 24h
+      series:
+      - entity: sensor.a8m_puissance
+        name: Puissance
+        color: '#6366f1'
+        group_by:
+          func: avg
+          duration: 10min
+- title: Historique
+  path: historique
+  icon: mdi:chart-bar
+  theme: home_glass_tempo
+  background: "linear-gradient(180deg,\n  rgba(99, 102, 241, 0.45) 0%,\n  rgba(168, 85, 247, 0.35) 50%,\n  rgba(59, 130, 246, 0.45) 100%\n) fixed\n"
+  type: sections
+  max_columns: 1
+  sections:
+  - type: grid
+    cards:
+    - type: heading
+      heading: Coût quotidien — 30 derniers jours
+      heading_style: title
+      icon: mdi:cash-multiple
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:apexcharts-card
+      graph_span: 30d
+      header:
+        show: true
+        title: Coût quotidien (€)
+      series:
+      - entity: sensor.energy_daily_cost
+        name: Coût jour
+        color: '#f59e0b'
+        type: column
+        statistics:
+          type: change
+          period: day
+  - type: grid
+    cards:
+    - type: heading
+      heading: Production solaire — 30 jours
+      heading_style: title
+      icon: mdi:solar-power
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:apexcharts-card
+      graph_span: 30d
+      header:
+        show: true
+        title: Production quotidienne (Wh)
+      series:
+      - entity: sensor.beembox_18562_production_du_jour
+        name: Prod jour
+        color: '#f59e0b'
+        type: column
+        statistics:
+          type: change
+          period: day
+  - type: grid
+    cards:
+    - type: heading
+      heading: Conso vs Production — 7 jours
+      heading_style: title
+      icon: mdi:chart-line
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:apexcharts-card
+      graph_span: 7d
+      header:
+        show: true
+      series:
+      - entity: sensor.lixee_papp
+        name: Réseau
+        color: '#ef4444'
+        group_by:
+          func: avg
+          duration: 1h
+      - entity: sensor.beembox_18562_puissance
+        name: Solaire
+        color: '#f59e0b'
+        group_by:
+          func: avg
+          duration: 1h
+- title: Tempo
+  path: tempo
+  icon: mdi:calendar-multiselect
+  theme: home_glass_tempo
+  background: "linear-gradient(180deg,\n  rgba(96, 165, 250, 0.45) 0%,\n  rgba(255, 255, 255, 0.30) 50%,\n  rgba(239, 68, 68, 0.45) 100%\n) fixed\n"
+  type: sections
+  max_columns: 2
+  sections:
+  - type: grid
+    cards:
+    - type: heading
+      heading: Aujourd'hui & demain
+      heading_style: title
+      icon: mdi:weather-sunny
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: horizontal-stack
+      cards:
+      - type: custom:mushroom-template-card
+        entity: sensor.rte_tempo_couleur_actuelle
+        primary: '{{ states(entity) }}'
+        secondary: Aujourd'hui
+        icon: mdi:circle
+        icon_color: '{% if is_state(entity,''Bleu'') %}blue {% elif is_state(entity,''Blanc'') %}grey {% elif is_state(entity,''Rouge'') %}red {% else %}grey{% endif %}'
+      - type: custom:mushroom-template-card
+        entity: sensor.rte_tempo_prochaine_couleur
+        primary: '{{ states(entity) }}'
+        secondary: Demain
+        icon: mdi:calendar-tomorrow
+        icon_color: '{% if is_state(entity,''Bleu'') %}blue {% elif is_state(entity,''Blanc'') %}grey {% elif is_state(entity,''Rouge'') %}red {% else %}grey{% endif %}'
+  - type: grid
+    cards:
+    - type: heading
+      heading: Jours restants
+      heading_style: title
+      icon: mdi:calendar-clock
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: horizontal-stack
+      cards:
+      - type: custom:mushroom-entity-card
+        entity: sensor.rte_tempo_cycle_jours_restants_bleu
+        icon: mdi:square
+        icon_color: blue
+        name: Bleu
+      - type: custom:mushroom-entity-card
+        entity: sensor.rte_tempo_cycle_jours_restants_blanc
+        icon: mdi:square-outline
+        icon_color: grey
+        name: Blanc
+      - type: custom:mushroom-entity-card
+        entity: sensor.rte_tempo_cycle_jours_restants_rouge
+        icon: mdi:square
+        icon_color: red
+        name: Rouge
+    - type: custom:mushroom-template-card
+      entity: sensor.rte_tempo_cycle_prochaine_reinitialisation
+      primary: '{{ as_timestamp(states(entity)) | timestamp_custom(''%d %b %Y'') }}'
+      secondary: Prochaine réinitialisation du cycle Tempo
+      icon: mdi:restart
+  - type: grid
+    cards:
+    - type: heading
+      heading: Calendrier Tempo
+      heading_style: title
+      icon: mdi:calendar-multiselect
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: horizontal-stack
+      cards:
+      - type: custom:mushroom-template-card
+        entity: sensor.rte_tempo_couleur_actuelle
+        primary: Aujourd'hui
+        secondary: '{{ states(entity) }}'
+        icon: '{% set c = states(entity) %}
+
+          {% if c == ''Bleu'' %}mdi:weather-night
+
+          {% elif c == ''Rouge'' %}mdi:alert-octagon
+
+          {% elif c == ''Blanc'' %}mdi:weather-partly-cloudy
+
+          {% else %}mdi:help-circle{% endif %}
+
+          '
+        icon_color: '{% set c = states(entity) %}
+
+          {% if c == ''Bleu'' %}blue
+
+          {% elif c == ''Rouge'' %}red
+
+          {% elif c == ''Blanc'' %}grey
+
+          {% else %}disabled{% endif %}
+
+          '
+        fill_container: true
+        tap_action:
+          action: more-info
+      - type: custom:mushroom-template-card
+        entity: sensor.rte_tempo_prochaine_couleur
+        primary: Demain
+        secondary: '{{ states(entity) }}'
+        icon: '{% set c = states(entity) %}
+
+          {% if c == ''Bleu'' %}mdi:weather-night
+
+          {% elif c == ''Rouge'' %}mdi:alert-octagon
+
+          {% elif c == ''Blanc'' %}mdi:weather-partly-cloudy
+
+          {% else %}mdi:help-circle{% endif %}
+
+          '
+        icon_color: '{% set c = states(entity) %}
+
+          {% if c == ''Bleu'' %}blue
+
+          {% elif c == ''Rouge'' %}red
+
+          {% elif c == ''Blanc'' %}grey
+
+          {% else %}disabled{% endif %}
+
+          '
+        fill_container: true
+        tap_action:
+          action: more-info
+    - type: custom:mushroom-chips-card
+      alignment: justify
+      chips:
+      - type: template
+        entity: sensor.rte_tempo_cycle_jours_restants_bleu
+        icon: mdi:circle
+        icon_color: blue
+        content: '{{ states(entity) }} bleus restants'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.rte_tempo_cycle_jours_restants_blanc
+        icon: mdi:circle-outline
+        icon_color: grey
+        content: '{{ states(entity) }} blancs restants'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.rte_tempo_cycle_jours_restants_rouge
+        icon: mdi:alert-octagon
+        icon_color: red
+        content: '{{ states(entity) }} rouges restants'
+        tap_action:
+          action: more-info
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+  - type: grid
+    cards:
+    - type: heading
+      heading: Cumul énergie + coût par couleur
+      heading_style: title
+      icon: mdi:chart-pie
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: horizontal-stack
+      cards:
+      - type: entities
+        title: Énergie (kWh)
+        show_header_toggle: false
+        entities:
+        - entity: sensor.lixee_bbrhcjb
+          name: 🔵 HC Bleu
+        - entity: sensor.lixee_bbrhpjb
+          name: 🔵 HP Bleu
+        - entity: sensor.lixee_bbrhcjw
+          name: ⚪ HC Blanc
+        - entity: sensor.lixee_bbrhpjw
+          name: ⚪ HP Blanc
+        - entity: sensor.lixee_bbrhcjr
+          name: 🔴 HC Rouge
+        - entity: sensor.lixee_bbrhpjr
+          name: 🔴 HP Rouge
+      - type: entities
+        title: Coût cumulé (€)
+        show_header_toggle: false
+        entities:
+        - entity: sensor.lixee_bbrhcjb_cost
+          name: 🔵 HC Bleu
+        - entity: sensor.lixee_bbrhpjb_cost
+          name: 🔵 HP Bleu
+        - entity: sensor.lixee_bbrhcjw_cost
+          name: ⚪ HC Blanc
+        - entity: sensor.lixee_bbrhpjw_cost
+          name: ⚪ HP Blanc
+        - entity: sensor.lixee_bbrhcjr_cost
+          name: 🔴 HC Rouge
+        - entity: sensor.lixee_bbrhpjr_cost
+          name: 🔴 HP Rouge

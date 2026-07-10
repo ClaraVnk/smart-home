@@ -1,0 +1,538 @@
+title: Impression 3D
+views:
+- title: Prusa MK4S
+  path: prusa
+  icon: mdi:printer-3d-nozzle
+  theme: home_glass
+  background: "linear-gradient(180deg,\n  rgba(249, 115, 22, 0.45) 0%,\n  rgba(71, 85, 105, 0.45) 50%,\n  rgba(15, 23, 42, 0.65) 100%\n) fixed\n"
+  type: sections
+  max_columns: 2
+  sections:
+  - type: grid
+    column_span: 2
+    cards:
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: sensor.prusa_mk4s
+        state:
+        - error
+        - attention
+        - stopped
+      card:
+        type: custom:mushroom-template-card
+        entity: sensor.prusa_mk4s
+        primary: ⚠️ Intervention requise
+        secondary: '{{ states(entity) | capitalize }} — fichier {{ states("sensor.prusa_mk4s_fichier") }}'
+        icon: mdi:alert-octagon
+        icon_color: red
+        multiline_secondary: true
+        card_mod:
+          style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius:
+            22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: 📹 En direct
+      heading_style: title
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; color: white
+          !important; } ha-card * { color: white !important; }'
+    - type: picture-entity
+      entity: camera.prusa_mk4s_buddy_cam
+      camera_view: live
+      show_state: false
+      show_name: false
+      aspect_ratio: '16:9'
+      card_mod:
+        style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius:
+          22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: 📊 Statut
+      heading_style: title
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; color: white
+          !important; } ha-card * { color: white !important; }'
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: custom:mushroom-template-card
+        entity: sensor.prusa_mk4s
+        primary: '{%- set s = states(entity) %}
+
+          {%- if s == ''printing'' %}En impression
+
+          {%- elif s == ''paused'' %}En pause
+
+          {%- elif s == ''finished'' %}Terminée
+
+          {%- elif s == ''idle'' %}Au repos
+
+          {%- elif s == ''ready'' %}Prête
+
+          {%- elif s in [''error'',''attention''] %}Attention
+
+          {%- else %}{{ s | capitalize }}{%- endif %}
+
+          '
+        secondary: '{% set m = states("sensor.prusa_mk4s_materiau") %}{% set f = states("sensor.prusa_mk4s_fichier") %}{% if m not in ["unknown","unavailable","none"] %}{{ m }} · {% endif %}{{ f if f not
+          in ["unknown","unavailable"] else "—" }}'
+        icon: mdi:file-document-outline
+        icon_color: '{%- set s = states(entity) %}
+
+          {%- if s in [''printing'',''busy''] %}deep-orange
+
+          {%- elif s == ''finished'' %}green
+
+          {%- elif s in [''error'',''attention'',''stopped''] %}red
+
+          {%- else %}blue{%- endif %}'
+        multiline_secondary: true
+        tap_action:
+          action: more-info
+        card_mod:
+          style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius:
+            22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: sensor.prusa_mk4s_avancement
+          state_not:
+          - unavailable
+          - unknown
+        card:
+          type: custom:mushroom-template-card
+          entity: sensor.prusa_mk4s_avancement
+          primary: Avancement {{ states(entity) }}%
+          secondary: '{{ states("sensor.prusa_mk4s_materiau") }} · {{ states("sensor.prusa_mk4s_vitesse_d_impression") }}%'
+          icon: '{% set p = states(entity) | int(0) %}
+
+            {% if p < 25 %}mdi:circle-slice-1
+
+            {% elif p < 50 %}mdi:circle-slice-3
+
+            {% elif p < 75 %}mdi:circle-slice-5
+
+            {% elif p < 100 %}mdi:circle-slice-7
+
+            {% else %}mdi:circle-slice-8{% endif %}
+
+            '
+          icon_color: amber
+          multiline_secondary: true
+          tap_action:
+            action: more-info
+          card_mod:
+            style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius:
+              22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+  - type: grid
+    cards:
+    - type: heading
+      heading: ⏱️ Temps
+      heading_style: title
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; color: white
+          !important; } ha-card * { color: white !important; }'
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: custom:mushroom-template-card
+        entity: sensor.prusa_mk4s_debut_de_l_impression
+        primary: Début
+        secondary: '{{ as_timestamp(states(entity)) | timestamp_custom("%H:%M", true) if states(entity) not in ["unknown","unavailable"] else "—" }}'
+        icon: mdi:play-circle-outline
+        icon_color: green
+        layout: vertical
+        tap_action:
+          action: more-info
+        card_mod:
+          style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius:
+            22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+      - type: custom:mushroom-template-card
+        entity: sensor.prusa_mk4s_fin_de_l_impression
+        primary: Fin estimée
+        secondary: '{{ as_timestamp(states(entity)) | timestamp_custom("%H:%M", true) if states(entity) not in ["unknown","unavailable"] else "—" }}'
+        icon: mdi:flag-checkered
+        icon_color: blue
+        layout: vertical
+        tap_action:
+          action: more-info
+        card_mod:
+          style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius:
+            22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: 🎮 Contrôles
+      heading_style: title
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; color: white
+          !important; } ha-card * { color: white !important; }'
+    - type: grid
+      columns: 3
+      square: false
+      cards:
+      - type: custom:mushroom-template-card
+        entity: button.prusa_mk4s_mettre_en_pause_la_tache
+        primary: Pause
+        icon: mdi:pause-circle
+        icon_color: orange
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.prusa_mk4s_mettre_en_pause_la_tache
+          confirmation:
+            text: Mettre l'impression en pause ?
+        card_mod:
+          style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius:
+            22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+      - type: custom:mushroom-template-card
+        entity: button.prusa_mk4s_reprendre_la_tache
+        primary: Reprendre
+        icon: mdi:play-circle
+        icon_color: green
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.prusa_mk4s_reprendre_la_tache
+        card_mod:
+          style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius:
+            22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+      - type: custom:mushroom-template-card
+        entity: button.prusa_mk4s_annuler_la_tache
+        primary: Annuler
+        icon: mdi:stop-circle
+        icon_color: red
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.prusa_mk4s_annuler_la_tache
+          confirmation:
+            text: Annuler définitivement la tâche en cours ?
+        card_mod:
+          style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius:
+            22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: 🏠 Caisson
+      heading_style: title
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; color: white
+          !important; } ha-card * { color: white !important; }'
+    - type: custom:mushroom-template-card
+      entity: switch.sonoff_1001e49f18_1
+      primary: Bandeau LED caisson
+      secondary: '{{ "Allumé" if is_state(entity,"on") else "Éteint" }}'
+      icon: mdi:led-strip-variant
+      icon_color: '{{ "amber" if is_state(entity,"on") else "grey" }}'
+      tap_action:
+        action: toggle
+      card_mod:
+        style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius:
+          22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+    - type: custom:mushroom-chips-card
+      alignment: justify
+      chips:
+      - type: entity
+        entity: sensor.3d_print_temp_temperature
+        icon: mdi:thermometer
+        icon_color: deep-orange
+        content_info: state
+      - type: entity
+        entity: sensor.3d_print_temp_humidity
+        icon: mdi:water-percent
+        icon_color: blue
+        content_info: state
+      - type: entity
+        entity: binary_sensor.imprimante3d_porte_ouverture
+        icon: mdi:door
+        icon_color: orange
+        content_info: state
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: history-graph
+      title: Caisson 24h
+      hours_to_show: 24
+      entities:
+      - entity: sensor.3d_print_temp_temperature
+        name: Température
+      - entity: sensor.3d_print_temp_humidity
+        name: Humidité
+      card_mod:
+        style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius:
+          22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+  - type: grid
+    column_span: 2
+    cards:
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: camera.prusa_mk4s_previsualisation
+        state_not:
+        - unavailable
+        - unknown
+      card:
+        type: vertical-stack
+        cards:
+        - type: heading
+          heading: 🖼️ Prévisualisation
+          heading_style: title
+          card_mod:
+            style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; color:
+              white !important; } ha-card * { color: white !important; }'
+        - type: picture-entity
+          entity: camera.prusa_mk4s_previsualisation
+          show_state: false
+          show_name: false
+          camera_view: auto
+          card_mod:
+            style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius:
+              22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: 🔋 Batteries
+      heading_style: subtitle
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; color: white
+          !important; } ha-card * { color: white !important; }'
+    - type: custom:mushroom-chips-card
+      alignment: justify
+      chips:
+      - type: template
+        entity: sensor.3d_print_temp_battery
+        icon: mdi:battery
+        content: Sonde {{ states(entity) }}%
+        icon_color: '{% set v = states(entity) | int(100) %}{% if v < 20 %}red{% elif v < 50 %}orange{% else %}green{% endif %}'
+      - type: template
+        entity: sensor.porte_imprimante_3d_batterie_10
+        icon: mdi:battery
+        content: Porte {{ states(entity) }}%
+        icon_color: '{% set v = states(entity) | int(100) %}{% if v < 20 %}red{% elif v < 50 %}orange{% else %}green{% endif %}'
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+- title: Bambu A1 mini
+  path: bambu
+  icon: mdi:printer-3d-nozzle
+  theme: home_glass
+  background: "linear-gradient(180deg,\n  rgba(22, 163, 74, 0.45) 0%,\n  rgba(71, 85, 105, 0.45) 50%,\n  rgba(15, 23, 42, 0.65) 100%\n) fixed\n"
+  type: sections
+  max_columns: 2
+  sections:
+  - type: grid
+    column_span: 2
+    cards:
+    - type: conditional
+      conditions:
+      - condition: or
+        conditions:
+        - condition: state
+          entity: binary_sensor.a1mini_0300da610200644_erreur_d_impression
+          state: 'on'
+        - condition: state
+          entity: sensor.a1mini_0300da610200644_etat_de_l_impression
+          state: failed
+      card:
+        type: custom:mushroom-template-card
+        entity: sensor.a1mini_0300da610200644_etat_de_l_impression
+        primary: ⚠️ Intervention requise
+        secondary: '{{ states(entity) | capitalize }} — {{ states("sensor.a1mini_0300da610200644_nom_de_la_tache") }}'
+        icon: mdi:alert-octagon
+        icon_color: red
+        multiline_secondary: true
+        card_mod:
+          style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius: 22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: 📹 En direct
+      heading_style: title
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; color: white !important; } ha-card * { color: white !important; }'
+    - type: picture-entity
+      entity: camera.a1mini_0300da610200644_camera
+      camera_view: live
+      show_state: false
+      show_name: false
+      aspect_ratio: '16:9'
+      card_mod:
+        style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius: 22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: 📊 Statut
+      heading_style: title
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; color: white !important; } ha-card * { color: white !important; }'
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: custom:mushroom-template-card
+        entity: sensor.a1mini_0300da610200644_etat_de_l_impression
+        primary: '{%- set s = states(entity) %}
+          {%- if s == ''running'' %}En impression
+          {%- elif s == ''pause'' %}En pause
+          {%- elif s == ''finish'' %}Terminée
+          {%- elif s == ''idle'' %}Au repos
+          {%- elif s == ''prepare'' %}Préparation
+          {%- elif s == ''slicing'' %}Découpe
+          {%- elif s == ''failed'' %}Échec
+          {%- else %}{{ s | capitalize }}{%- endif %}'
+        secondary: '{% set m = states("sensor.a1mini_0300da610200644_ams_1_emplacement_1") %}{% set f = states("sensor.a1mini_0300da610200644_nom_de_la_tache") %}{% if m not in ["unknown","unavailable","none","Empty"] %}{{ m }} · {% endif %}{{ f if f not in ["unknown","unavailable"] else "—" }}'
+        icon: mdi:file-document-outline
+        icon_color: '{%- set s = states(entity) %}
+          {%- if s == ''running'' %}green
+          {%- elif s == ''finish'' %}green
+          {%- elif s in [''failed''] %}red
+          {%- elif s == ''pause'' %}orange
+          {%- else %}blue{%- endif %}'
+        multiline_secondary: true
+        tap_action:
+          action: more-info
+        card_mod:
+          style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius: 22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+      - type: custom:mushroom-template-card
+        entity: sensor.a1mini_0300da610200644_progression_de_l_impression
+        primary: Avancement {{ states(entity) }}%
+        secondary: 'Couche {{ states("sensor.a1mini_0300da610200644_couche_actuelle") }}/{{ states("sensor.a1mini_0300da610200644_nombre_total_de_couches") }}'
+        icon: '{% set p = states(entity) | int(0) %}
+          {% if p < 25 %}mdi:circle-slice-1
+          {% elif p < 50 %}mdi:circle-slice-3
+          {% elif p < 75 %}mdi:circle-slice-5
+          {% elif p < 100 %}mdi:circle-slice-7
+          {% else %}mdi:circle-slice-8{% endif %}'
+        icon_color: amber
+        multiline_secondary: true
+        tap_action:
+          action: more-info
+        card_mod:
+          style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius: 22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+  - type: grid
+    cards:
+    - type: heading
+      heading: ⏱️ Temps
+      heading_style: title
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; color: white !important; } ha-card * { color: white !important; }'
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: custom:mushroom-template-card
+        entity: sensor.a1mini_0300da610200644_temps_restant
+        primary: Restant
+        secondary: '{% set v = states(entity) %}{{ "%d h %02d min" | format((v|int)//60, (v|int)%60) if v not in ["unknown","unavailable","0","0.0"] else "—" }}'
+        icon: mdi:timer-sand
+        icon_color: amber
+        layout: vertical
+        tap_action:
+          action: more-info
+        card_mod:
+          style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius: 22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+      - type: custom:mushroom-template-card
+        entity: sensor.a1mini_0300da610200644_heure_de_fin
+        primary: Fin estimée
+        secondary: '{{ as_timestamp(states(entity)) | timestamp_custom("%H:%M", true) if states(entity) not in ["unknown","unavailable"] else "—" }}'
+        icon: mdi:flag-checkered
+        icon_color: blue
+        layout: vertical
+        tap_action:
+          action: more-info
+        card_mod:
+          style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius: 22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: 🎮 Contrôles
+      heading_style: title
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; color: white !important; } ha-card * { color: white !important; }'
+    - type: grid
+      columns: 3
+      square: false
+      cards:
+      - type: custom:mushroom-template-card
+        entity: button.a1mini_0300da610200644_pause
+        primary: Pause
+        icon: mdi:pause-circle
+        icon_color: orange
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.a1mini_0300da610200644_pause
+          confirmation:
+            text: Mettre l'impression en pause ?
+        card_mod:
+          style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius: 22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+      - type: custom:mushroom-template-card
+        entity: button.a1mini_0300da610200644_reprise
+        primary: Reprendre
+        icon: mdi:play-circle
+        icon_color: green
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.a1mini_0300da610200644_reprise
+        card_mod:
+          style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius: 22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+      - type: custom:mushroom-template-card
+        entity: button.a1mini_0300da610200644_arret
+        primary: Annuler
+        icon: mdi:stop-circle
+        icon_color: red
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.a1mini_0300da610200644_arret
+          confirmation:
+            text: Annuler définitivement la tâche en cours ?
+        card_mod:
+          style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius: 22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+  - type: grid
+    column_span: 2
+    cards:
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: image.a1mini_0300da610200644_image_du_modele
+        state_not:
+        - unavailable
+        - unknown
+      card:
+        type: vertical-stack
+        cards:
+        - type: heading
+          heading: 🖼️ Modèle
+          heading_style: title
+          card_mod:
+            style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; color: white !important; } ha-card * { color: white !important; }'
+        - type: image
+          image_entity: image.a1mini_0300da610200644_image_du_modele
+          card_mod:
+            style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius: 22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'

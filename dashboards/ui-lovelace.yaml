@@ -1,0 +1,3115 @@
+title: Aperçu
+views:
+- title: Home
+  theme: home_glass
+  background: "linear-gradient(180deg,\n  rgba(255, 212, 168, 0.55) 0%,\n  rgba(213, 181, 232, 0.45) 50%,\n  rgba(184, 212, 240, 0.55) 100%\n) fixed\n"
+  sections:
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      heading: Accueil
+      heading_style: title
+      icon: mdi:home-heart
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: horizontal-stack
+      cards:
+      - type: custom:mushroom-person-card
+        entity: person.kevin_allioli
+        primary_info: name
+        secondary_info: state
+        use_entity_picture: true
+      - type: custom:mushroom-person-card
+        entity: person.loutre
+        primary_info: name
+        secondary_info: state
+        use_entity_picture: true
+    - type: custom:mushroom-chips-card
+      alignment: center
+      chips:
+      - type: weather
+        entity: weather.forecast_maison
+        show_conditions: true
+        show_temperature: true
+      - type: template
+        entity: sensor.weather_station_outdoor_module_temperature
+        icon: mdi:thermometer
+        content: '{{ states(entity) }}°C'
+        icon_color: '{% set v = states(entity) | float(20) %} {% if v < 0 %}blue{% elif v < 10 %}light-blue{% elif v <= 25 %}green{% elif v <= 30 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: entity
+        entity: sensor.maintenance_actions
+        icon_color: '{% set urgent = is_state_attr(''sensor.maintenance_actions'', ''urgent'', true) %} {% set n = states(''sensor.maintenance_actions'') | int(0) %} {% if urgent %}red{% elif n > 0 %}orange{%
+          else %}green{% endif %}'
+        content_info: state
+        tap_action:
+          action: navigate
+          navigation_path: /maintenance-yaml/todo
+      - type: template
+        entity: input_boolean.mode_vacances
+        icon: mdi:beach
+        content: '{{ ''Vacances ON'' if is_state(entity,''on'') else ''Vacances'' }}'
+        icon_color: '{{ ''orange'' if is_state(entity,''on'') else ''grey'' }}'
+        tap_action:
+          action: toggle
+      - type: template
+        entity: sensor.josette_niveau_de_batterie
+        icon: mdi:car-electric
+        content: '{% set v = states(entity) %} {% if v in [''unknown'',''unavailable''] %}🌙{% else %}{{ v }}%{% endif %}'
+        icon_color: '{% set s = states(entity) %} {% if s in [''unknown'',''unavailable''] %}grey {% else %}{% set v = s | int(0) %}{% if v < 20 %}red{% elif v < 40 %}orange{% else %}green{% endif %}{%
+          endif %}'
+        tap_action:
+          action: navigate
+          navigation_path: /josette-yaml/josette
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: sensor.lave_vaisselle_current_status
+          state:
+          - running
+          - wash
+          - rinse
+          - rinsing
+          - spin
+          - spinning
+          - drain
+          - prewash
+          - soak
+          - drying
+          - detecting
+          - refreshing
+          - heat_dry
+          - dispense
+          - cool_down
+          - anti_crease
+          - more_dry
+          - wrinkle_care
+          - steam_softening
+          - rinse_hold
+        chip:
+          type: template
+          entity: sensor.lave_vaisselle_current_status
+          icon: mdi:dishwasher
+          icon_color: blue
+          content: '{% set rem = states("sensor.lave_vaisselle_remaining_time") %}{% if rem and rem not in ["unknown","unavailable","none"] %}{% set mins = ((as_timestamp(rem, 0) - as_timestamp(now()))
+            / 60) | round(0) %}{% if mins > 0 %}LV {% if mins >= 60 %}{{ (mins // 60) }}h{{ "%02d" | format(mins % 60) }}{% else %}{{ mins }} min{% endif %}{% else %}LV bientôt fini{% endif %}{% else %}LV
+            en cours{% endif %}'
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: sensor.lave_linge_hublot_current_status
+          state:
+          - running
+          - wash
+          - rinse
+          - rinsing
+          - spin
+          - spinning
+          - drain
+          - prewash
+          - soak
+          - drying
+          - detecting
+          - refreshing
+          - heat_dry
+          - dispense
+          - cool_down
+          - anti_crease
+          - more_dry
+          - wrinkle_care
+          - steam_softening
+          - rinse_hold
+        chip:
+          type: template
+          entity: sensor.lave_linge_hublot_current_status
+          icon: mdi:washing-machine
+          icon_color: indigo
+          content: '{% set rem = states("sensor.lave_linge_hublot_remaining_time") %}{% if rem and rem not in ["unknown","unavailable","none"] %}{% set mins = ((as_timestamp(rem, 0) - as_timestamp(now()))
+            / 60) | round(0) %}{% if mins > 0 %}LL {% if mins >= 60 %}{{ (mins // 60) }}h{{ "%02d" | format(mins % 60) }}{% else %}{{ mins }} min{% endif %}{% else %}LL bientôt fini{% endif %}{% else %}LL
+            en cours{% endif %}'
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: sensor.seche_linge_current_status
+          state:
+          - running
+          - wash
+          - rinse
+          - rinsing
+          - spin
+          - spinning
+          - drain
+          - prewash
+          - soak
+          - drying
+          - detecting
+          - refreshing
+          - heat_dry
+          - dispense
+          - cool_down
+          - anti_crease
+          - more_dry
+          - wrinkle_care
+          - steam_softening
+          - rinse_hold
+        chip:
+          type: template
+          entity: sensor.seche_linge_current_status
+          icon: mdi:tumble-dryer
+          icon_color: purple
+          content: '{% set rem = states("sensor.seche_linge_remaining_time") %}{% if rem and rem not in ["unknown","unavailable","none"] %}{% set mins = ((as_timestamp(rem, 0) - as_timestamp(now())) / 60)
+            | round(0) %}{% if mins > 0 %}SL {% if mins >= 60 %}{{ (mins // 60) }}h{{ "%02d" | format(mins % 60) }}{% else %}{{ mins }} min{% endif %}{% else %}SL bientôt fini{% endif %}{% else %}SL en
+            cours{% endif %}'
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: sensor.four_machine_state
+          state:
+          - running
+          - operating
+        chip:
+          type: template
+          entity: sensor.four_machine_state
+          icon: mdi:stove
+          icon_color: '{% set t = states(''sensor.four_temperature'') | float(0) %}{% set sp = states(''sensor.four_set_point'') | float(0) %}{% if t >= sp - 1 %}green{% else %}deep-orange{% endif %}'
+          content: '{% set t = states(''sensor.four_temperature'') | float(0) %}{% set sp = states(''sensor.four_set_point'') | float(0) %}{% set rem = states(''sensor.four_completion_time'') %}{% if sp
+            > 0 %}{% if t >= sp - 1 %}Four {{ sp | int }}°C ✓{% else %}Four {{ t | int }}°/{{ sp | int }}°{% endif %}{% if rem and rem not in [''unknown'',''unavailable'',''none''] %}{% set mins = ((as_timestamp(rem,
+            0) - as_timestamp(now())) / 60) | round(0) %}{% if mins > 0 %} · {{ mins }} min{% endif %}{% endif %}{% else %}Four en marche{% endif %}'
+          tap_action:
+            action: more-info
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: horizontal-stack
+      cards:
+      - type: picture-entity
+        entity: camera.g4_instant_high_resolution_channel
+        show_state: false
+        show_name: false
+        camera_view: auto
+        aspect_ratio: '16:9'
+  - type: grid
+    column_span: 2
+    cards:
+    - type: horizontal-stack
+      cards:
+      - type: custom:mushroom-template-card
+        primary: Agenda du jour
+        secondary: '{%- set today = now().date() -%}{%- set out = namespace(events=[]) -%}{%- for cal in [''calendar.famille'',''calendar.personnel'',''calendar.travail'',''calendar.gros_champi''] -%}{%-
+          set start = state_attr(cal,''start_time'') -%}{%- set msg = state_attr(cal,''message'') -%}{%- set loc = state_attr(cal,''location'') -%}{%- if start and msg -%}{%- set sdate = strptime(start[:10],''%Y-%m-%d'').date()
+          -%}{%- if sdate == today -%}{%- set entry = start[11:16] ~ ''  ·  '' ~ msg -%}{%- if loc -%}{%- set entry = entry ~ ''  ·  📍 '' ~ loc -%}{%- endif -%}{%- set out.events = out.events + [entry]
+          -%}{%- endif -%}{%- endif -%}{%- endfor -%}{%- if out.events -%}{{ out.events | sort | join(''\n'') }}{%- else -%}Rien aujourd''hui ✨{%- endif -%}'
+        icon: mdi:calendar-today
+        icon_color: blue
+        multiline_secondary: true
+        fill_container: false
+        layout: horizontal
+        tap_action:
+          action: navigate
+          navigation_path: /maintenance-yaml/calendrier
+        card_mod:
+          style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius:
+            22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+      - type: custom:mushroom-template-card
+        entity: sensor.parcel_app_parcel_active_shipment
+        primary: '{{ states(entity) | int(0) }}'
+        secondary: '{% set n = states(entity) | int(0) %}{% if n == 0 %}Pas de colis en cours{% elif n == 1 %}Colis en livraison{% else %}Colis en livraison{% endif %}'
+        icon: mdi:truck-fast
+        icon_color: '{% set n = states(entity) | int(0) %}{% if n == 0 %}grey{% elif n < 3 %}blue{% else %}purple{% endif %}'
+        layout: horizontal
+        fill_container: false
+        multiline_secondary: true
+        tap_action:
+          action: navigate
+          navigation_path: /maintenance-yaml/colis
+        card_mod:
+          style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius:
+            22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+      - type: custom:mushroom-template-card
+        entity: sensor.parcel_app_parcel_active_shipment
+        primary: '{{ state_attr(entity,''delivered_today'') | int(0) }}'
+        secondary: '{% set n = state_attr(entity,''delivered_today'') | int(0) %}{% if n == 0 %}Aucun livré aujourd''hui{% elif n == 1 %}Colis livré aujourd''hui{% else %}Colis livrés aujourd''hui{% endif
+          %}'
+        icon: mdi:package-check
+        icon_color: '{% set n = state_attr(''sensor.parcel_app_parcel_active_shipment'',''delivered_today'') | int(0) %}{% if n == 0 %}grey{% else %}green{% endif %}'
+        layout: horizontal
+        fill_container: false
+        multiline_secondary: true
+        tap_action:
+          action: navigate
+          navigation_path: /maintenance-yaml/colis
+        card_mod:
+          style: 'ha-card { background: rgba(255, 255, 255, 0.30) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border-radius:
+            22px !important; border: 1px solid rgba(255, 255, 255, 0.6) !important; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.10) !important; }'
+  - type: grid
+    column_span: 2
+    cards:
+    - type: heading
+      icon: mdi:lightning-bolt
+      heading_style: title
+      heading: Électricité
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: horizontal-stack
+      cards:
+      - type: custom:mushroom-template-card
+        entity: sensor.current_tariff_price
+        primary: '{{ state_attr(entity,''period'') }} {{ state_attr(entity,''color'') }}'
+        secondary: Tarif en cours
+        icon: '{% set p = state_attr(entity,''period'') %} {% if p == ''HC'' %}mdi:weather-night{% else %}mdi:weather-sunny{% endif %}'
+        icon_color: '{% set c = state_attr(entity,''color'') %} {% if c == ''Bleu'' %}blue{% elif c == ''Blanc'' %}grey{% elif c == ''Rouge'' %}red{% else %}grey{% endif %}'
+        tap_action:
+          action: more-info
+      - type: custom:mushroom-template-card
+        entity: sensor.energy_daily_cost
+        primary: '{{ states(entity) }} €'
+        secondary: Coût aujourd'hui
+        icon: mdi:currency-eur
+        icon_color: amber
+        tap_action:
+          action: more-info
+    - type: custom:mushroom-chips-card
+      alignment: justify
+      chips:
+      - type: template
+        entity: sensor.rte_tempo_prochaine_couleur
+        icon: mdi:calendar-tomorrow
+        content: 'Demain : {{ states(entity) }}'
+        icon_color: '{% if is_state(entity,''Blanc'') %}grey {% elif is_state(entity,''Bleu'') %}blue {% elif is_state(entity,''Rouge'') %}red {% else %}grey{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.rte_tempo_cycle_jours_restants_bleu
+        icon: mdi:square
+        content: '{{ states(entity) }}j'
+        icon_color: blue
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.rte_tempo_cycle_jours_restants_blanc
+        icon: mdi:square-outline
+        content: '{{ states(entity) }}j'
+        icon_color: grey
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.rte_tempo_cycle_jours_restants_rouge
+        icon: mdi:square
+        content: '{{ states(entity) }}j'
+        icon_color: red
+        tap_action:
+          action: more-info
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: horizontal-stack
+      cards:
+      - type: gauge
+        entity: sensor.beembox_18562_puissance
+        needle: true
+        min: 0
+        max: 300
+        name: Production
+        severity:
+          green: 200
+          yellow: 100
+          red: 0
+      - type: gauge
+        entity: sensor.grid_import
+        needle: true
+        min: 0
+        max: 5000
+        name: Import réseau
+        severity:
+          green: 0
+          yellow: 1500
+          red: 3000
+  - type: grid
+    cards:
+    - type: heading
+      heading: Entrée
+      heading_style: title
+      icon: mdi:door-closed
+      tap_action:
+        action: navigate
+        navigation_path: '#entree-popup'
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-chips-card
+      chips:
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: media_player.echo_dot
+          state: playing
+        chip:
+          type: template
+          entity: media_player.echo_dot
+          icon: mdi:speaker
+          content: '{{ state_attr(entity,''media_title'') or ''En lecture'' }}'
+          icon_color: blue
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: binary_sensor.detecteur_entree_mouvement
+          state: 'on'
+        chip:
+          type: template
+          entity: binary_sensor.detecteur_entree_mouvement
+          icon: mdi:motion-sensor
+          icon_color: green
+          content: Présence
+          tap_action:
+            action: more-info
+      - type: template
+        entity: lock.smart_lock_pro
+        icon: '{% if is_state(entity,''locked'') %}mdi:lock{% else %}mdi:lock-open-variant{% endif %}'
+        content: '{{ ''Verrouillée'' if is_state(entity,''locked'') else ''Déverrouillée'' }}'
+        icon_color: '{{ ''green'' if is_state(entity,''locked'') else ''red'' }}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.ficus_soil_moisture
+        icon: mdi:sprout
+        content: '{{ states(entity) }}%'
+        icon_color: '{% set v = states(entity) | float(100) %} {% if v < 25 %}red{% elif v < 40 %}orange{% else %}green{% endif %}'
+        tap_action:
+          action: more-info
+      - type: conditional
+        conditions:
+        - condition: or
+          conditions:
+          - condition: state
+            entity: light.entree_plafonnier
+            state: 'on'
+          - condition: state
+            entity: light.lampe_glacon
+            state: 'on'
+        chip:
+          type: template
+          entity: '{{ states.light | selectattr(''entity_id'',''in'', area_entities(''entree'')) | map(attribute=''entity_id'') | list | first }}'
+          icon: mdi:lightbulb-on
+          content: '{% set in_area = area_entities(''entree'') %}{% set lights = states.light | selectattr(''entity_id'',''in'', in_area) | rejectattr(''attributes.entity_id'',''defined'') | rejectattr(''entity_id'',''match'',''.*_dnd$'') | list %}{% set switches = states.switch | selectattr(''entity_id'',''in'', in_area) | selectattr(''entity_id'',''match'',''.*lampe.*'') | list %}{% set n = (lights + switches) | selectattr(''state'',''eq'',''on'') | list | count %}{{ n }} allumée{{ ''s'' if n > 1 else '''' }}'
+          icon_color: amber
+          tap_action:
+            action: navigate
+            navigation_path: '#entree-popup'
+          visibility:
+          - condition: template
+            value_template: '{% set in_area = area_entities(''entree'') %}{% set lights = states.light | selectattr(''entity_id'',''in'', in_area) | rejectattr(''attributes.entity_id'',''defined'') | rejectattr(''entity_id'',''match'',''.*_dnd$'') | list %}{% set switches = states.switch | selectattr(''entity_id'',''in'', in_area) | selectattr(''entity_id'',''match'',''.*lampe.*'') | list %}{{ (lights + switches) | selectattr(''state'',''eq'',''on'') | list | count > 0 }}'
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: binary_sensor.entree_porte_ouverture
+          state: 'on'
+        chip:
+          type: template
+          entity: binary_sensor.entree_porte_ouverture
+          icon: mdi:door-open
+          icon_color: orange
+          content: Porte
+          tap_action:
+            action: more-info
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: climate.entree
+        state_not:
+        - 'off'
+        - unavailable
+        - unknown
+      card:
+        type: custom:mushroom-climate-card
+        layout: horizontal
+        entity: climate.entree
+        name: Radiateur entrée
+        hvac_modes:
+          - auto
+          - heat
+        show_temperature_control: true
+        collapsible_controls: true
+    - type: custom:auto-entities
+      card:
+        type: grid
+        columns: 2
+        square: false
+      card_param: cards
+      filter:
+        include:
+        - area: entree
+          domain: light
+          options:
+            type: custom:mushroom-light-card
+            layout: horizontal
+            fill_container: false
+            use_light_color: true
+          state: 'on'
+        exclude:
+        - entity_id: '*_dnd'
+        - entity_id: light.entree
+      show_empty: false
+  - type: grid
+    cards:
+    - type: heading
+      heading: Salon
+      heading_style: title
+      icon: mdi:sofa
+      tap_action:
+        action: navigate
+        navigation_path: '#salon-popup'
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-chips-card
+      chips:
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: binary_sensor.g4_instant_person_detected
+          state: 'on'
+        chip:
+          type: template
+          entity: binary_sensor.g4_instant_person_detected
+          icon: mdi:motion-sensor
+          icon_color: green
+          content: Présence
+          tap_action:
+            action: more-info
+      - type: template
+        entity: sensor.weather_station_temperature
+        icon: mdi:thermometer
+        content: '{{ states(entity) }}°C'
+        icon_color: '{% set v = states(entity) | float(20) %} {% if v < 17 %}blue{% elif v <= 22 %}green{% elif v <= 25 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.weather_station_humidite
+        icon: mdi:water-percent
+        content: '{{ states(entity) }}%'
+        icon_color: '{% set v = states(entity) | float(50) %} {% if v < 30 %}red{% elif v < 40 %}orange{% elif v <= 60 %}green{% elif v <= 70 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.weather_station_dioxyde_de_carbone
+        icon: mdi:molecule-co2
+        content: '{{ states(entity) }} ppm'
+        icon_color: '{% set v = states(entity) | float(0) %} {% if v < 1000 %}green{% elif v <= 1500 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.dragonnier_de_madagascar_soil_moisture
+        icon: mdi:spa
+        content: '{{ states(entity) }}%'
+        icon_color: '{% set v = states(entity) | float(100) %} {% if v < 25 %}red{% elif v < 40 %}orange{% else %}green{% endif %}'
+        tap_action:
+          action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: vacuum.s8_pro_ultra
+          state_not:
+          - docked
+          - unknown
+          - unavailable
+          - charging
+          - idle
+        chip:
+          type: template
+          entity: vacuum.s8_pro_ultra
+          icon: mdi:robot-vacuum
+          content: '{{ {''unavailable'':''Indisponible'',''unknown'':''Inconnu'',''none'':''—''}.get(states(entity), state_translated(entity)) }}'
+          icon_color: '{% set s = states(entity) %} {% if s in [''cleaning'',''returning'',''spot_cleaning'',''zone_cleaning'',''room_cleaning''] %}blue {% elif s == ''paused'' %}orange {% elif s in [''error'',''unavailable''] %}red {% else %}grey{% endif %}'
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: media_player.55_the_frame
+          state: playing
+        chip:
+          type: template
+          entity: media_player.55_the_frame
+          icon: mdi:television
+          content: '{{ state_attr(entity,''media_title'') or ''En lecture'' }}'
+          icon_color: blue
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: media_player.apple_tv_4k
+          state: playing
+        chip:
+          type: template
+          entity: media_player.apple_tv_4k
+          icon: mdi:apple
+          content: '{{ state_attr(entity,''media_title'') or ''En lecture'' }}'
+          icon_color: blue
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: or
+          conditions:
+          - condition: state
+            entity: light.salon_plafonnier
+            state: 'on'
+          - condition: state
+            entity: light.lampe_dambiance
+            state: 'on'
+          - condition: state
+            entity: light.hue_play_1
+            state: 'on'
+        chip:
+          type: template
+          entity: '{{ states.light | selectattr(''entity_id'',''in'', area_entities(''salon'')) | map(attribute=''entity_id'') | list | first }}'
+          icon: mdi:lightbulb-on
+          content: '{% set in_area = area_entities(''salon'') %}{% set lights = states.light | selectattr(''entity_id'',''in'', in_area) | rejectattr(''attributes.entity_id'',''defined'') | rejectattr(''entity_id'',''match'',''.*_dnd$'') | list %}{% set switches = states.switch | selectattr(''entity_id'',''in'', in_area) | selectattr(''entity_id'',''match'',''.*lampe.*'') | list %}{% set n = (lights + switches) | selectattr(''state'',''eq'',''on'') | list | count %}{{ n }} allumée{{ ''s'' if n > 1 else '''' }}'
+          icon_color: amber
+          tap_action:
+            action: navigate
+            navigation_path: '#salon-popup'
+          visibility:
+          - condition: template
+            value_template: '{% set in_area = area_entities(''salon'') %}{% set lights = states.light | selectattr(''entity_id'',''in'', in_area) | rejectattr(''attributes.entity_id'',''defined'') | rejectattr(''entity_id'',''match'',''.*_dnd$'') | list %}{% set switches = states.switch | selectattr(''entity_id'',''in'', in_area) | selectattr(''entity_id'',''match'',''.*lampe.*'') | list %}{{ (lights + switches) | selectattr(''state'',''eq'',''on'') | list | count > 0 }}'
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: media_player.entree
+          state: playing
+        chip:
+          type: template
+          entity: media_player.entree
+          icon: mdi:speaker
+          content: '{{ state_attr(entity,''media_title'') or ''En lecture'' }}'
+          icon_color: blue
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: binary_sensor.salon_fenetre_ouverture
+          state: 'on'
+        chip:
+          type: template
+          entity: binary_sensor.salon_fenetre_ouverture
+          icon: mdi:window-open-variant
+          icon_color: orange
+          content: Fenêtre
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: binary_sensor.salon_baie_vitree_ouverture
+          state: 'on'
+        chip:
+          type: template
+          entity: binary_sensor.salon_baie_vitree_ouverture
+          icon: mdi:window-open-variant
+          icon_color: orange
+          content: Baie vitrée
+          tap_action:
+            action: more-info
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: vacuum.s8_pro_ultra
+        state_not:
+        - docked
+        - unknown
+        - unavailable
+        - charging
+        - idle
+      card:
+        type: custom:mushroom-vacuum-card
+        entity: vacuum.s8_pro_ultra
+        commands:
+        - start_pause
+        - return_home
+        name: Robot aspirateur
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: climate.daikinap50458_room_temperature
+        state_not:
+        - 'off'
+        - unavailable
+        - unknown
+      card:
+        type: custom:mushroom-climate-card
+        entity: climate.daikinap50458_room_temperature
+        name: Climatisation
+        hvac_modes:
+        - 'off'
+        - cool
+        - heat
+        - fan_only
+        - dry
+        show_temperature_control: true
+    - type: custom:mushroom-fan-card
+      layout: horizontal
+      entity: fan.core_300s
+      name: Purificateur
+    - type: custom:auto-entities
+      card:
+        type: grid
+        columns: 2
+        square: false
+      card_param: cards
+      filter:
+        include:
+        - area: salon
+          domain: light
+          options:
+            type: custom:mushroom-light-card
+            layout: horizontal
+            fill_container: false
+            use_light_color: true
+          state: 'on'
+        exclude:
+        - entity_id: '*_dnd'
+        - entity_id: light.salon
+      show_empty: false
+  - type: grid
+    cards:
+    - type: heading
+      heading: Cuisine
+      heading_style: title
+      icon: mdi:chef-hat
+      tap_action:
+        action: navigate
+        navigation_path: '#cuisine-popup'
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: climate.cuisine
+        state_not:
+        - 'off'
+        - unavailable
+        - unknown
+      card:
+        type: custom:mushroom-climate-card
+        layout: horizontal
+        entity: climate.cuisine
+        name: Radiateur cuisine
+        hvac_modes:
+          - auto
+          - heat
+        show_temperature_control: true
+        collapsible_controls: true
+    - type: custom:mushroom-chips-card
+      chips:
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: binary_sensor.aqara_presence_multisensor_fp300_occupation
+          state: 'on'
+        chip:
+          type: template
+          entity: binary_sensor.aqara_presence_multisensor_fp300_occupation
+          icon: mdi:motion-sensor
+          icon_color: green
+          content: Présence
+          tap_action:
+            action: more-info
+      - type: template
+        entity: sensor.aqara_presence_multisensor_fp300_temperature
+        icon: mdi:thermometer
+        content: '{{ states(entity) }}°C'
+        icon_color: '{% set v = states(entity) | float(20) %} {% if v < 17 %}blue{% elif v <= 22 %}green{% elif v <= 25 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: number.refrigerateur_fridge_temperature
+        icon: mdi:fridge-outline
+        content: '{{ states(entity) }}°C'
+        icon_color: blue
+        tap_action:
+          action: more-info
+      - type: template
+        entity: number.refrigerateur_freezer_temperature
+        icon: mdi:snowflake
+        content: '{{ states(entity) }}°C'
+        icon_color: light-blue
+        tap_action:
+          action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: binary_sensor.cuisine_fenetre_ouverture
+          state: 'on'
+        chip:
+          type: template
+          entity: binary_sensor.cuisine_fenetre_ouverture
+          icon: mdi:window-open-variant
+          icon_color: orange
+          content: Fenêtre
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: sensor.lave_vaisselle_current_status
+          state:
+          - running
+          - wash
+          - rinse
+          - spin
+          - drain
+          - heat_dry
+          - dispense
+        chip:
+          type: template
+          entity: sensor.lave_vaisselle_current_status
+          icon: mdi:dishwasher
+          content: '{% set tr = {''running'':''En marche'',''wash'':''Lavage'',''rinse'':''Rinçage'',''rinsing'':''Rinçage'',''spin'':''Essorage'',''spinning'':''Essorage'',''drain'':''Vidange'',''prewash'':''Prélavage'',''soak'':''Trempage'',''drying'':''Séchage'',''detecting'':''Détection'',''refreshing'':''Rafraîchissement'',''cool_down'':''Refroidissement'',''cooling'':''Refroidissement'',''end'':''Terminé'',''pause'':''Pause'',''paused'':''Pause'',''power_off'':''Éteint'',''initial'':''Prêt'',''reserved'':''Réservé'',''rinse_hold'':''Rinçage maintenu'',''steam_softening'':''Vapeur'',''sleep'':''Veille'',''error'':''Erreur'',''wrinkle_care'':''Antifroissage'',''night_dry'':''Séchage nuit'',''power_fail'':''Coupure'',''cancel'':''Annulé'',''anti_crease'':''Anti-froissage'',''more_dry'':''Séchage extra'',''heat_dry'':''Séchage chaud'',''dispense'':''Distribution'',''finished'':''Terminé'',''unavailable'':''En veille'',''unknown'':''En veille''} %}{{ tr.get(states(entity), states(entity)) | capitalize }}'
+          icon_color: blue
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: media_player.cuisine
+          state: playing
+        chip:
+          type: template
+          entity: media_player.cuisine
+          icon: mdi:speaker
+          content: '{{ state_attr(entity,''media_title'') or ''En lecture'' }}'
+          icon_color: blue
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: binary_sensor.refrigerateur_porte
+          state: 'on'
+        chip:
+          type: template
+          entity: binary_sensor.refrigerateur_porte
+          icon: mdi:fridge
+          content: Porte frigo ouverte
+          icon_color: orange
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: or
+          conditions:
+          - condition: state
+            entity: light.luminaire_cuisine_7
+            state: 'on'
+          - condition: state
+            entity: light.plan_de_travail_6
+            state: 'on'
+        chip:
+          type: template
+          entity: '{{ states.light | selectattr(''entity_id'',''in'', area_entities(''cuisine'')) | map(attribute=''entity_id'') | list | first }}'
+          icon: mdi:lightbulb-on
+          content: '{% set in_area = area_entities(''cuisine'') %}{% set lights = states.light | selectattr(''entity_id'',''in'', in_area) | rejectattr(''attributes.entity_id'',''defined'') | rejectattr(''entity_id'',''match'',''.*_dnd$'') | list %}{% set switches = states.switch | selectattr(''entity_id'',''in'', in_area) | selectattr(''entity_id'',''match'',''.*lampe.*'') | list %}{% set n = (lights + switches) | selectattr(''state'',''eq'',''on'') | list | count %}{{ n }} allumée{{ ''s'' if n > 1 else '''' }}'
+          icon_color: amber
+          tap_action:
+            action: navigate
+            navigation_path: '#cuisine-popup'
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: sensor.four_machine_state
+          state_not:
+          - ready
+          - 'off'
+          - idle
+          - unknown
+          - unavailable
+        chip:
+          type: template
+          entity: sensor.four_machine_state
+          icon: mdi:stove
+          content: Four {{ state_translated(entity) }}
+          icon_color: deep-orange
+          tap_action:
+            action: more-info
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: switch.machine_a_cafe_alimentation
+        state: 'on'
+      card:
+        type: grid
+        columns: 3
+        square: false
+        cards:
+        - type: custom:mushroom-template-card
+          entity: switch.machine_a_cafe_alimentation
+          primary: Machine
+          icon: mdi:coffee-maker
+          icon_color: '{% if states(''sensor.machine_a_cafe_derniere_erreur'')==''19'' %}orange{% elif is_state(entity,''on'') %}green{% else %}grey{% endif %}'
+          layout: vertical
+          tap_action:
+            action: toggle
+        - type: custom:mushroom-template-card
+          entity: button.machine_a_cafe_preparer_un_espresso
+          primary: Espresso
+          icon: mdi:coffee
+          icon_color: brown
+          layout: vertical
+          tap_action:
+            action: perform-action
+            perform_action: button.press
+            target:
+              entity_id: button.machine_a_cafe_preparer_un_espresso
+        - type: custom:mushroom-template-card
+          entity: button.machine_a_cafe_preparer_un_cafe
+          primary: Café
+          icon: mdi:coffee-outline
+          icon_color: brown
+          layout: vertical
+          tap_action:
+            action: perform-action
+            perform_action: button.press
+            target:
+              entity_id: button.machine_a_cafe_preparer_un_cafe
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: binary_sensor.aqara_presence_multisensor_fp300_occupation
+        state: 'on'
+      card:
+        type: grid
+        columns: 5
+        square: false
+        cards:
+        - type: custom:mushroom-template-card
+          primary: Bouillir
+          icon: mdi:kettle-steam
+          icon_color: red
+          layout: vertical
+          tap_action:
+            action: perform-action
+            perform_action: script.bouilloire_bouillir
+        - type: custom:mushroom-template-card
+          primary: Thé vert
+          icon: mdi:tea
+          icon_color: green
+          layout: vertical
+          tap_action:
+            action: perform-action
+            perform_action: script.bouilloire_the_vert
+        - type: custom:mushroom-template-card
+          primary: Thé noir
+          icon: mdi:tea-outline
+          icon_color: brown
+          layout: vertical
+          tap_action:
+            action: perform-action
+            perform_action: script.bouilloire_the_noir
+        - type: custom:mushroom-template-card
+          primary: Faux café
+          icon: mdi:coffee
+          icon_color: deep-orange
+          layout: vertical
+          tap_action:
+            action: perform-action
+            perform_action: script.bouilloire_faux_cafe
+        - type: custom:mushroom-template-card
+          primary: Éteindre
+          icon: mdi:kettle-off
+          icon_color: grey
+          layout: vertical
+          tap_action:
+            action: perform-action
+            perform_action: script.bouilloire_eteindre
+    - type: custom:auto-entities
+      card:
+        type: grid
+        columns: 2
+        square: false
+      card_param: cards
+      filter:
+        include:
+        - area: cuisine
+          domain: light
+          options:
+            type: custom:mushroom-light-card
+            layout: horizontal
+            fill_container: false
+            use_light_color: true
+          state: 'on'
+        exclude:
+        - entity_id: '*_dnd'
+        - entity_id: light.cuisine
+      show_empty: false
+  - type: grid
+    cards:
+    - type: heading
+      heading: Chambre parentale
+      heading_style: title
+      icon: mdi:bed-king-outline
+      tap_action:
+        action: navigate
+        navigation_path: '#chambre-popup'
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-chips-card
+      chips:
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: binary_sensor.aqara_presence_multisensor_fp300_occupation_2
+          state: 'on'
+        chip:
+          type: template
+          entity: binary_sensor.aqara_presence_multisensor_fp300_occupation_2
+          icon: mdi:motion-sensor
+          icon_color: green
+          content: Présence
+          tap_action:
+            action: more-info
+      - type: template
+        entity: sensor.weather_station_chambre_temperature
+        icon: mdi:thermometer
+        content: '{{ states(entity) }}°C'
+        icon_color: '{% set v = states(entity) | float(20) %} {% if v < 17 %}blue{% elif v <= 22 %}green{% elif v <= 25 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.weather_station_chambre_humidite
+        icon: mdi:water-percent
+        content: '{{ states(entity) }}%'
+        icon_color: '{% set v = states(entity) | float(50) %} {% if v < 30 %}red{% elif v < 40 %}orange{% elif v <= 60 %}green{% elif v <= 70 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.weather_station_chambre_dioxyde_de_carbone
+        icon: mdi:molecule-co2
+        content: '{{ states(entity) }} ppm'
+        icon_color: '{% set v = states(entity) | float(0) %} {% if v < 1000 %}green{% elif v <= 1500 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: humidifier.dual_200s
+          state: 'on'
+        chip:
+          type: template
+          entity: humidifier.dual_200s
+          icon: mdi:air-humidifier
+          icon_color: cyan
+          content: Humidificateur
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: media_player.chambre
+          state: playing
+        chip:
+          type: template
+          entity: media_player.chambre
+          icon: mdi:speaker
+          content: '{{ state_attr(entity,''media_title'') or ''En lecture'' }}'
+          icon_color: blue
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: or
+          conditions:
+          - condition: state
+            entity: light.lit
+            state: 'on'
+          - condition: state
+            entity: light.chambre
+            state: 'on'
+          - condition: state
+            entity: light.hue_go_1_2
+            state: 'on'
+        chip:
+          type: template
+          entity: '{{ states.light | selectattr(''entity_id'',''in'', area_entities(''chambre'')) | map(attribute=''entity_id'') | list | first }}'
+          icon: mdi:lightbulb-on
+          content: '{% set in_area = area_entities(''chambre'') %}{% set lights = states.light | selectattr(''entity_id'',''in'', in_area) | rejectattr(''attributes.entity_id'',''defined'') | rejectattr(''entity_id'',''match'',''.*_dnd$'') | list %}{% set switches = states.switch | selectattr(''entity_id'',''in'', in_area) | selectattr(''entity_id'',''match'',''.*lampe.*'') | list %}{% set n = (lights + switches) | selectattr(''state'',''eq'',''on'') | list | count %}{{ n }} allumée{{ ''s'' if n > 1 else '''' }}'
+          icon_color: amber
+          tap_action:
+            action: navigate
+            navigation_path: '#chambre-popup'
+          visibility:
+          - condition: template
+            value_template: '{% set in_area = area_entities(''chambre'') %}{% set lights = states.light | selectattr(''entity_id'',''in'', in_area) | rejectattr(''attributes.entity_id'',''defined'') | rejectattr(''entity_id'',''match'',''.*_dnd$'') | list %}{% set switches = states.switch | selectattr(''entity_id'',''in'', in_area) | selectattr(''entity_id'',''match'',''.*lampe.*'') | list %}{{ (lights + switches) | selectattr(''state'',''eq'',''on'') | list | count > 0 }}'
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: climate.chambre
+        state_not:
+        - 'off'
+        - unavailable
+        - unknown
+      card:
+        type: custom:mushroom-climate-card
+        layout: horizontal
+        entity: climate.chambre
+        name: Radiateur chambre
+        hvac_modes:
+          - auto
+          - heat
+        show_temperature_control: true
+        collapsible_controls: true
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: climate.clim_bureau
+        state_not:
+        - 'off'
+        - unavailable
+        - unknown
+      card:
+        type: custom:mushroom-climate-card
+        layout: horizontal
+        entity: climate.clim_bureau
+        name: Climatisation
+        hvac_modes:
+        - 'off'
+        - cool
+        - heat
+        - fan_only
+        - dry
+        show_temperature_control: true
+        collapsible_controls: true
+    - type: custom:mushroom-fan-card
+      layout: horizontal
+      entity: fan.core_200s_series
+      name: Purificateur
+    - type: custom:auto-entities
+      show_empty: false
+      card:
+        type: custom:mushroom-chips-card
+        card_mod:
+          style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+      card_param: chips
+      filter:
+        include:
+        - area: chambre
+          options:
+            type: entity
+            icon_color: orange
+            content_info: name
+          state: 'on'
+          entity_id: '*_ouverture'
+    - type: custom:auto-entities
+      card:
+        type: grid
+        columns: 2
+        square: false
+      card_param: cards
+      filter:
+        include:
+        - area: chambre
+          domain: light
+          options:
+            type: custom:mushroom-light-card
+            layout: horizontal
+            fill_container: false
+            use_light_color: true
+          state: 'on'
+        - entity_id: switch.lampe_sel
+          state: 'on'
+          options:
+            type: custom:mushroom-entity-card
+            icon: mdi:lava-lamp
+            icon_color: amber
+            layout: horizontal
+            tap_action:
+              action: toggle
+        exclude:
+        - entity_id: '*_dnd'
+        - entity_id: light.chambre
+      show_empty: false
+  - type: grid
+    cards:
+    - type: heading
+      heading: Chambre Raphaël
+      heading_style: title
+      icon: mdi:cradle
+      tap_action:
+        action: navigate
+        navigation_path: '#raphael-popup'
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-chips-card
+      chips:
+      - type: template
+        entity: sensor.weather_station_chambre_de_raphael_temperature
+        icon: mdi:thermometer
+        content: '{{ states(entity) }}°C'
+        icon_color: '{% set v = states(entity) | float(20) %} {% if v < 17 %}blue{% elif v <= 22 %}green{% elif v <= 25 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.weather_station_chambre_de_raphael_humidite
+        icon: mdi:water-percent
+        content: '{{ states(entity) }}%'
+        icon_color: '{% set v = states(entity) | float(50) %} {% if v < 30 %}red{% elif v < 40 %}orange{% elif v <= 60 %}green{% elif v <= 70 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.weather_station_chambre_de_raphael_dioxyde_de_carbone
+        icon: mdi:molecule-co2
+        content: '{{ states(entity) }} ppm'
+        icon_color: '{% set v = states(entity) | float(0) %} {% if v < 1000 %}green{% elif v <= 1500 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: conditional
+        conditions:
+        - condition: or
+          conditions:
+          - condition: state
+            entity: light.luminaire_chambre_bebe
+            state: 'on'
+          - condition: state
+            entity: light.hue_go_1
+            state: 'on'
+          - condition: state
+            entity: light.hue_ambiance_candle_1
+            state: 'on'
+          - condition: state
+            entity: light.guirlande
+            state: 'on'
+        chip:
+          type: template
+          entity: '{{ states.light | selectattr(''entity_id'',''in'', area_entities(''chambre_enfant'')) | map(attribute=''entity_id'') | list | first }}'
+          icon: mdi:lightbulb-on
+          content: '{% set in_area = area_entities(''chambre_enfant'') %}{% set lights = states.light | selectattr(''entity_id'',''in'', in_area) | rejectattr(''attributes.entity_id'',''defined'') | rejectattr(''entity_id'',''match'',''.*_dnd$'') | list %}{% set switches = states.switch | selectattr(''entity_id'',''in'', in_area) | selectattr(''entity_id'',''match'',''.*lampe.*'') | list %}{% set n = (lights + switches) | selectattr(''state'',''eq'',''on'') | list | count %}{{ n }} allumée{{ ''s'' if n > 1 else '''' }}'
+          icon_color: amber
+          tap_action:
+            action: navigate
+            navigation_path: '#raphael-popup'
+          visibility:
+          - condition: template
+            value_template: '{% set in_area = area_entities(''chambre_enfant'') %}{% set lights = states.light | selectattr(''entity_id'',''in'', in_area) | rejectattr(''attributes.entity_id'',''defined'') | rejectattr(''entity_id'',''match'',''.*_dnd$'') | list %}{% set switches = states.switch | selectattr(''entity_id'',''in'', in_area) | selectattr(''entity_id'',''match'',''.*lampe.*'') | list %}{{ (lights + switches) | selectattr(''state'',''eq'',''on'') | list | count > 0 }}'
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: binary_sensor.raphael_fenetre_ouverture
+          state: 'on'
+        chip:
+          type: template
+          entity: binary_sensor.raphael_fenetre_ouverture
+          icon: mdi:window-open-variant
+          icon_color: orange
+          content: Fenêtre
+          tap_action:
+            action: more-info
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: climate.chambre_damis
+        state_not:
+        - 'off'
+        - unavailable
+        - unknown
+      card:
+        type: custom:mushroom-climate-card
+        layout: horizontal
+        entity: climate.chambre_damis
+        name: Radiateur chambre Raphaël
+        hvac_modes:
+          - auto
+          - heat
+        show_temperature_control: true
+        collapsible_controls: true
+    - type: custom:auto-entities
+      card:
+        type: grid
+        columns: 2
+        square: false
+      card_param: cards
+      filter:
+        include:
+        - area: chambre_enfant
+          domain: light
+          options:
+            type: custom:mushroom-light-card
+            layout: horizontal
+            fill_container: false
+            use_light_color: true
+          state: 'on'
+        exclude:
+        - entity_id: '*_dnd'
+        - entity_id: light.chambre_enfant
+      show_empty: false
+  - type: grid
+    cards:
+    - type: heading
+      heading_style: title
+      heading: Bureau
+      icon: mdi:chair-rolling
+      tap_action:
+        action: navigate
+        navigation_path: '#bureau-popup'
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-chips-card
+      chips:
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: binary_sensor.aqara_presence_multisensor_fp300_occupation_3
+          state: 'on'
+        chip:
+          type: template
+          entity: binary_sensor.aqara_presence_multisensor_fp300_occupation_3
+          icon: mdi:motion-sensor
+          icon_color: green
+          content: Présence
+          tap_action:
+            action: more-info
+      - type: template
+        entity: sensor.weather_station_bureau_temperature
+        icon: mdi:thermometer
+        content: '{{ states(entity) }}°C'
+        icon_color: '{% set v = states(entity) | float(20) %} {% if v < 17 %}blue{% elif v <= 22 %}green{% elif v <= 25 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.weather_station_bureau_humidite
+        icon: mdi:water-percent
+        content: '{{ states(entity) }}%'
+        icon_color: '{% set v = states(entity) | float(50) %} {% if v < 30 %}red{% elif v < 40 %}orange{% elif v <= 60 %}green{% elif v <= 70 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.weather_station_bureau_dioxyde_de_carbone
+        icon: mdi:molecule-co2
+        content: '{{ states(entity) }} ppm'
+        icon_color: '{% set v = states(entity) | float(0) %} {% if v < 1000 %}green{% elif v <= 1500 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.prusa_mk4s
+        icon: mdi:printer-3d-nozzle
+        content: '{% set p = states(''sensor.prusa_mk4s'') %}{% set b = states(''sensor.a1mini_0300da610200644_etat_de_l_impression'') %}{% set act = [''printing'',''busy'',''heating'',''running'',''prepare'',''slicing''] %}{% set done = [''finished'',''complete'',''finish''] %}{% set pausd = [''paused'',''attention'',''pause''] %}{% set fail = [''stopped'',''failed''] %}{% if p in act or b in act %}En impression{% elif p in pausd or b in pausd %}En pause{% elif p in fail or b in fail %}Échec{% elif p in done or b in done %}Terminé{% else %}Prêt{% endif %}'
+        icon_color: '{% set p = states(''sensor.prusa_mk4s'') %}{% set b = states(''sensor.a1mini_0300da610200644_etat_de_l_impression'') %}{% set act = [''printing'',''busy'',''heating'',''running'',''prepare'',''slicing''] %}{% set done = [''finished'',''complete'',''finish''] %}{% set pausd = [''paused'',''attention'',''pause''] %}{% set fail = [''stopped'',''failed''] %}{% if p in act or b in act %}red{% elif p in pausd or b in pausd %}orange{% elif p in fail or b in fail %}red{% elif p in done or b in done %}green{% else %}grey{% endif %}'
+        tap_action:
+          action: navigate
+          navigation_path: /impression-3d-yaml
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: media_player.bureau
+          state: playing
+        chip:
+          type: template
+          entity: media_player.bureau
+          icon: mdi:speaker
+          content: '{{ state_attr(entity,''media_title'') or ''En lecture'' }}'
+          icon_color: blue
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: or
+          conditions:
+          - condition: state
+            entity: light.luminaire_bureau_5
+            state: 'on'
+          - condition: state
+            entity: light.atelier
+            state: 'on'
+          - condition: state
+            entity: light.elements_30f0
+            state: 'on'
+          - condition: state
+            entity: light.wled
+            state: 'on'
+        chip:
+          type: template
+          entity: '{{ states.light | selectattr(''entity_id'',''in'', area_entities(''bureau'')) | map(attribute=''entity_id'') | list | first }}'
+          icon: mdi:lightbulb-on
+          content: '{% set in_area = area_entities(''bureau'') %}{% set lights = states.light | selectattr(''entity_id'',''in'', in_area) | rejectattr(''attributes.entity_id'',''defined'') | rejectattr(''entity_id'',''match'',''.*_dnd$'') | list %}{% set switches = states.switch | selectattr(''entity_id'',''in'', in_area) | selectattr(''entity_id'',''match'',''.*lampe.*'') | list %}{% set n = (lights + switches) | selectattr(''state'',''eq'',''on'') | list | count %}{{ n }} allumée{{ ''s'' if n > 1 else '''' }}'
+          icon_color: amber
+          tap_action:
+            action: navigate
+            navigation_path: '#bureau-popup'
+          visibility:
+          - condition: template
+            value_template: '{% set in_area = area_entities(''bureau'') %}{% set lights = states.light | selectattr(''entity_id'',''in'', in_area) | rejectattr(''attributes.entity_id'',''defined'') | rejectattr(''entity_id'',''match'',''.*_dnd$'') | list %}{% set switches = states.switch | selectattr(''entity_id'',''in'', in_area) | selectattr(''entity_id'',''match'',''.*lampe.*'') | list %}{{ (lights + switches) | selectattr(''state'',''eq'',''on'') | list | count > 0 }}'
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: binary_sensor.bureau_fenetre_ouverture
+          state: 'on'
+        chip:
+          type: template
+          entity: binary_sensor.bureau_fenetre_ouverture
+          icon: mdi:window-open-variant
+          icon_color: orange
+          content: Fenêtre
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: binary_sensor.imprimante3d_porte_ouverture
+          state: 'on'
+        chip:
+          type: template
+          entity: binary_sensor.imprimante3d_porte_ouverture
+          icon: mdi:door-open
+          icon_color: orange
+          content: Porte imprimante 3D
+          tap_action:
+            action: more-info
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: conditional
+      conditions:
+      - condition: state
+        entity: climate.bureau
+        state_not:
+        - 'off'
+        - unavailable
+        - unknown
+      card:
+        type: custom:mushroom-climate-card
+        layout: horizontal
+        entity: climate.bureau
+        name: Radiateur bureau
+        hvac_modes:
+          - auto
+          - heat
+        show_temperature_control: true
+        collapsible_controls: true
+    - type: custom:auto-entities
+      card:
+        type: grid
+        columns: 2
+        square: false
+      card_param: cards
+      filter:
+        include:
+        - area: bureau
+          domain: light
+          options:
+            type: custom:mushroom-light-card
+            layout: horizontal
+            fill_container: false
+            use_light_color: true
+          state: 'on'
+        exclude:
+        - entity_id: '*_dnd'
+        - entity_id: light.bureau
+      show_empty: false
+  - type: grid
+    cards:
+    - type: heading
+      heading: Salle de bain
+      heading_style: title
+      icon: mdi:bathtub-outline
+      tap_action:
+        action: navigate
+        navigation_path: '#sdb-popup'
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-chips-card
+      chips:
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: binary_sensor.detecteur_de_mouvement_sdb_occupation
+          state: 'on'
+        chip:
+          type: template
+          entity: binary_sensor.detecteur_de_mouvement_sdb_occupation
+          icon: mdi:motion-sensor
+          icon_color: green
+          content: Présence
+          tap_action:
+            action: more-info
+      - type: template
+        entity: sensor.temperature_humidity_bathroom_temperature
+        icon: mdi:thermometer
+        content: '{{ states(entity) }}°C'
+        icon_color: '{% set v = states(entity) | float(20) %} {% if v < 17 %}blue{% elif v <= 22 %}green{% elif v <= 25 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.temperature_humidity_bathroom_humidity
+        icon: mdi:water-percent
+        content: '{{ states(entity) }}%'
+        icon_color: '{% set v = states(entity) | float(50) %} {% if v < 40 %}orange{% elif v <= 65 %}blue{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: sensor.lave_linge_hublot_current_status
+          state:
+          - running
+          - wash
+          - rinse
+          - spin
+          - drain
+          - prewash
+          - soak
+        chip:
+          type: template
+          entity: sensor.lave_linge_hublot_current_status
+          icon: mdi:washing-machine
+          content: '{% set tr = {''running'':''En marche'',''wash'':''Lavage'',''rinse'':''Rinçage'',''rinsing'':''Rinçage'',''spin'':''Essorage'',''spinning'':''Essorage'',''drain'':''Vidange'',''prewash'':''Prélavage'',''soak'':''Trempage'',''drying'':''Séchage'',''detecting'':''Détection'',''refreshing'':''Rafraîchissement'',''cool_down'':''Refroidissement'',''cooling'':''Refroidissement'',''end'':''Terminé'',''pause'':''Pause'',''paused'':''Pause'',''power_off'':''Éteint'',''initial'':''Prêt'',''reserved'':''Réservé'',''rinse_hold'':''Rinçage maintenu'',''steam_softening'':''Vapeur'',''sleep'':''Veille'',''error'':''Erreur'',''wrinkle_care'':''Antifroissage'',''night_dry'':''Séchage nuit'',''power_fail'':''Coupure'',''cancel'':''Annulé'',''anti_crease'':''Anti-froissage'',''more_dry'':''Séchage extra'',''heat_dry'':''Séchage chaud'',''dispense'':''Distribution'',''finished'':''Terminé'',''unavailable'':''En veille'',''unknown'':''En veille''} %}{{ tr.get(states(entity), states(entity)) | capitalize }}'
+          icon_color: blue
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: light.luminaire_sdb_3
+          state: 'on'
+        chip:
+          type: template
+          entity: '{{ states.light | selectattr(''entity_id'',''in'', area_entities(''salle_de_bains'')) | map(attribute=''entity_id'') | list | first }}'
+          icon: mdi:lightbulb-on
+          content: '{% set in_area = area_entities(''salle_de_bains'') %}{% set lights = states.light | selectattr(''entity_id'',''in'', in_area) | rejectattr(''attributes.entity_id'',''defined'') | rejectattr(''entity_id'',''match'',''.*_dnd$'') | list %}{% set switches = states.switch | selectattr(''entity_id'',''in'', in_area) | selectattr(''entity_id'',''match'',''.*lampe.*'') | list %}{% set n = (lights + switches) | selectattr(''state'',''eq'',''on'') | list | count %}{{ n }} allumée{{ ''s'' if n > 1 else '''' }}'
+          icon_color: amber
+          tap_action:
+            action: navigate
+            navigation_path: '#sdb-popup'
+          visibility:
+          - condition: template
+            value_template: '{% set in_area = area_entities(''salle_de_bains'') %}{% set lights = states.light | selectattr(''entity_id'',''in'', in_area) | rejectattr(''attributes.entity_id'',''defined'') | rejectattr(''entity_id'',''match'',''.*_dnd$'') | list %}{% set switches = states.switch | selectattr(''entity_id'',''in'', in_area) | selectattr(''entity_id'',''match'',''.*lampe.*'') | list %}{{ (lights + switches) | selectattr(''state'',''eq'',''on'') | list | count > 0 }}'
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:auto-entities
+      show_empty: false
+      card:
+        type: custom:mushroom-chips-card
+        card_mod:
+          style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+      card_param: chips
+      filter:
+        include:
+        - area: salle_de_bains
+          options:
+            type: entity
+            icon_color: orange
+            content_info: name
+          state: 'on'
+          entity_id: '*_ouverture'
+    - type: custom:auto-entities
+      card:
+        type: grid
+        columns: 2
+        square: false
+      card_param: cards
+      filter:
+        include:
+        - area: salle_de_bains
+          domain: light
+          options:
+            type: custom:mushroom-light-card
+            layout: horizontal
+            fill_container: false
+            use_light_color: true
+          state: 'on'
+        exclude:
+        - entity_id: '*_dnd'
+        - entity_id: light.salle_de_bains
+      show_empty: false
+  - type: grid
+    cards:
+    - type: heading
+      heading: Terrasse
+      heading_style: title
+      icon: mdi:balcony
+      tap_action:
+        action: navigate
+        navigation_path: '#terrasse-popup'
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-chips-card
+      chips:
+      - type: template
+        entity: sensor.weather_station_outdoor_module_temperature
+        icon: mdi:thermometer
+        content: '{{ states(entity) }}°C'
+        icon_color: '{% set v = states(entity) | float(20) %} {% if v < 0 %}blue{% elif v < 10 %}light-blue{% elif v <= 25 %}green{% elif v <= 30 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.weather_station_outdoor_module_humidite
+        icon: mdi:water-percent
+        content: '{{ states(entity) }}%'
+        icon_color: '{% set v = states(entity) | float(50) %} {% if v < 30 %}orange{% elif v <= 70 %}green{% else %}blue{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.weather_station_pluviometre_precipitation
+        icon: mdi:weather-pouring
+        content: '{{ states(entity) }} mm/h'
+        icon_color: '{% set v = states(entity) | float(0) %} {% if v == 0 %}grey{% elif v < 2 %}light-blue{% elif v < 10 %}blue{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.weather_station_pluviometre_precipitation_aujourd_hui
+        icon: mdi:water
+        content: '{{ states(entity) }} mm/j'
+        icon_color: blue
+        tap_action:
+          action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: light.lumiere_de_la_terrasse_outlet
+          state: 'on'
+        chip:
+          type: template
+          entity: '{{ states.light | selectattr(''entity_id'',''in'', area_entities(''terrasse'')) | map(attribute=''entity_id'') | list | first }}'
+          icon: mdi:lightbulb-on
+          content: '{% set in_area = area_entities(''terrasse'') %}{% set lights = states.light | selectattr(''entity_id'',''in'', in_area) | rejectattr(''attributes.entity_id'',''defined'') | rejectattr(''entity_id'',''match'',''.*_dnd$'') | list %}{% set switches = states.switch | selectattr(''entity_id'',''in'', in_area) | selectattr(''entity_id'',''match'',''.*lampe.*'') | list %}{% set n = (lights + switches) | selectattr(''state'',''eq'',''on'') | list | count %}{{ n }} allumée{{ ''s'' if n > 1 else '''' }}'
+          icon_color: amber
+          tap_action:
+            action: navigate
+            navigation_path: '#terrasse-popup'
+          visibility:
+          - condition: template
+            value_template: '{% set in_area = area_entities(''terrasse'') %}{% set lights = states.light | selectattr(''entity_id'',''in'', in_area) | rejectattr(''attributes.entity_id'',''defined'') | rejectattr(''entity_id'',''match'',''.*_dnd$'') | list %}{% set switches = states.switch | selectattr(''entity_id'',''in'', in_area) | selectattr(''entity_id'',''match'',''.*lampe.*'') | list %}{{ (lights + switches) | selectattr(''state'',''eq'',''on'') | list | count > 0 }}'
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:auto-entities
+      show_empty: false
+      card:
+        type: custom:mushroom-chips-card
+        card_mod:
+          style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+      card_param: chips
+      filter:
+        include:
+        - area: terrasse
+          options:
+            type: entity
+            icon_color: orange
+            content_info: name
+          state: 'on'
+          entity_id: '*_ouverture'
+    - type: custom:auto-entities
+      card:
+        type: grid
+        columns: 2
+        square: false
+      card_param: cards
+      filter:
+        include:
+        - area: terrasse
+          domain: light
+          options:
+            type: custom:mushroom-light-card
+            layout: horizontal
+            fill_container: false
+            use_light_color: true
+          state: 'on'
+        exclude:
+        - entity_id: '*_dnd'
+        - entity_id: light.terrasse
+      show_empty: false
+  - type: grid
+    cards:
+    - type: heading
+      heading: Dressing
+      heading_style: title
+      icon: mdi:hanger
+      tap_action:
+        action: navigate
+        navigation_path: '#dressing-popup'
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-chips-card
+      chips:
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: light.light_dressing
+          state: 'on'
+        chip:
+          type: template
+          entity: '{{ states.light | selectattr(''entity_id'',''in'', area_entities(''dressing'')) | map(attribute=''entity_id'') | list | first }}'
+          icon: mdi:lightbulb-on
+          content: '{% set in_area = area_entities(''dressing'') %}{% set lights = states.light | selectattr(''entity_id'',''in'', in_area) | rejectattr(''attributes.entity_id'',''defined'') | rejectattr(''entity_id'',''match'',''.*_dnd$'') | list %}{% set switches = states.switch | selectattr(''entity_id'',''in'', in_area) | selectattr(''entity_id'',''match'',''.*lampe.*'') | list %}{% set n = (lights + switches) | selectattr(''state'',''eq'',''on'') | list | count %}{{ n }} allumée{{ ''s'' if n > 1 else '''' }}'
+          icon_color: amber
+          tap_action:
+            action: navigate
+            navigation_path: '#dressing-popup'
+          visibility:
+          - condition: template
+            value_template: '{% set in_area = area_entities(''dressing'') %}{% set lights = states.light | selectattr(''entity_id'',''in'', in_area) | rejectattr(''attributes.entity_id'',''defined'') | rejectattr(''entity_id'',''match'',''.*_dnd$'') | list %}{% set switches = states.switch | selectattr(''entity_id'',''in'', in_area) | selectattr(''entity_id'',''match'',''.*lampe.*'') | list %}{{ (lights + switches) | selectattr(''state'',''eq'',''on'') | list | count > 0 }}'
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: binary_sensor.dressing_ouverture
+          state: 'on'
+        chip:
+          type: template
+          entity: binary_sensor.dressing_ouverture
+          icon: mdi:door-open
+          icon_color: orange
+          content: Porte
+          tap_action:
+            action: more-info
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:auto-entities
+      card:
+        type: grid
+        columns: 2
+        square: false
+      card_param: cards
+      filter:
+        include:
+        - area: dressing
+          domain: light
+          options:
+            type: custom:mushroom-light-card
+            layout: horizontal
+            fill_container: false
+            use_light_color: true
+          state: 'on'
+        exclude:
+        - entity_id: '*_dnd'
+        - entity_id: light.dressing
+      show_empty: false
+  - type: grid
+    cards:
+    - type: heading
+      heading: Toilettes
+      heading_style: title
+      icon: mdi:paper-roll
+      tap_action:
+        action: navigate
+        navigation_path: '#toilettes-popup'
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-chips-card
+      chips:
+      - type: template
+        entity: sensor.toilettes_temperature
+        icon: mdi:thermometer
+        content: '{{ states(entity) }}°C'
+        icon_color: '{% set v = states(entity) | float(20) %} {% if v < 17 %}blue{% elif v <= 24 %}green{% elif v <= 26 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.toilettes_humidity
+        icon: mdi:water-percent
+        content: '{{ states(entity) }}%'
+        icon_color: '{% set v = states(entity) | float(50) %} {% if v < 40 %}orange{% elif v <= 65 %}green{% else %}orange{% endif %}'
+        tap_action:
+          action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: sensor.seche_linge_current_status
+          state:
+          - running
+          - dry
+          - cool
+          - anti_crease
+          - more_dry
+        chip:
+          type: template
+          entity: sensor.seche_linge_current_status
+          icon: mdi:tumble-dryer
+          content: '{% set tr = {''running'':''En marche'',''wash'':''Lavage'',''rinse'':''Rinçage'',''rinsing'':''Rinçage'',''spin'':''Essorage'',''spinning'':''Essorage'',''drain'':''Vidange'',''prewash'':''Prélavage'',''soak'':''Trempage'',''drying'':''Séchage'',''detecting'':''Détection'',''refreshing'':''Rafraîchissement'',''cool_down'':''Refroidissement'',''cooling'':''Refroidissement'',''end'':''Terminé'',''pause'':''Pause'',''paused'':''Pause'',''power_off'':''Éteint'',''initial'':''Prêt'',''reserved'':''Réservé'',''rinse_hold'':''Rinçage maintenu'',''steam_softening'':''Vapeur'',''sleep'':''Veille'',''error'':''Erreur'',''wrinkle_care'':''Antifroissage'',''night_dry'':''Séchage nuit'',''power_fail'':''Coupure'',''cancel'':''Annulé'',''anti_crease'':''Anti-froissage'',''more_dry'':''Séchage extra'',''heat_dry'':''Séchage chaud'',''dispense'':''Distribution'',''finished'':''Terminé'',''unavailable'':''En veille'',''unknown'':''En veille''} %}{{ tr.get(states(entity), states(entity)) | capitalize }}'
+          icon_color: blue
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: light.luminaire_toilettes_2
+          state: 'on'
+        chip:
+          type: template
+          entity: '{{ states.light | selectattr(''entity_id'',''in'', area_entities(''toilettes'')) | map(attribute=''entity_id'') | list | first }}'
+          icon: mdi:lightbulb-on
+          content: '{% set in_area = area_entities(''toilettes'') %}{% set lights = states.light | selectattr(''entity_id'',''in'', in_area) | rejectattr(''attributes.entity_id'',''defined'') | rejectattr(''entity_id'',''match'',''.*_dnd$'') | list %}{% set switches = states.switch | selectattr(''entity_id'',''in'', in_area) | selectattr(''entity_id'',''match'',''.*lampe.*'') | list %}{% set n = (lights + switches) | selectattr(''state'',''eq'',''on'') | list | count %}{{ n }} allumée{{ ''s'' if n > 1 else '''' }}'
+          icon_color: amber
+          tap_action:
+            action: navigate
+            navigation_path: '#toilettes-popup'
+          visibility:
+          - condition: template
+            value_template: '{% set in_area = area_entities(''toilettes'') %}{% set lights = states.light | selectattr(''entity_id'',''in'', in_area) | rejectattr(''attributes.entity_id'',''defined'') | rejectattr(''entity_id'',''match'',''.*_dnd$'') | list %}{% set switches = states.switch | selectattr(''entity_id'',''in'', in_area) | selectattr(''entity_id'',''match'',''.*lampe.*'') | list %}{{ (lights + switches) | selectattr(''state'',''eq'',''on'') | list | count > 0 }}'
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: binary_sensor.toilettes_ouverture
+          state: 'on'
+        chip:
+          type: template
+          entity: binary_sensor.toilettes_ouverture
+          icon: mdi:door-open
+          icon_color: orange
+          content: Porte
+          tap_action:
+            action: more-info
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:auto-entities
+      card:
+        type: grid
+        columns: 2
+        square: false
+      card_param: cards
+      filter:
+        include:
+        - area: toilettes
+          domain: light
+          options:
+            type: custom:mushroom-light-card
+            layout: horizontal
+            fill_container: false
+            use_light_color: true
+          state: 'on'
+        exclude:
+        - entity_id: '*_dnd'
+        - entity_id: light.toilettes
+      show_empty: false
+  - type: grid
+    cards:
+    - type: custom:bubble-card
+      card_type: pop-up
+      hash: '#salon-popup'
+      name: Salon
+      icon: mdi:sofa
+      cards:
+      - type: custom:mushroom-chips-card
+        chips:
+        - type: template
+          entity: sensor.weather_station_temperature
+          icon: mdi:thermometer
+          content: '{{ states(entity) }}°C'
+          icon_color: '{% set v = states(entity) | float(20) %} {% if v < 17 %}blue{% elif v <= 22 %}green{% elif v <= 25 %}orange{% else %}red{% endif %}'
+        - type: template
+          entity: sensor.weather_station_humidite
+          icon: mdi:water-percent
+          content: '{{ states(entity) }}%'
+          icon_color: '{% set v = states(entity) | float(50) %} {% if v < 30 %}red{% elif v < 40 %}orange{% elif v <= 60 %}green{% elif v <= 70 %}orange{% else %}red{% endif %}'
+        - type: template
+          entity: sensor.weather_station_dioxyde_de_carbone
+          icon: mdi:molecule-co2
+          content: '{{ states(entity) }} ppm'
+          icon_color: '{% set v = states(entity) | float(0) %} {% if v < 1000 %}green{% elif v <= 1500 %}orange{% else %}red{% endif %}'
+        card_mod:
+          style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+      - type: custom:mushroom-climate-card
+        entity: climate.salon_2
+        name: Radiateur
+      - type: custom:mushroom-climate-card
+        entity: climate.daikinap50458_room_temperature
+        name: Climatisation
+      - type: custom:mushroom-light-card
+        entity: light.salon_plafonnier
+        name: Luminaire
+      - type: custom:mushroom-light-card
+        entity: light.lampe_dambiance
+      - type: custom:mushroom-light-card
+        entity: light.hue_play_1
+        name: Fauteuil
+      - type: custom:mushroom-cover-card
+        entity: cover.salon_baie_vitree_shutter
+        name: Baie vitrée
+      - type: custom:mushroom-cover-card
+        entity: cover.salon_fenetre_volet_shutter
+        name: Fenêtre
+      - type: custom:mushroom-fan-card
+        layout: horizontal
+        entity: fan.core_300s
+        name: Purificateur
+      - type: custom:mushroom-vacuum-card
+        entity: vacuum.s8_pro_ultra
+        commands:
+        - start_pause
+        - return_home
+        name: Robot aspirateur
+    - type: custom:bubble-card
+      card_type: pop-up
+      hash: '#entree-popup'
+      name: Entrée
+      icon: mdi:door-closed
+      cards:
+      - type: custom:mushroom-lock-card
+        entity: lock.smart_lock_pro
+      - type: custom:mushroom-climate-card
+        entity: climate.entree
+        name: Radiateur
+      - type: custom:mushroom-light-card
+        entity: light.entree_plafonnier
+        name: Luminaire
+      - type: custom:mushroom-light-card
+        entity: light.lampe_glacon
+        name: Lampe glaçon
+    - type: custom:bubble-card
+      card_type: pop-up
+      hash: '#cuisine-popup'
+      name: Cuisine
+      icon: mdi:chef-hat
+      cards:
+      - type: custom:mushroom-climate-card
+        entity: climate.cuisine
+        name: Radiateur
+      - type: custom:mushroom-light-card
+        entity: light.luminaire_cuisine_7
+        name: Luminaire
+      - type: custom:mushroom-light-card
+        entity: light.plan_de_travail_6
+        name: Plan de travail
+      - type: custom:mushroom-cover-card
+        entity: cover.cuisine_volet_shutter
+        name: Fenêtre
+    - type: custom:bubble-card
+      card_type: pop-up
+      hash: '#chambre-popup'
+      name: Chambre parentale
+      icon: mdi:bed-king-outline
+      cards:
+      - type: custom:mushroom-climate-card
+        entity: climate.chambre
+        name: Radiateur
+      - type: custom:mushroom-climate-card
+        entity: climate.clim_bureau
+        name: Climatisation
+      - type: custom:mushroom-light-card
+        entity: light.lit
+      - type: custom:mushroom-light-card
+        entity: light.chambre
+        name: Luminaire
+      - type: custom:mushroom-light-card
+        entity: light.hue_go_1_2
+        name: Hue Go
+      - type: custom:mushroom-fan-card
+        layout: horizontal
+        entity: fan.core_200s_series
+        name: Purificateur
+      - type: tile
+        entity: switch.lampe_sel
+        name: Lampe sel
+        icon: mdi:lamp
+    - type: custom:bubble-card
+      card_type: pop-up
+      hash: '#raphael-popup'
+      name: Chambre Raphaël
+      icon: mdi:cradle
+      cards:
+      - type: custom:mushroom-climate-card
+        entity: climate.chambre_damis
+        name: Radiateur
+      - type: custom:mushroom-light-card
+        entity: light.luminaire_chambre_bebe
+        name: Luminaire
+      - type: custom:mushroom-light-card
+        entity: light.hue_go_1
+        name: Hue Go
+      - type: custom:mushroom-light-card
+        entity: light.hue_ambiance_candle_1
+      - type: custom:mushroom-light-card
+        entity: light.guirlande
+      - type: custom:mushroom-cover-card
+        entity: cover.raphael_volet_shutter
+        name: Fenêtre
+    - type: custom:bubble-card
+      card_type: pop-up
+      hash: '#bureau-popup'
+      name: Bureau
+      icon: mdi:chair-rolling
+      cards:
+      - type: custom:mushroom-climate-card
+        entity: climate.bureau
+        name: Radiateur
+      - type: custom:mushroom-light-card
+        entity: light.luminaire_bureau_5
+        name: Luminaire
+      - type: custom:mushroom-light-card
+        entity: light.atelier
+      - type: custom:mushroom-light-card
+        entity: light.elements_30f0
+      - type: custom:mushroom-light-card
+        entity: light.wled
+        use_light_color: true
+    - type: custom:bubble-card
+      card_type: pop-up
+      hash: '#sdb-popup'
+      name: Salle de bain
+      icon: mdi:bathtub-outline
+      cards:
+      - type: custom:mushroom-light-card
+        entity: light.luminaire_sdb_3
+        name: Luminaire
+    - type: custom:bubble-card
+      card_type: pop-up
+      hash: '#terrasse-popup'
+      name: Terrasse
+      icon: mdi:balcony
+      cards:
+      - type: custom:mushroom-light-card
+        entity: light.lumiere_de_la_terrasse_outlet
+        name: Lumière
+    - type: custom:bubble-card
+      card_type: pop-up
+      hash: '#dressing-popup'
+      name: Dressing
+      icon: mdi:hanger
+      cards:
+      - type: custom:mushroom-light-card
+        entity: light.light_dressing
+        name: Lumière
+    - type: custom:bubble-card
+      card_type: pop-up
+      hash: '#toilettes-popup'
+      name: Toilettes
+      icon: mdi:paper-roll
+      cards:
+      - type: custom:mushroom-light-card
+        entity: light.luminaire_toilettes_2
+        name: Luminaire
+  type: sections
+  max_columns: 4
+  icon: mdi:home-assistant
+  cards: []
+  dense_section_placement: false
+- title: Tout
+  theme: home_glass
+  background: linear-gradient(180deg, rgba(167, 243, 208, 0.50) 0%, rgba(165, 243, 252, 0.45) 50%, rgba(196, 181, 253, 0.50) 100%) fixed
+  sections:
+  - type: grid
+    cards:
+    - type: heading
+      heading: Entrée
+      heading_style: title
+      icon: mdi:door-closed
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-chips-card
+      chips:
+      - type: template
+        entity: media_player.echo_dot
+        icon: mdi:speaker
+        content: '{% if is_state(entity,''playing'') %}{{ state_attr(entity,''media_title'') or ''En lecture'' }}{% else %}Echo Dot{% endif %}'
+        icon_color: '{{ ''blue'' if is_state(entity,''playing'') else ''grey'' }}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: binary_sensor.detecteur_entree_mouvement
+        icon: '{% if is_state(entity,''on'') %}mdi:motion-sensor{% else %}mdi:motion-sensor-off{% endif %}'
+        icon_color: '{% if is_state(entity,''on'') %}green{% else %}grey{% endif %}'
+        content: '{% if is_state(entity,''on'') %}Présence{% elif is_state(entity,''off'') %}Absent{% else %}—{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: lock.smart_lock_pro
+        icon: '{% if is_state(entity,''locked'') %}mdi:lock{% else %}mdi:lock-open-variant{% endif %}'
+        content: '{{ ''Verrouillée'' if is_state(entity,''locked'') else ''Déverrouillée'' }}'
+        icon_color: '{{ ''green'' if is_state(entity,''locked'') else ''red'' }}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.ficus_soil_moisture
+        icon: mdi:sprout
+        content: '{{ states(entity) }}%'
+        icon_color: '{% set v = states(entity) | float(100) %} {% if v < 25 %}red{% elif v < 40 %}orange{% else %}green{% endif %}'
+        tap_action:
+          action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: binary_sensor.entree_porte_ouverture
+          state: 'on'
+        chip:
+          type: template
+          entity: binary_sensor.entree_porte_ouverture
+          icon: mdi:door-open
+          icon_color: orange
+          content: Porte
+          tap_action:
+            action: more-info
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-climate-card
+      layout: horizontal
+      entity: climate.entree
+      name: Radiateur entrée
+      hvac_modes:
+        - auto
+        - heat
+      show_temperature_control: true
+      collapsible_controls: true
+    - type: custom:auto-entities
+      card:
+        type: grid
+        columns: 2
+        square: false
+      card_param: cards
+      entities:
+      filter:
+        include:
+        - area: entree
+          domain: light
+          options:
+            type: custom:mushroom-light-card
+            layout: horizontal
+            fill_container: false
+            use_light_color: true
+        exclude:
+        - entity_id: '*_dnd'
+        - entity_id: light.entree
+      show_empty: false
+    - type: heading
+      heading: Salon
+      heading_style: title
+      icon: mdi:sofa
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-climate-card
+      layout: horizontal
+      entity: climate.salon_2
+      name: Radiateur salon
+      hvac_modes:
+        - auto
+        - heat
+      show_temperature_control: true
+      collapsible_controls: true
+    - type: custom:mushroom-chips-card
+      chips:
+      - type: template
+        entity: binary_sensor.g4_instant_person_detected
+        icon: '{% if is_state(entity,''on'') %}mdi:motion-sensor{% else %}mdi:motion-sensor-off{% endif %}'
+        icon_color: '{% if is_state(entity,''on'') %}green{% else %}grey{% endif %}'
+        content: '{% if is_state(entity,''on'') %}Présence{% elif is_state(entity,''off'') %}Absent{% else %}—{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.weather_station_temperature
+        icon: mdi:thermometer
+        content: '{{ states(entity) }}°C'
+        icon_color: '{% set v = states(entity) | float(20) %} {% if v < 17 %}blue{% elif v <= 22 %}green{% elif v <= 25 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.weather_station_humidite
+        icon: mdi:water-percent
+        content: '{{ states(entity) }}%'
+        icon_color: '{% set v = states(entity) | float(50) %} {% if v < 30 %}red{% elif v < 40 %}orange{% elif v <= 60 %}green{% elif v <= 70 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.weather_station_dioxyde_de_carbone
+        icon: mdi:molecule-co2
+        content: '{{ states(entity) }} ppm'
+        icon_color: '{% set v = states(entity) | float(0) %} {% if v < 1000 %}green{% elif v <= 1500 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.dragonnier_de_madagascar_soil_moisture
+        icon: mdi:spa
+        content: '{{ states(entity) }}%'
+        icon_color: '{% set v = states(entity) | float(100) %} {% if v < 25 %}red{% elif v < 40 %}orange{% else %}green{% endif %}'
+        tap_action:
+          action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: media_player.55_the_frame
+          state: playing
+        chip:
+          type: template
+          entity: media_player.55_the_frame
+          icon: mdi:television
+          content: '{{ state_translated(entity) }}'
+          icon_color: blue
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: media_player.apple_tv_4k
+          state: playing
+        chip:
+          type: template
+          entity: media_player.apple_tv_4k
+          icon: mdi:apple
+          content: '{{ state_translated(entity) }}'
+          icon_color: blue
+          tap_action:
+            action: more-info
+      - type: template
+        entity: media_player.entree
+        icon: mdi:speaker
+        content: '{{ state_translated(entity) }}'
+        icon_color: blue
+        tap_action:
+          action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: binary_sensor.salon_fenetre_ouverture
+          state: 'on'
+        chip:
+          type: template
+          entity: binary_sensor.salon_fenetre_ouverture
+          icon: mdi:window-open-variant
+          icon_color: orange
+          content: Fenêtre
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: binary_sensor.salon_baie_vitree_ouverture
+          state: 'on'
+        chip:
+          type: template
+          entity: binary_sensor.salon_baie_vitree_ouverture
+          icon: mdi:window-open-variant
+          icon_color: orange
+          content: Baie vitrée
+          tap_action:
+            action: more-info
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: custom:mushroom-vacuum-card
+        entity: vacuum.s8_pro_ultra
+        commands:
+        - start_pause
+        - return_home
+        name: Robot aspirateur
+      - type: custom:mushroom-cover-card
+        entity: cover.salon_baie_vitree_shutter
+        name: Baie vitrée
+      - type: custom:mushroom-cover-card
+        entity: cover.salon_fenetre_volet_shutter
+        name: Fenêtre
+      - type: custom:mushroom-fan-card
+        layout: horizontal
+        entity: fan.core_300s
+        name: Purificateur
+    - type: custom:auto-entities
+      card:
+        type: grid
+        columns: 2
+        square: false
+      card_param: cards
+      filter:
+        include:
+        - area: salon
+          domain: light
+          options:
+            type: custom:mushroom-light-card
+            layout: horizontal
+            fill_container: false
+            use_light_color: true
+        exclude:
+        - entity_id: '*_dnd'
+        - entity_id: light.salon
+      show_empty: false
+    - type: custom:mushroom-climate-card
+      entity: climate.daikinap50458_room_temperature
+      name: Climatisation
+    - type: heading
+      heading: Toilettes
+      heading_style: title
+      icon: mdi:paper-roll
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-chips-card
+      chips:
+      - type: template
+        entity: sensor.toilettes_temperature
+        icon: mdi:thermometer
+        content: '{{ states(entity) }}°C'
+        icon_color: '{% set v = states(entity) | float(20) %} {% if v < 17 %}blue{% elif v <= 24 %}green{% elif v <= 26 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.toilettes_humidity
+        icon: mdi:water-percent
+        content: '{{ states(entity) }}%'
+        icon_color: '{% set v = states(entity) | float(50) %} {% if v < 40 %}orange{% elif v <= 65 %}green{% else %}orange{% endif %}'
+        tap_action:
+          action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: sensor.seche_linge_current_status
+          state:
+          - running
+          - dry
+          - cool
+          - anti_crease
+          - more_dry
+        chip:
+          type: template
+          entity: sensor.seche_linge_current_status
+          icon: mdi:tumble-dryer
+          content: '{% set tr = {''running'':''En marche'',''wash'':''Lavage'',''rinse'':''Rinçage'',''rinsing'':''Rinçage'',''spin'':''Essorage'',''spinning'':''Essorage'',''drain'':''Vidange'',''prewash'':''Prélavage'',''soak'':''Trempage'',''drying'':''Séchage'',''detecting'':''Détection'',''refreshing'':''Rafraîchissement'',''cool_down'':''Refroidissement'',''cooling'':''Refroidissement'',''end'':''Terminé'',''pause'':''Pause'',''paused'':''Pause'',''power_off'':''Éteint'',''initial'':''Prêt'',''reserved'':''Réservé'',''rinse_hold'':''Rinçage maintenu'',''steam_softening'':''Vapeur'',''sleep'':''Veille'',''error'':''Erreur'',''wrinkle_care'':''Antifroissage'',''night_dry'':''Séchage nuit'',''power_fail'':''Coupure'',''cancel'':''Annulé'',''anti_crease'':''Anti-froissage'',''more_dry'':''Séchage extra'',''heat_dry'':''Séchage chaud'',''dispense'':''Distribution'',''finished'':''Terminé'',''unavailable'':''En veille'',''unknown'':''En veille''} %}{{ tr.get(states(entity), states(entity)) | capitalize }}'
+          icon_color: blue
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: light.luminaire_toilettes_2
+          state: 'on'
+        chip:
+          type: template
+          entity: '{{ states.light | selectattr(''entity_id'',''in'', area_entities(''toilettes'')) | map(attribute=''entity_id'') | list | first }}'
+          icon: mdi:lightbulb-on
+          content: '{% set in_area = area_entities(''toilettes'') %}{% set lights = states.light | selectattr(''entity_id'',''in'', in_area) | rejectattr(''attributes.entity_id'',''defined'') | rejectattr(''entity_id'',''match'',''.*_dnd$'') | list %}{% set switches = states.switch | selectattr(''entity_id'',''in'', in_area) | selectattr(''entity_id'',''match'',''.*lampe.*'') | list %}{% set n = (lights + switches) | selectattr(''state'',''eq'',''on'') | list | count %}{{ n }} allumée{{ ''s'' if n > 1 else '''' }}'
+          icon_color: amber
+          tap_action:
+            action: navigate
+            navigation_path: '#toilettes-popup'
+          visibility:
+          - condition: template
+            value_template: '{% set in_area = area_entities(''toilettes'') %}{% set lights = states.light | selectattr(''entity_id'',''in'', in_area) | rejectattr(''attributes.entity_id'',''defined'') | rejectattr(''entity_id'',''match'',''.*_dnd$'') | list %}{% set switches = states.switch | selectattr(''entity_id'',''in'', in_area) | selectattr(''entity_id'',''match'',''.*lampe.*'') | list %}{{ (lights + switches) | selectattr(''state'',''eq'',''on'') | list | count > 0 }}'
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: binary_sensor.toilettes_ouverture
+          state: 'on'
+        chip:
+          type: template
+          entity: binary_sensor.toilettes_ouverture
+          icon: mdi:door-open
+          icon_color: orange
+          content: Porte
+          tap_action:
+            action: more-info
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:auto-entities
+      card:
+        type: grid
+        columns: 2
+        square: false
+      card_param: cards
+      entities:
+      filter:
+        include:
+        - area: toilettes
+          domain: light
+          options:
+            type: custom:mushroom-light-card
+            layout: horizontal
+            fill_container: false
+            use_light_color: true
+        exclude:
+        - entity_id: '*_dnd'
+        - entity_id: light.toilettes
+      show_empty: false
+  - type: grid
+    cards:
+    - type: heading
+      heading: Cuisine
+      heading_style: title
+      icon: mdi:chef-hat
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-chips-card
+      chips:
+      - type: template
+        entity: binary_sensor.aqara_presence_multisensor_fp300_occupation
+        icon: '{% if is_state(entity,''on'') %}mdi:motion-sensor{% else %}mdi:motion-sensor-off{% endif %}'
+        icon_color: '{% if is_state(entity,''on'') %}green{% else %}grey{% endif %}'
+        content: '{% if is_state(entity,''on'') %}Présence{% elif is_state(entity,''off'') %}Absent{% else %}—{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.aqara_presence_multisensor_fp300_temperature
+        icon: mdi:thermometer
+        content: '{{ states(entity) }}°C'
+        icon_color: '{% set v = states(entity) | float(20) %} {% if v < 17 %}blue{% elif v <= 22 %}green{% elif v <= 25 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: number.refrigerateur_fridge_temperature
+        icon: mdi:fridge-outline
+        content: '{{ states(entity) }}°C'
+        icon_color: blue
+        tap_action:
+          action: more-info
+      - type: template
+        entity: number.refrigerateur_freezer_temperature
+        icon: mdi:snowflake
+        content: '{{ states(entity) }}°C'
+        icon_color: light-blue
+        tap_action:
+          action: more-info
+      - type: template
+        entity: media_player.cuisine
+        icon: mdi:speaker
+        content: '{{ state_translated(entity) }}'
+        icon_color: blue
+        tap_action:
+          action: more-info
+      - type: conditional
+        conditions: &id001
+        - condition: state
+          entity: sensor.lave_vaisselle_current_status
+          state:
+          - running
+          - wash
+          - rinse
+          - spin
+          - drain
+          - heat_dry
+          - dispense
+        chip:
+          type: template
+          entity: sensor.lave_vaisselle_current_status
+          icon: mdi:dishwasher
+          content: '{% set tr = {''running'':''En marche'',''wash'':''Lavage'',''rinse'':''Rinçage'',''rinsing'':''Rinçage'',''spin'':''Essorage'',''spinning'':''Essorage'',''drain'':''Vidange'',''prewash'':''Prélavage'',''soak'':''Trempage'',''drying'':''Séchage'',''detecting'':''Détection'',''refreshing'':''Rafraîchissement'',''cool_down'':''Refroidissement'',''cooling'':''Refroidissement'',''end'':''Terminé'',''pause'':''Pause'',''paused'':''Pause'',''power_off'':''Éteint'',''initial'':''Prêt'',''reserved'':''Réservé'',''rinse_hold'':''Rinçage maintenu'',''steam_softening'':''Vapeur'',''sleep'':''Veille'',''error'':''Erreur'',''wrinkle_care'':''Antifroissage'',''night_dry'':''Séchage nuit'',''power_fail'':''Coupure'',''cancel'':''Annulé'',''anti_crease'':''Anti-froissage'',''more_dry'':''Séchage extra'',''heat_dry'':''Séchage chaud'',''dispense'':''Distribution'',''finished'':''Terminé'',''unavailable'':''En veille'',''unknown'':''En veille''} %}{{ tr.get(states(entity), states(entity)) | capitalize }}'
+          icon_color: blue
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions: *id001
+        chip:
+          type: template
+          entity: sensor.four_machine_state
+          icon: mdi:stove
+          icon_color: '{% set s = states(entity) %}{% if s in [''running'',''operating''] %}{% set t = states(''sensor.four_temperature'') | float(0) %}{% set sp = states(''sensor.four_set_point'') | float(0) %}{% if t >= sp - 1 %}green{% else %}deep-orange{% endif %}{% else %}grey{% endif %}'
+          content: '{% set s = states(entity) %}{% if s in [''running'',''operating''] %}{% set t = states(''sensor.four_temperature'') | float(0) %}{% set sp = states(''sensor.four_set_point'') | float(0) %}{% set rem = states(''sensor.four_completion_time'') %}{% if sp > 0 %}{% if t >= sp - 1 %}Four {{ sp | int }}°C ✓{% else %}Four {{ t | int }}°/{{ sp | int }}°{% endif %}{% if rem and rem not in [''unknown'',''unavailable'',''none''] %}{% set mins = ((as_timestamp(rem, 0) - as_timestamp(now())) / 60) | round(0) %}{% if mins > 0 %} · {{ mins }} min{% endif %}{% endif %}{% else %}Four en marche{% endif %}{% elif s == ''ready'' %}Four prêt{% else %}Four éteint{% endif %}'
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: binary_sensor.refrigerateur_porte
+          state: 'on'
+        chip:
+          type: template
+          entity: binary_sensor.refrigerateur_porte
+          icon: mdi:fridge
+          content: Porte frigo ouverte
+          icon_color: orange
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: sensor.four_machine_state
+          state_not:
+          - ready
+          - 'off'
+          - idle
+          - unknown
+          - unavailable
+        chip:
+          type: template
+          entity: sensor.four_machine_state
+          icon: mdi:stove
+          content: Four {{ state_translated(entity) }}
+          icon_color: deep-orange
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: binary_sensor.cuisine_fenetre_ouverture
+          state: 'on'
+        chip:
+          type: template
+          entity: binary_sensor.cuisine_fenetre_ouverture
+          icon: mdi:window-open-variant
+          icon_color: orange
+          content: Fenêtre
+          tap_action:
+            action: more-info
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: grid
+      columns: 3
+      square: false
+      cards:
+      - type: custom:mushroom-template-card
+        entity: switch.machine_a_cafe_alimentation
+        primary: Machine
+        icon: mdi:coffee-maker
+        icon_color: '{% if states(''sensor.machine_a_cafe_derniere_erreur'')==''19'' %}orange{% elif is_state(entity,''on'') %}green{% else %}grey{% endif %}'
+        layout: vertical
+        tap_action:
+          action: toggle
+      - type: custom:mushroom-template-card
+        entity: button.machine_a_cafe_preparer_un_espresso
+        primary: Espresso
+        icon: mdi:coffee
+        icon_color: brown
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.machine_a_cafe_preparer_un_espresso
+      - type: custom:mushroom-template-card
+        entity: button.machine_a_cafe_preparer_un_cafe
+        primary: Café
+        icon: mdi:coffee-outline
+        icon_color: brown
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.machine_a_cafe_preparer_un_cafe
+    - type: grid
+      columns: 5
+      square: false
+      cards:
+      - type: custom:mushroom-template-card
+        primary: Bouillir
+        icon: mdi:kettle-steam
+        icon_color: red
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: script.bouilloire_bouillir
+      - type: custom:mushroom-template-card
+        primary: Thé vert
+        icon: mdi:tea
+        icon_color: green
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: script.bouilloire_the_vert
+      - type: custom:mushroom-template-card
+        primary: Thé noir
+        icon: mdi:tea-outline
+        icon_color: brown
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: script.bouilloire_the_noir
+      - type: custom:mushroom-template-card
+        primary: Faux café
+        icon: mdi:coffee
+        icon_color: deep-orange
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: script.bouilloire_faux_cafe
+      - type: custom:mushroom-template-card
+        primary: Éteindre
+        icon: mdi:kettle-off
+        icon_color: grey
+        layout: vertical
+        tap_action:
+          action: perform-action
+          perform_action: script.bouilloire_eteindre
+    - type: custom:mushroom-climate-card
+      layout: horizontal
+      entity: climate.cuisine
+      name: Radiateur cuisine
+      hvac_modes:
+        - auto
+        - heat
+      show_temperature_control: true
+      collapsible_controls: true
+    - type: custom:auto-entities
+      card:
+        type: grid
+        columns: 2
+        square: false
+      card_param: cards
+      filter:
+        include:
+        - area: cuisine
+          domain: light
+          options:
+            type: custom:mushroom-light-card
+            layout: horizontal
+            fill_container: false
+            use_light_color: true
+        exclude:
+        - entity_id: '*_dnd'
+        - entity_id: light.cuisine
+        - entity_id: light.four_lumiere
+      show_empty: false
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: custom:mushroom-light-card
+        entity: light.four_lumiere
+        name: Four Lumière
+        layout: horizontal
+        fill_container: false
+        use_light_color: true
+      - type: custom:mushroom-cover-card
+        entity: cover.cuisine_volet_shutter
+        name: Fenêtre
+    - type: heading
+      heading: Chambre parentale
+      heading_style: title
+      icon: mdi:bed-king-outline
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-chips-card
+      chips:
+      - type: template
+        entity: binary_sensor.aqara_presence_multisensor_fp300_occupation_2
+        icon: '{% if is_state(entity,''on'') %}mdi:motion-sensor{% else %}mdi:motion-sensor-off{% endif %}'
+        icon_color: '{% if is_state(entity,''on'') %}green{% else %}grey{% endif %}'
+        content: '{% if is_state(entity,''on'') %}Présence{% elif is_state(entity,''off'') %}Absent{% else %}—{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.weather_station_chambre_temperature
+        icon: mdi:thermometer
+        content: '{{ states(entity) }}°C'
+        icon_color: '{% set v = states(entity) | float(20) %} {% if v < 17 %}blue{% elif v <= 22 %}green{% elif v <= 25 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.weather_station_chambre_humidite
+        icon: mdi:water-percent
+        content: '{{ states(entity) }}%'
+        icon_color: '{% set v = states(entity) | float(50) %} {% if v < 30 %}red{% elif v < 40 %}orange{% elif v <= 60 %}green{% elif v <= 70 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.weather_station_chambre_dioxyde_de_carbone
+        icon: mdi:molecule-co2
+        content: '{{ states(entity) }} ppm'
+        icon_color: '{% set v = states(entity) | float(0) %} {% if v < 1000 %}green{% elif v <= 1500 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: media_player.chambre
+        icon: mdi:speaker
+        content: '{{ state_translated(entity) }}'
+        icon_color: blue
+        tap_action:
+          action: more-info
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:auto-entities
+      show_empty: false
+      card:
+        type: custom:mushroom-chips-card
+        card_mod:
+          style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+      card_param: chips
+      filter:
+        include:
+        - area: chambre
+          options:
+            type: entity
+            icon_color: orange
+            content_info: name
+          entity_id: '*_ouverture'
+    - type: custom:mushroom-climate-card
+      layout: horizontal
+      entity: climate.chambre
+      name: Radiateur chambre
+      hvac_modes:
+        - auto
+        - heat
+      show_temperature_control: true
+      collapsible_controls: true
+    - type: custom:mushroom-climate-card
+      layout: horizontal
+      entity: climate.clim_bureau
+      name: Climatisation
+      hvac_modes:
+      - 'off'
+      - cool
+      - heat
+      - fan_only
+      - dry
+      show_temperature_control: true
+      collapsible_controls: true
+    - type: custom:mushroom-fan-card
+      layout: horizontal
+      entity: fan.core_200s_series
+      name: Purificateur
+    - type: custom:auto-entities
+      card:
+        type: grid
+        columns: 2
+        square: false
+      card_param: cards
+      entities:
+      - type: custom:mushroom-template-card
+        entity: humidifier.dual_200s
+        primary: Humidificateur
+        secondary: '{% if is_state(entity,''on'') %}En marche · {{ state_attr(entity,''mode'')|default('''') }}{% else %}Éteint{% endif %}'
+        icon: mdi:air-humidifier
+        icon_color: '{{ ''cyan'' if is_state(entity,''on'') else ''grey'' }}'
+        tap_action:
+          action: perform-action
+          perform_action: humidifier.toggle
+          target:
+            entity_id: humidifier.dual_200s
+        layout: horizontal
+        fill_container: false
+      - type: tile
+        entity: switch.lampe_sel
+        name: Lampe sel
+        icon: mdi:lamp
+      filter:
+        include:
+        - area: chambre
+          domain: light
+          options:
+            type: custom:mushroom-light-card
+            layout: horizontal
+            fill_container: false
+            use_light_color: true
+        exclude:
+        - entity_id: '*_dnd'
+        - entity_id: light.chambre
+      show_empty: false
+    - type: heading
+      heading: Salle de bain
+      heading_style: title
+      icon: mdi:bathtub-outline
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-chips-card
+      chips:
+      - type: template
+        entity: binary_sensor.detecteur_de_mouvement_sdb_occupation
+        icon: '{% if is_state(entity,''on'') %}mdi:motion-sensor{% else %}mdi:motion-sensor-off{% endif %}'
+        icon_color: '{% if is_state(entity,''on'') %}green{% else %}grey{% endif %}'
+        content: '{% if is_state(entity,''on'') %}Présence{% elif is_state(entity,''off'') %}Absent{% else %}—{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.temperature_humidity_bathroom_temperature
+        icon: mdi:thermometer
+        content: '{{ states(entity) }}°C'
+        icon_color: '{% set v = states(entity) | float(20) %} {% if v < 17 %}blue{% elif v <= 22 %}green{% elif v <= 25 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.temperature_humidity_bathroom_humidity
+        icon: mdi:water-percent
+        content: '{{ states(entity) }}%'
+        icon_color: '{% set v = states(entity) | float(50) %} {% if v < 40 %}orange{% elif v <= 65 %}blue{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: sensor.lave_linge_hublot_current_status
+          state:
+          - running
+          - wash
+          - rinse
+          - spin
+          - drain
+          - prewash
+          - soak
+        chip:
+          type: template
+          entity: sensor.lave_linge_hublot_current_status
+          icon: mdi:washing-machine
+          content: '{% set tr = {''running'':''En marche'',''wash'':''Lavage'',''rinse'':''Rinçage'',''rinsing'':''Rinçage'',''spin'':''Essorage'',''spinning'':''Essorage'',''drain'':''Vidange'',''prewash'':''Prélavage'',''soak'':''Trempage'',''drying'':''Séchage'',''detecting'':''Détection'',''refreshing'':''Rafraîchissement'',''cool_down'':''Refroidissement'',''cooling'':''Refroidissement'',''end'':''Terminé'',''pause'':''Pause'',''paused'':''Pause'',''power_off'':''Éteint'',''initial'':''Prêt'',''reserved'':''Réservé'',''rinse_hold'':''Rinçage maintenu'',''steam_softening'':''Vapeur'',''sleep'':''Veille'',''error'':''Erreur'',''wrinkle_care'':''Antifroissage'',''night_dry'':''Séchage nuit'',''power_fail'':''Coupure'',''cancel'':''Annulé'',''anti_crease'':''Anti-froissage'',''more_dry'':''Séchage extra'',''heat_dry'':''Séchage chaud'',''dispense'':''Distribution'',''finished'':''Terminé'',''unavailable'':''En veille'',''unknown'':''En veille''} %}{{ tr.get(states(entity), states(entity)) | capitalize }}'
+          icon_color: blue
+          tap_action:
+            action: more-info
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:auto-entities
+      show_empty: false
+      card:
+        type: custom:mushroom-chips-card
+        card_mod:
+          style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+      card_param: chips
+      filter:
+        include:
+        - area: salle_de_bains
+          options:
+            type: entity
+            icon_color: orange
+            content_info: name
+          entity_id: '*_ouverture'
+    - type: custom:auto-entities
+      card:
+        type: grid
+        columns: 2
+        square: false
+      card_param: cards
+      entities:
+      filter:
+        include:
+        - area: salle_de_bains
+          domain: light
+          options:
+            type: custom:mushroom-light-card
+            layout: horizontal
+            fill_container: false
+            use_light_color: true
+        exclude:
+        - entity_id: '*_dnd'
+        - entity_id: light.salle_de_bains
+      show_empty: false
+  - type: grid
+    cards:
+    - type: heading
+      heading: Chambre Raphaël
+      heading_style: title
+      icon: mdi:cradle
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-chips-card
+      chips:
+      - type: template
+        entity: sensor.weather_station_chambre_de_raphael_temperature
+        icon: mdi:thermometer
+        content: '{{ states(entity) }}°C'
+        icon_color: '{% set v = states(entity) | float(20) %} {% if v < 17 %}blue{% elif v <= 22 %}green{% elif v <= 25 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.weather_station_chambre_de_raphael_humidite
+        icon: mdi:water-percent
+        content: '{{ states(entity) }}%'
+        icon_color: '{% set v = states(entity) | float(50) %} {% if v < 30 %}red{% elif v < 40 %}orange{% elif v <= 60 %}green{% elif v <= 70 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.weather_station_chambre_de_raphael_dioxyde_de_carbone
+        icon: mdi:molecule-co2
+        content: '{{ states(entity) }} ppm'
+        icon_color: '{% set v = states(entity) | float(0) %} {% if v < 1000 %}green{% elif v <= 1500 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: binary_sensor.raphael_fenetre_ouverture
+          state: 'on'
+        chip:
+          type: template
+          entity: binary_sensor.raphael_fenetre_ouverture
+          icon: mdi:window-open-variant
+          icon_color: orange
+          content: Fenêtre
+          tap_action:
+            action: more-info
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-climate-card
+      layout: horizontal
+      entity: climate.chambre_damis
+      name: Radiateur chambre Raphaël
+      hvac_modes:
+        - auto
+        - heat
+      show_temperature_control: true
+      collapsible_controls: true
+    - type: custom:auto-entities
+      card:
+        type: grid
+        columns: 2
+        square: false
+      card_param: cards
+      entities:
+      - type: custom:mushroom-cover-card
+        entity: cover.raphael_volet_shutter
+        name: Fenêtre
+      filter:
+        include:
+        - area: chambre_enfant
+          domain: light
+          options:
+            type: custom:mushroom-light-card
+            layout: horizontal
+            fill_container: false
+            use_light_color: true
+        exclude:
+        - entity_id: '*_dnd'
+        - entity_id: light.chambre_enfant
+      show_empty: false
+    - type: heading
+      heading_style: title
+      heading: Bureau
+      icon: mdi:chair-rolling
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-chips-card
+      chips:
+      - type: template
+        entity: binary_sensor.aqara_presence_multisensor_fp300_occupation_3
+        icon: '{% if is_state(entity,''on'') %}mdi:motion-sensor{% else %}mdi:motion-sensor-off{% endif %}'
+        icon_color: '{% if is_state(entity,''on'') %}green{% else %}grey{% endif %}'
+        content: '{% if is_state(entity,''on'') %}Présence{% elif is_state(entity,''off'') %}Absent{% else %}—{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.weather_station_bureau_temperature
+        icon: mdi:thermometer
+        content: '{{ states(entity) }}°C'
+        icon_color: '{% set v = states(entity) | float(20) %} {% if v < 17 %}blue{% elif v <= 22 %}green{% elif v <= 25 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.weather_station_bureau_humidite
+        icon: mdi:water-percent
+        content: '{{ states(entity) }}%'
+        icon_color: '{% set v = states(entity) | float(50) %} {% if v < 30 %}red{% elif v < 40 %}orange{% elif v <= 60 %}green{% elif v <= 70 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.weather_station_bureau_dioxyde_de_carbone
+        icon: mdi:molecule-co2
+        content: '{{ states(entity) }} ppm'
+        icon_color: '{% set v = states(entity) | float(0) %} {% if v < 1000 %}green{% elif v <= 1500 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.prusa_mk4s
+        icon: mdi:printer-3d-nozzle
+        content: '{% set p = states(''sensor.prusa_mk4s'') %}{% set b = states(''sensor.a1mini_0300da610200644_etat_de_l_impression'') %}{% set act = [''printing'',''busy'',''heating'',''running'',''prepare'',''slicing''] %}{% set done = [''finished'',''complete'',''finish''] %}{% set pausd = [''paused'',''attention'',''pause''] %}{% set fail = [''stopped'',''failed''] %}{% if p in act or b in act %}En impression{% elif p in pausd or b in pausd %}En pause{% elif p in fail or b in fail %}Échec{% elif p in done or b in done %}Terminé{% else %}Prêt{% endif %}'
+        icon_color: '{% set p = states(''sensor.prusa_mk4s'') %}{% set b = states(''sensor.a1mini_0300da610200644_etat_de_l_impression'') %}{% set act = [''printing'',''busy'',''heating'',''running'',''prepare'',''slicing''] %}{% set done = [''finished'',''complete'',''finish''] %}{% set pausd = [''paused'',''attention'',''pause''] %}{% set fail = [''stopped'',''failed''] %}{% if p in act or b in act %}red{% elif p in pausd or b in pausd %}orange{% elif p in fail or b in fail %}red{% elif p in done or b in done %}green{% else %}grey{% endif %}'
+        tap_action:
+          action: navigate
+          navigation_path: /impression-3d-yaml
+      - type: template
+        entity: media_player.bureau
+        icon: mdi:speaker
+        content: '{{ state_translated(entity) }}'
+        icon_color: blue
+        tap_action:
+          action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: binary_sensor.bureau_fenetre_ouverture
+          state: 'on'
+        chip:
+          type: template
+          entity: binary_sensor.bureau_fenetre_ouverture
+          icon: mdi:window-open-variant
+          icon_color: orange
+          content: Fenêtre
+          tap_action:
+            action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: binary_sensor.imprimante3d_porte_ouverture
+          state: 'on'
+        chip:
+          type: template
+          entity: binary_sensor.imprimante3d_porte_ouverture
+          icon: mdi:door-open
+          icon_color: orange
+          content: Porte imprimante 3D
+          tap_action:
+            action: more-info
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-climate-card
+      layout: horizontal
+      entity: climate.bureau
+      name: Radiateur bureau
+      hvac_modes:
+        - auto
+        - heat
+      show_temperature_control: true
+      collapsible_controls: true
+    - type: custom:auto-entities
+      card:
+        type: grid
+        columns: 2
+        square: false
+      card_param: cards
+      entities:
+      filter:
+        include:
+        - area: bureau
+          domain: light
+          options:
+            type: custom:mushroom-light-card
+            layout: horizontal
+            fill_container: false
+            use_light_color: true
+        exclude:
+        - entity_id: '*_dnd'
+        - entity_id: light.bureau
+      show_empty: false
+    - type: heading
+      heading: Terrasse
+      heading_style: title
+      icon: mdi:balcony
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-chips-card
+      chips:
+      - type: template
+        entity: sensor.weather_station_outdoor_module_temperature
+        icon: mdi:thermometer
+        content: '{{ states(entity) }}°C'
+        icon_color: '{% set v = states(entity) | float(20) %} {% if v < 0 %}blue{% elif v < 10 %}light-blue{% elif v <= 25 %}green{% elif v <= 30 %}orange{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.weather_station_outdoor_module_humidite
+        icon: mdi:water-percent
+        content: '{{ states(entity) }}%'
+        icon_color: '{% set v = states(entity) | float(50) %} {% if v < 30 %}orange{% elif v <= 70 %}green{% else %}blue{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.weather_station_pluviometre_precipitation
+        icon: mdi:weather-pouring
+        content: '{{ states(entity) }} mm/h'
+        icon_color: '{% set v = states(entity) | float(0) %} {% if v == 0 %}grey{% elif v < 2 %}light-blue{% elif v < 10 %}blue{% else %}red{% endif %}'
+        tap_action:
+          action: more-info
+      - type: template
+        entity: sensor.weather_station_pluviometre_precipitation_aujourd_hui
+        icon: mdi:water
+        content: '{{ states(entity) }} mm/j'
+        icon_color: blue
+        tap_action:
+          action: more-info
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: light.lumiere_de_la_terrasse_outlet
+          state: 'on'
+        chip:
+          type: template
+          entity: '{{ states.light | selectattr(''entity_id'',''in'', area_entities(''terrasse'')) | map(attribute=''entity_id'') | list | first }}'
+          icon: mdi:lightbulb-on
+          content: '{% set in_area = area_entities(''terrasse'') %}{% set lights = states.light | selectattr(''entity_id'',''in'', in_area) | rejectattr(''attributes.entity_id'',''defined'') | rejectattr(''entity_id'',''match'',''.*_dnd$'') | list %}{% set switches = states.switch | selectattr(''entity_id'',''in'', in_area) | selectattr(''entity_id'',''match'',''.*lampe.*'') | list %}{% set n = (lights + switches) | selectattr(''state'',''eq'',''on'') | list | count %}{{ n }} allumée{{ ''s'' if n > 1 else '''' }}'
+          icon_color: amber
+          tap_action:
+            action: navigate
+            navigation_path: '#terrasse-popup'
+          visibility:
+          - condition: template
+            value_template: '{% set in_area = area_entities(''terrasse'') %}{% set lights = states.light | selectattr(''entity_id'',''in'', in_area) | rejectattr(''attributes.entity_id'',''defined'') | rejectattr(''entity_id'',''match'',''.*_dnd$'') | list %}{% set switches = states.switch | selectattr(''entity_id'',''in'', in_area) | selectattr(''entity_id'',''match'',''.*lampe.*'') | list %}{{ (lights + switches) | selectattr(''state'',''eq'',''on'') | list | count > 0 }}'
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:auto-entities
+      show_empty: false
+      card:
+        type: custom:mushroom-chips-card
+        card_mod:
+          style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+      card_param: chips
+      filter:
+        include:
+        - area: terrasse
+          options:
+            type: entity
+            icon_color: orange
+            content_info: name
+          entity_id: '*_ouverture'
+    - type: custom:auto-entities
+      card:
+        type: grid
+        columns: 2
+        square: false
+      card_param: cards
+      entities:
+      filter:
+        include:
+        - area: terrasse
+          domain: light
+          options:
+            type: custom:mushroom-light-card
+            layout: horizontal
+            fill_container: false
+            use_light_color: true
+        exclude:
+        - entity_id: '*_dnd'
+        - entity_id: light.terrasse
+      show_empty: false
+    - type: heading
+      heading: Dressing
+      heading_style: title
+      icon: mdi:hanger
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:mushroom-chips-card
+      chips:
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: light.light_dressing
+          state: 'on'
+        chip:
+          type: template
+          entity: '{{ states.light | selectattr(''entity_id'',''in'', area_entities(''dressing'')) | map(attribute=''entity_id'') | list | first }}'
+          icon: mdi:lightbulb-on
+          content: '{% set in_area = area_entities(''dressing'') %}{% set lights = states.light | selectattr(''entity_id'',''in'', in_area) | rejectattr(''attributes.entity_id'',''defined'') | rejectattr(''entity_id'',''match'',''.*_dnd$'') | list %}{% set switches = states.switch | selectattr(''entity_id'',''in'', in_area) | selectattr(''entity_id'',''match'',''.*lampe.*'') | list %}{% set n = (lights + switches) | selectattr(''state'',''eq'',''on'') | list | count %}{{ n }} allumée{{ ''s'' if n > 1 else '''' }}'
+          icon_color: amber
+          tap_action:
+            action: navigate
+            navigation_path: '#dressing-popup'
+          visibility:
+          - condition: template
+            value_template: '{% set in_area = area_entities(''dressing'') %}{% set lights = states.light | selectattr(''entity_id'',''in'', in_area) | rejectattr(''attributes.entity_id'',''defined'') | rejectattr(''entity_id'',''match'',''.*_dnd$'') | list %}{% set switches = states.switch | selectattr(''entity_id'',''in'', in_area) | selectattr(''entity_id'',''match'',''.*lampe.*'') | list %}{{ (lights + switches) | selectattr(''state'',''eq'',''on'') | list | count > 0 }}'
+      - type: conditional
+        conditions:
+        - condition: state
+          entity: binary_sensor.dressing_ouverture
+          state: 'on'
+        chip:
+          type: template
+          entity: binary_sensor.dressing_ouverture
+          icon: mdi:door-open
+          icon_color: orange
+          content: Porte
+          tap_action:
+            action: more-info
+      card_mod:
+        style: 'ha-card { background: transparent !important; box-shadow: none !important; border: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }'
+    - type: custom:auto-entities
+      card:
+        type: grid
+        columns: 2
+        square: false
+      card_param: cards
+      entities:
+      filter:
+        include:
+        - area: dressing
+          domain: light
+          options:
+            type: custom:mushroom-light-card
+            layout: horizontal
+            fill_container: false
+            use_light_color: true
+        exclude:
+        - entity_id: '*_dnd'
+        - entity_id: light.dressing
+      show_empty: false
