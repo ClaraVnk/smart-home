@@ -5,19 +5,21 @@
 **A real, production Home Assistant setup** — for a household of 2 adults, a baby, a dog and a cat, in a 3rd-floor flat.
 Matter + Zigbee, a Claude AI brain, a nightly voice brief, UniFi cameras, energy tracking, and a touchscreen Pi wall panel.
 
+<p align="center">
 <a href="https://www.home-assistant.io/"><img src="https://img.shields.io/badge/Home_Assistant-%2341BDF5.svg?style=for-the-badge&logo=home-assistant&logoColor=white" alt="Home Assistant"></a>
 <img src="https://img.shields.io/badge/Matter-%231a1a2e.svg?style=for-the-badge&logo=matter&logoColor=white" alt="Matter">
 <img src="https://img.shields.io/badge/Zigbee-%23EB0443.svg?style=for-the-badge&logo=zigbee&logoColor=white" alt="Zigbee">
 <a href="https://www.anthropic.com/"><img src="https://img.shields.io/badge/Claude_AI-%23D97757.svg?style=for-the-badge&logo=anthropic&logoColor=white" alt="Claude AI"></a>
-
+<br>
 <img src="https://img.shields.io/badge/Mushroom-cards-%238E44AD?style=for-the-badge" alt="Mushroom">
 <img src="https://img.shields.io/badge/Passive-smart%20home-%232ECC71?style=for-the-badge" alt="Passive smart home">
 <img src="https://img.shields.io/badge/Mobile-first-%23000000?style=for-the-badge&logo=apple&logoColor=white" alt="Mobile first">
-
+<br>
 <img src="https://img.shields.io/github/license/ClaraVnk/smart-home?style=flat-square&color=blue" alt="License MIT">
 <img src="https://img.shields.io/github/last-commit/ClaraVnk/smart-home?style=flat-square" alt="Last commit">
 <img src="https://img.shields.io/github/stars/ClaraVnk/smart-home?style=flat-square&color=yellow" alt="Stars">
 <img src="https://img.shields.io/github/languages/top/ClaraVnk/smart-home?style=flat-square" alt="Top language">
+</p>
 
 📖 The full story, behind the scenes → **[cyberloutre.fr](https://cyberloutre.fr)**
 
