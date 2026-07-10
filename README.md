@@ -1,133 +1,200 @@
-# Ma maison qui pense
+<h1 align="center">🏠 My House That Thinks</h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Home%20Assistant-41BDF5?logo=home-assistant&logoColor=white" alt="Home Assistant">
-  <img src="https://img.shields.io/badge/Matter-1a1a2e?logo=matter&logoColor=white" alt="Matter">
-  <img src="https://img.shields.io/badge/Zigbee-EB0443?logo=zigbee&logoColor=white" alt="Zigbee">
-  <img src="https://img.shields.io/badge/Mushroom-cards-8E44AD" alt="Mushroom cards">
-  <img src="https://img.shields.io/badge/Claude-AI-D97757?logo=anthropic&logoColor=white" alt="Claude AI">
-  <br>
-  <img src="https://img.shields.io/github/license/ClaraVnk/smart-home?color=blue" alt="License MIT">
-  <img src="https://img.shields.io/github/last-commit/ClaraVnk/smart-home" alt="Last commit">
-  <img src="https://img.shields.io/github/languages/top/ClaraVnk/smart-home" alt="Top language">
-  <img src="https://img.shields.io/badge/passive-smart%20home-2ECC71" alt="Passive smart home">
-  <img src="https://img.shields.io/badge/mobile-first-000000?logo=apple&logoColor=white" alt="Mobile first">
+  A real, production Home Assistant setup for a household of 2 adults + a baby + a dog + a cat,<br>
+  in a 3rd-floor flat. Matter + Zigbee, a Claude AI brain, a nightly voice brief,<br>
+  UniFi cameras, energy tracking, and a touchscreen Pi wall panel in the hallway.
 </p>
 
-> Architecture Home Assistant pour foyer 2 adultes + bébé + chien + chat,
-> appart 3e étage. Pilotage Matter + Zigbee, cerveau Claude AI, brief vocal,
-> caméras UniFi, suivi conso, et un Pi tactile dans l'entrée.
+<p align="center">
+  <a href="https://www.home-assistant.io/"><img src="https://img.shields.io/badge/Home_Assistant-%2341BDF5.svg?style=for-the-badge&logo=home-assistant&logoColor=white" alt="Home Assistant"></a>
+  <img src="https://img.shields.io/badge/Matter-%231a1a2e.svg?style=for-the-badge&logo=matter&logoColor=white" alt="Matter">
+  <img src="https://img.shields.io/badge/Zigbee-%23EB0443.svg?style=for-the-badge&logo=zigbee&logoColor=white" alt="Zigbee">
+  <a href="https://www.anthropic.com/"><img src="https://img.shields.io/badge/Claude_AI-%23D97757.svg?style=for-the-badge&logo=anthropic&logoColor=white" alt="Claude AI"></a>
+  <br>
+  <img src="https://img.shields.io/badge/Mushroom-cards-%238E44AD?style=for-the-badge" alt="Mushroom">
+  <img src="https://img.shields.io/badge/Passive-smart%20home-%232ECC71?style=for-the-badge" alt="Passive smart home">
+  <img src="https://img.shields.io/badge/Mobile-first-%23000000?style=for-the-badge&logo=apple&logoColor=white" alt="Mobile first">
+  <br>
+  <img src="https://img.shields.io/github/license/ClaraVnk/smart-home?style=flat-square&color=blue" alt="License MIT">
+  <img src="https://img.shields.io/github/last-commit/ClaraVnk/smart-home?style=flat-square" alt="Last commit">
+  <img src="https://img.shields.io/github/languages/top/ClaraVnk/smart-home?style=flat-square" alt="Top language">
+</p>
 
-![Aperçu mobile](./screenshots/apercu-mobile.png)
-
-> 📖 Le récit complet, avec captures et coulisses : **[cyberloutre.fr](https://cyberloutre.fr)**
-> Ce dépôt contient le **code réel** (dashboards, automatisations, packages), nettoyé de tout secret.
-
----
-
-## Le principe : "passive smart home"
-
-Pas de "Hey Siri, allume la lumière". La maison observe et agit :
-- La SDB s'allume quand on entre, reste allumée tant qu'on prend une douche,
-  s'éteint quand on en sort
-- Les volets se ferment quand il pleut + une fenêtre est ouverte
-- Le four notifie uniquement les iPhones des personnes présentes
-- Claude AI rédige chaque soir un brief naturel de la journée
-
-C'est silencieux, contextuel, et ça libère du temps mental.
+<p align="center">
+  📖 The full story, behind the scenes: <a href="https://cyberloutre.fr"><b>cyberloutre.fr</b></a>
+</p>
 
 ---
 
-## Explorer le code
+## The idea: a *passive* smart home
 
-| Dossier | Contenu |
-|---------|---------|
-| [`dashboards/`](./dashboards) | `ui-lovelace.yaml` (vue principale « Aperçu » + « Tout ») et les dashboards dédiés (énergie, maintenance, showcase, tablette, Tesla, imprimante 3D). Cartes **Mushroom** + `card_mod`, style glassmorphism, mobile-first. |
+No "Hey Siri, turn on the light." The house observes and acts on its own:
+
+- The bathroom lights up when you walk in, **stays on while you shower**, and turns off when you leave
+- The shutters close when it **rains while a window is open**
+- The oven only notifies the iPhones of people **currently home**
+- Claude AI writes a **natural evening brief** of the day, every night
+
+Quiet, contextual, and it frees up mental space.
+
+---
+
+## 📸 Dashboards
+
+Everything below is built with **[Mushroom cards](https://github.com/piitaya/lovelace-mushroom)** + `card_mod`,
+in a glassmorphism / Apple-like style, **mobile-first**. Full YAML in [`dashboards/`](./dashboards).
+
+### Overview
+
+![Desktop showcase](./screenshots/showcase-desktop.png)
+
+<p align="center">
+  <img src="./screenshots/showcase-mobile-1.png" width="24%">
+  <img src="./screenshots/showcase-mobile-2.png" width="24%">
+  <img src="./screenshots/showcase-mobile-3.png" width="24%">
+  <img src="./screenshots/showcase-mobile-4.png" width="24%">
+  <img src="./screenshots/showcase-mobile-5.png" width="24%">
+  <img src="./screenshots/showcase-mobile-6.png" width="24%">
+  <img src="./screenshots/showcase-mobile-7.png" width="24%">
+  <img src="./screenshots/showcase-mobile-8.png" width="24%">
+</p>
+
+### Energy
+
+Linky (Lixee TIC over Zigbee) + RTE Tempo tariff + Power Flow Card.
+
+<p align="center">
+  <img src="./screenshots/energy-1.png" width="24%">
+  <img src="./screenshots/energy-2.png" width="24%">
+  <img src="./screenshots/energy-3.png" width="24%">
+  <img src="./screenshots/energy-graph-1.png" width="24%">
+  <img src="./screenshots/energy-graph-2.png" width="24%">
+</p>
+
+### Tempo (EDF Tempo tariff)
+
+<p align="center">
+  <img src="./screenshots/tempo-1.png" width="30%">
+  <img src="./screenshots/tempo-2.png" width="30%">
+</p>
+
+### Maintenance & recurring tasks
+
+Due-date tracking for filters, mopping, fountain, litter… surfaced as actionable cards.
+
+<p align="center">
+  <img src="./screenshots/maintenance-1.png" width="30%">
+  <img src="./screenshots/maintenance-2.png" width="30%">
+  <img src="./screenshots/maintenance-3.png" width="30%">
+</p>
+
+### Batteries · Calendar · Parcels
+
+<p align="center">
+  <img src="./screenshots/batteries.png" width="30%">
+  <img src="./screenshots/calendar.png" width="30%">
+  <img src="./screenshots/parcels.png" width="30%">
+</p>
+
+### Robot vacuum (Roborock S8 Pro Ultra)
+
+<p align="center">
+  <img src="./screenshots/vacuum-1.png" width="30%">
+  <img src="./screenshots/vacuum-2.png" width="30%">
+  <img src="./screenshots/vacuum-3.png" width="30%">
+</p>
+
+### 3D printing (Prusa + Bambu, with Claude vision spaghetti detection)
+
+<p align="center">
+  <img src="./screenshots/printer-1.png" width="30%">
+  <img src="./screenshots/printer-2.png" width="30%">
+  <img src="./screenshots/printer-3.png" width="30%">
+</p>
+
+### Tesla
+
+<p align="center">
+  <img src="./screenshots/tesla-1.png" width="24%">
+  <img src="./screenshots/tesla-2.png" width="24%">
+  <img src="./screenshots/tesla-3.png" width="24%">
+  <img src="./screenshots/tesla-4.png" width="24%">
+</p>
+
+### Wall panel — 7" touchscreen Pi in the hallway
+
+Raspberry Pi + official 7" DSI touchscreen in Chromium kiosk mode. Wakes on Hue
+motion, sleeps 2 min after everyone leaves. YAML in [`dashboards/tablette.yaml`](./dashboards/tablette.yaml).
+
+![Pi wall panel](./screenshots/pi-kiosk.png)
+
+---
+
+## Explore the code
+
+| Folder | Contents |
+|--------|----------|
+| [`dashboards/`](./dashboards) | `ui-lovelace.yaml` (main "Overview" + "Everything" views) and dedicated dashboards (energy, maintenance, showcase, tablet, Tesla, 3D printer). Mushroom + `card_mod`, glassmorphism, mobile-first. |
 | [`automations/`](./automations) | `automations.yaml`, `scripts.yaml`, `scenes.yaml`. |
-| [`packages/`](./packages) | Automatisations groupées par thème (éclairages par pièce, climat salon, veilleuse Raphaël, tâches récurrentes, modes vacances/nounou, Nabaztag, notifications, zones…). |
-| [`secrets.yaml.example`](./secrets.yaml.example) | Les clés `!secret` référencées — à remplir avec vos valeurs. |
+| [`packages/`](./packages) | Automations grouped by theme (per-room lighting, living-room climate, baby night light, recurring tasks, holiday/nanny modes, Nabaztag, notifications, zones…). |
+| [`secrets.yaml.example`](./secrets.yaml.example) | The `!secret` keys referenced across the repo — fill in with your own values. |
 
-> Tous les secrets (tokens, mots de passe, domaine, IP internes, coordonnées GPS)
-> sont externalisés via `!secret` ou redactés. Aucune donnée sensible n'est publiée.
-
----
-
-## 6 automatisations qui me changent la vie
-
-### 🌧️ Pluie + fenêtre ouverte = volets fermés
-Le pluviomètre Netatmo détecte > 0.1 mm/h. Si une fenêtre est restée
-ouverte, les volets exposés se ferment automatiquement + notif iPhone.
-
-### 🚿 Douche en cours = lumière protégée
-Couplage capteur de mouvement Aqara P2 + humidité SDB. Tant que HR > 55%
-et que quelqu'un est dans la pièce, la lumière ne s'éteint pas, même
-sur un appui accidentel ou un timer firmware fantôme.
-→ [`packages/sdb_lampes.yaml`](./packages/sdb_lampes.yaml)
-
-### 🤖 Mercredi/Samedi/Dimanche : aspirateur autonome
-Si tout le monde est absent > 5 min, le Roborock S8 démarre. Si quelqu'un
-rentre, retour dock immédiat. La machine mémorise la zone restante et
-reprend la prochaine fois.
-
-### 🌙 Brief soir 22h via Claude AI
-Snapshot de la journée (conso élec, T° par pièce, présence, anomalies)
-envoyé à Claude Haiku 4.5 qui rédige un brief naturel sur les 2 iPhones.
-Pas un dump de chiffres : un point de situation chaleureux.
-
-### 🖨️ Détection spaghetti Prusa (Claude vision)
-Pendant une impression 3D, toutes les 10 min, snapshot caméra envoyé à
-Claude qui analyse visuellement. Si STATUS=fail détecté : notif iPhone
-avec boutons "Pause" / "Annuler" actionnables.
-
-### 🚨 Four en marche + personne home = alerte critique
-Notif `interruption-level: critical` (passe au-dessus de tous les focus
-iOS) avec bouton "🛑 Arrêter à distance".
+> **Security:** every secret (tokens, passwords, domain, internal IPs, GPS coordinates)
+> is externalized via `!secret` or redacted. No sensitive data is published.
 
 ---
 
-## Le stack
+## ⭐ Signature automations
 
-| Couche | Technos |
-|--------|---------|
+| | Automation |
+|---|---|
+| 🌧️ | **Rain + open window → shutters close.** Netatmo rain gauge > 0.1 mm/h and a window left open → exposed shutters close + iPhone notification. |
+| 🚿 | **Shower in progress → light protected.** Aqara P2 motion + bathroom humidity. While RH > 55% and someone is in the room, the light won't turn off — even on an accidental tap or a phantom firmware timer. → [`packages/sdb_lampes.yaml`](./packages/sdb_lampes.yaml) |
+| 🤖 | **Autonomous vacuum (Wed/Sat/Sun).** Everyone away > 5 min → Roborock starts. Someone comes home → immediate dock return. It remembers the remaining zone and resumes next time. |
+| 🌙 | **10 PM Claude AI brief.** A snapshot of the day (power use, per-room temps, presence, anomalies) goes to Claude Haiku 4.5, which writes a warm, natural situation report to both iPhones — not a dump of numbers. |
+| 🖨️ | **Prusa spaghetti detection (Claude vision).** During a print, every 10 min a camera snapshot is sent to Claude for visual analysis. If it detects a failure: iPhone notification with actionable "Pause" / "Cancel" buttons. |
+| 🚨 | **Oven on + nobody home → critical alert.** `interruption-level: critical` notification (bypasses every iOS focus) with a "🛑 Stop remotely" button. |
+
+---
+
+## The stack
+
+| Layer | Tech |
+|-------|------|
 | **Backbone** | Home Assistant OS · reverse proxy (Pangolin) |
-| **Matter / Zigbee** | Aqara Hub M3 (Bridge Matter) · Zigbee2MQTT · UniFi Protect · Hue |
-| **Climatisation** | Daikin (bridge custom : `input_number` salon = source de vérité) |
-| **Énergie** | Lixee Linky (Zigbee) · RTE Tempo · Power Flow Card+ |
-| **AI** | Anthropic Claude Haiku 4.5 (brief soir + détection vision Prusa) |
-| **Voice** | HA Companion iOS Assist (Voice PE prévu) |
-| **Wall panel** | Raspberry Pi + Display 7" tactile en kiosk Chromium |
-
-![Wall panel Pi 7"](./screenshots/pi-kiosk.png)
+| **Matter / Zigbee** | Aqara Hub M3 (Matter bridge) · Zigbee2MQTT · UniFi Protect · Hue |
+| **Climate** | Daikin (custom bridge: living-room `input_number` = source of truth) |
+| **Energy** | Lixee Linky (Zigbee) · RTE Tempo · Power Flow Card+ |
+| **AI** | Anthropic Claude Haiku 4.5 (evening brief + Prusa vision detection) |
+| **Voice** | HA Companion iOS Assist (Voice PE planned) |
+| **Wall panel** | Raspberry Pi + 7" touchscreen, Chromium kiosk |
 
 ---
 
-## En chiffres
+## By the numbers
 
-- **~160** automatisations actives (YAML + packages)
-- **30+** capteurs Aqara appairés en Matter
-- **4** caméras UniFi avec AI person detection
-- **6** pièces avec capteurs T° / HR / CO₂ individuels
-- **1** brief Claude AI quotidien (~30 cents/mois)
-
----
-
-## Pourquoi pas un système clé en main type Alexa Home ?
-
-1. **Données locales** : tout reste sur le réseau, Anthropic ne voit que
-   les requêtes de brief, pas la maison en continu.
-2. **Pas de cloud propriétaire** : si Aqara/Tesla/Samsung ferment leur
-   service demain, la maison continue de tourner sur le bus local.
-3. **Extensibilité** : nouvelle intégration ? 5 min en YAML. Nouvelle
-   automation ? 30 lignes.
-4. **Coût** : ~5 €/mois (Claude API + électricité).
+- **~160** active automations (YAML + packages)
+- **30+** Aqara sensors paired over Matter
+- **4** UniFi cameras with AI person detection
+- **6** rooms with individual temperature / humidity / CO₂ sensors
+- **1** daily Claude AI brief (~30 cents / month)
 
 ---
 
-## Réutiliser ce dépôt
+## Why not an off-the-shelf system (Alexa Home, etc.)?
 
-Ce code est fourni comme **référence / inspiration**, pas comme un produit
-clé en main : les `entity_id`, `device_id` et noms de pièces sont ceux de
-mon installation. Piochez les patterns (cartes Mushroom, templates Jinja,
-structure en packages) et adaptez.
+1. **Local data** — everything stays on the network; Anthropic only sees the brief requests, not the house in real time.
+2. **No proprietary cloud** — if Aqara / Tesla / Samsung shut down their service tomorrow, the house keeps running on the local bus.
+3. **Extensibility** — new integration? 5 min of YAML. New automation? 30 lines.
+4. **Cost** — ~5 €/month (Claude API + electricity).
 
-🦦 **[cyberloutre.fr](https://cyberloutre.fr)** · code + soin
+---
+
+## Reusing this repo
+
+This is shared as a **reference / inspiration**, not a turnkey product: the `entity_id`s,
+`device_id`s and room names are those of my own install. Grab the patterns (Mushroom cards,
+Jinja templates, package structure) and adapt them.
+
+<p align="center">🦦 <a href="https://cyberloutre.fr"><b>cyberloutre.fr</b></a> · code + care</p>

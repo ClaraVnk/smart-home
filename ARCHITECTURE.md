@@ -1,46 +1,45 @@
 # Architecture
 
-Vue d'ensemble du système. Les IP et le domaine réels sont volontairement
-remplacés par des placeholders.
+System overview. Real IPs and the actual domain are intentionally replaced
+with placeholders.
 
 ```
-                   ┌─ iPhone Companion (notif, Assist, widget Scriptable)
+                   ┌─ iPhone Companion (notifications, Assist, Scriptable widget)
                    │
-    Reverse proxy ── HAOS (IP locale)
+    Reverse proxy ── HAOS (local IP)
        │              │
-       │              ├── Aqara Hub M3 ── (Matter) ── 30+ capteurs Aqara
-       │              ├── Zigbee2MQTT ── Lixee Linky, capteurs, prises
+       │              ├── Aqara Hub M3 ── (Matter) ── 30+ Aqara sensors
+       │              ├── Zigbee2MQTT ── Lixee Linky, sensors, plugs
        │              ├── Hue Bridge ── lights + motion
        │              ├── UniFi Console ── G4 Instant (motion + person_detected)
-       │              ├── Netatmo ── T°/HR/CO₂ par pièce + extérieur + pluviomètre
-       │              ├── Daikin ── clim salon
+       │              ├── Netatmo ── temp/humidity/CO₂ per room + outdoor + rain gauge
+       │              ├── Daikin ── living-room AC
        │              ├── Tesla ── charge, climate, location
        │              ├── Roborock S8 Pro Ultra ── map + zones
-       │              ├── Samsung ── lave-vaisselle / lave-linge / sèche-linge / four
-       │              ├── Prusa + Bambu ── impression 3D
+       │              ├── Samsung ── dishwasher / washer / dryer / oven
+       │              ├── Prusa + Bambu ── 3D printing
        │              ├── Anthropic API ── Claude (brief + vision)
-       │              └── Pi 7" kiosk entrée (Wi-Fi, SSH key)
+       │              └── 7" kiosk Pi in the hallway (Wi-Fi, SSH key)
        │
-       └─ accès distant (home.example.com)
+       └─ remote access (home.example.com)
 ```
 
-## Principes de conception
+## Design principles
 
-- **HA = source de vérité.** Les intégrations cloud (HomeKit, Apple, Samsung…)
-  sont exposées *depuis* HA, jamais dépendues *comme* source. On expose vers
-  Apple via un bridge HomeKit ; on ne dépend pas d'Apple → HA.
-- **Config en packages.** Chaque thème (éclairages d'une pièce, climat,
-  veilleuse bébé, modes) est un package autonome dans `packages/` — isolable,
-  lisible, rechargeable.
-- **MQTT via broker externe.** Zigbee2MQTT et HA publient/souscrivent sur un
-  broker MQTT dédié. Auto-discovery MQTT pour les entités Zigbee.
-- **Secrets externalisés.** Tout passe par `!secret` (voir `secrets.yaml.example`).
+- **HA is the source of truth.** Cloud integrations (HomeKit, Apple, Samsung…)
+  are exposed *from* HA, never depended on *as* a data source. We expose to
+  Apple via a HomeKit bridge; we don't depend on Apple → HA.
+- **Config in packages.** Each theme (a room's lighting, climate, the baby's
+  night light, modes) is a self-contained package in `packages/` — isolatable,
+  readable, reloadable.
+- **MQTT via an external broker.** Zigbee2MQTT and HA publish/subscribe on a
+  dedicated MQTT broker, with MQTT auto-discovery for the Zigbee entities.
+- **Externalized secrets.** Everything goes through `!secret` (see `secrets.yaml.example`).
 
-## Le wall panel : Pi 7" tactile dans l'entrée
+## The wall panel: 7" touchscreen Pi in the hallway
 
-Raspberry Pi + écran DSI officiel 7" tactile en mode Chromium kiosk.
-Dashboard panoramique 800×480 : tuiles lumières par pièce (tap = toggle,
-hold = popup), volets motorisés inline, actions globales (Quitter, Sieste,
-Nounou, Vacances), météo + prochain événement calendrier.
-Réveil sur détection présence Hue motion, veille 2 min après absence.
-Voir [`dashboards/tablette.yaml`](./dashboards/tablette.yaml).
+Raspberry Pi + official 7" DSI touchscreen in Chromium kiosk mode.
+A panoramic 800×480 dashboard: per-room light tiles (tap = toggle, hold = popup),
+motorized shutters with inline controls, global actions (Leaving, Baby nap,
+Nanny, Holiday), weather + next calendar event. Wakes on Hue motion detection,
+sleeps 2 min after everyone leaves. See [`dashboards/tablette.yaml`](./dashboards/tablette.yaml).
