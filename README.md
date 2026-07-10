@@ -1,5 +1,19 @@
 # Ma maison qui pense
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Home%20Assistant-41BDF5?logo=home-assistant&logoColor=white" alt="Home Assistant">
+  <img src="https://img.shields.io/badge/Matter-1a1a2e?logo=matter&logoColor=white" alt="Matter">
+  <img src="https://img.shields.io/badge/Zigbee-EB0443?logo=zigbee&logoColor=white" alt="Zigbee">
+  <img src="https://img.shields.io/badge/Mushroom-cards-8E44AD" alt="Mushroom cards">
+  <img src="https://img.shields.io/badge/Claude-AI-D97757?logo=anthropic&logoColor=white" alt="Claude AI">
+  <br>
+  <img src="https://img.shields.io/github/license/ClaraVnk/smart-home?color=blue" alt="License MIT">
+  <img src="https://img.shields.io/github/last-commit/ClaraVnk/smart-home" alt="Last commit">
+  <img src="https://img.shields.io/github/languages/top/ClaraVnk/smart-home" alt="Top language">
+  <img src="https://img.shields.io/badge/passive-smart%20home-2ECC71" alt="Passive smart home">
+  <img src="https://img.shields.io/badge/mobile-first-000000?logo=apple&logoColor=white" alt="Mobile first">
+</p>
+
 > Architecture Home Assistant pour foyer 2 adultes + bébé + chien + chat,
 > appart 3e étage. Pilotage Matter + Zigbee, cerveau Claude AI, brief vocal,
 > caméras UniFi, suivi conso, et un Pi tactile dans l'entrée.
